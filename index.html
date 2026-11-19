@@ -91,6 +91,19 @@
   .board-tabs .btn{flex:1;}
   .board-tabs .btn.on{background:#111827; color:#fff; border-color:#111827;}
   [data-theme="dark"] .board-tabs .btn.on{background:#F8FAFC; color:#0B1220; border-color:#F8FAFC;}
+  .podium{display:flex; align-items:flex-end; gap:8px; margin:12px 0 6px;}
+  .pod{flex:1; text-align:center; padding:8px 2px 6px;}
+  .pod .medal{font-size:22px;}
+  .pod.first .av{width:64px; height:64px; font-size:26px;}
+  .pod.first .pod-pts{font-size:17px;}
+  .pod-name{font-weight:800; font-size:13.5px; margin-top:4px; overflow-wrap:break-word;}
+  .pod-pts{font-weight:800; font-size:14px; color:#B45309;}
+  .pod-sub{font-size:11.5px; color:var(--muted);}
+  .av{width:44px; height:44px; border-radius:50%; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; flex:0 0 auto;}
+  #congratsAv .av{width:76px; height:76px; font-size:30px;}
+  .lb-rank{align-items:center;}
+  .lb-left{display:flex; align-items:center; gap:10px;}
+  .lb-num{width:20px; text-align:center; color:var(--muted);}
   .ms-row{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 2px; border-bottom:1px solid var(--line);}
   .ms-prize{color:#B45309; font-weight:800;}
   .menu-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
@@ -435,10 +448,11 @@
 <div class="modal-back" id="modalBoard"><div class="modal"><h2>📊 Leaderboard</h2>
 <div class="name-row"><span>Your name</span><input id="playerNameInput" maxlength="24" placeholder="e.g. Tanishq" /><button class="btn small" id="btnSaveName">Save</button></div>
 <p id="nameHint" style="font-size:12.5px; color:var(--muted);">Set your name to appear on the global board — your score posts when you clear a level.</p>
-<div class="board-tabs"><button class="btn small on" id="boardTabWeek">🌍 This week</button><button class="btn small" id="boardTabMonth">🌍 This month</button></div>
+<div class="board-tabs"><button class="btn small on" id="boardTabWeek">Weekly</button><button class="btn small" id="boardTabMonth">Monthly</button><button class="btn small" id="boardTabAll">All-Time</button></div>
 <div id="globalBoard"></div>
 <h3 style="margin:16px 0 4px; text-align:left;">On this device</h3><div id="boardBody"></div>
 <button class="btn" id="btnBoardClose">Close</button></div></div>
+<div class="modal-back" id="modalCongrats"><div class="modal"><h2>🎉 Congratulations!</h2><div id="congratsAv" style="margin:12px 0 4px; text-align:center;"></div><div id="congratsName" style="font-size:19px; font-weight:800;"></div><div id="congratsPts" class="num" style="font-size:16px; font-weight:800; color:#B45309; margin-top:2px;"></div><p id="congratsRank" style="font-weight:800; margin:10px 0 2px;"></p><p id="congratsStars" style="font-size:13px; color:var(--muted);"></p><button class="btn primary" id="btnCongratsBoard">🏆 View Leaderboard</button><button class="btn" id="btnCongratsShare">↗ Share</button><button class="btn" id="btnCongratsHome">⌂ Home</button></div></div>
 <div class="modal-back" id="modalWin"><div class="modal"><h2 id="winTitle">Level Complete!</h2><div class="win-stars" id="winStars"></div><p id="winText">Board cleared.</p><button class="btn primary" id="btnNext">▶ Next Level</button><button class="btn" id="btnWinReplay">↻ Replay</button><button class="btn" id="btnWinLevels">▦ Level Select</button></div></div>
 <div class="modal-back" id="modalUnlock"><div class="modal"><span class="unlock-badge">NEW COLOUR UNLOCKED</span><div class="unlock-swatch" id="unlockSwatch"><svg viewBox="0 0 64 64"><path d="M14 32 H44 M34 18 L50 32 L34 46" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="unlock-name" id="unlockName">Green</div><p id="unlockText">Green arrows now join the maze — permanently, for every level from here on.</p><div class="unlock-pool" id="unlockPool"></div><p style="font-size:12px;">Your colour pool keeps growing every 5 levels.</p><button class="btn primary" id="btnUnlockGo">▶ Let's Play</button></div></div>
 <div class="modal-back" id="modalOver"><div class="modal"><h2 style="color:#DC2626;">Out of Hearts</h2><p id="overText">Three wrong moves. Watch the target colour — and check the exit path before you tap.</p><button class="btn primary" id="btnRetry">↻ Retry Level</button><button class="btn" id="btnOverLevels">▦ Level Select</button></div></div>
@@ -2099,7 +2113,7 @@ function levelComplete(){
   recordStats(Math.max(0,stars-prev), prev===0, G.timeSec);
   saveProgress();
   submitScore(stars);
-  setTimeout(function(){ showWin(stars); },650);
+  setTimeout(function(){ maybeCongrats(stars); },650);
 }
 function checkMovesOut(){ if(!G.won && !G.over && G.moveBudget && G.moves>=G.moveBudget && aliveArrows().length>0){ G.over=true; return true; } return false; }
 function gameOver(reason){ AudioSys.over(); vibrate([60,40,60]); $('overText').textContent = (reason==='moves') ? ('Out of moves on '+(G.mode==='daily' ? 'today\'s Daily Challenge' : 'Level '+G.level)+' — every tap counts, and Undo gives one back. Try again!') : (G.mode==='daily' ? 'The Daily Challenge got you this time. It stays the same all day — retry and crack it.' : (G.maxLives||3)+' wrong moves on Level '+G.level+'. Check the target colour first, then the exit path.'); openModal('modalOver'); }
@@ -2165,7 +2179,7 @@ function previewShape(shape){
 }
 function openModal(id){ $(id).classList.add('open'); }
 function closeModal(id){ $(id).classList.remove('open'); }
-function closeAllModals(){ ['modalPause','modalSettings','modalWin','modalOver','modalUnlock','modalReward','modalRewards','modalBoard'].forEach(closeModal); }
+function closeAllModals(){ ['modalPause','modalSettings','modalWin','modalOver','modalUnlock','modalReward','modalRewards','modalBoard','modalCongrats'].forEach(closeModal); }
 var shownUnlocks={};
 function maybeShowUnlock(n){
   if(G.mode!=='level') return;
@@ -2307,26 +2321,67 @@ function submitScore(stars){ if(G.mode!=='level') return; var name=playerName();
 function weekStartISO(){ var d=new Date(); var day=(d.getUTCDay()+6)%7; d.setUTCDate(d.getUTCDate()-day); d.setUTCHours(0,0,0,0); return d.toISOString(); }
 function monthStartISO(){ var d=new Date(); d.setUTCDate(1); d.setUTCHours(0,0,0,0); return d.toISOString(); }
 function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function setBoardTab(tab){ boardTab=tab; var w=$('boardTabWeek'), m=$('boardTabMonth'); if(w) w.classList.toggle('on', tab==='week'); if(m) m.classList.toggle('on', tab==='month'); fetchGlobalBoard(tab); }
+function pointsFor(level, stars, sec){ return level*1000 + stars*500 + Math.max(0,120-sec)*10; }
+function fmtPts(n){ return n.toLocaleString('en-IN'); }
+function avatarHtml(name){ var cols=['#FF4D5E','#2F7DFF','#7AC70C','#F5B921','#8B7CFF','#14B8A6','#FF8A5C','#EC4899']; var h=0; name=name||'P'; for(var i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))%997; return '<span class="av" style="background:'+cols[h%cols.length]+'">'+escapeHtml(name.charAt(0).toUpperCase())+'</span>'; }
+/* Rank by TOTAL points: each player's best score per level (points above),
+   summed across their levels. Replaying one level over and over does not
+   farm points — only your best result on each level counts. */
+function aggregateBoard(rows){
+  var best={};
+  rows.forEach(function(r){ var k=(r.player_name||'').toLowerCase()+'|'+r.level; var pts=pointsFor(r.level, r.stars, r.time_sec); if(!best[k]||pts>best[k].points) best[k]={name:r.player_name, level:r.level, stars:r.stars, time_sec:r.time_sec, points:pts}; });
+  var tot={};
+  Object.keys(best).forEach(function(k){ var b=best[k]; var key=(b.name||'').toLowerCase(); if(!tot[key]) tot[key]={name:b.name, points:0, bestLevel:0}; tot[key].points+=b.points; if(b.level>tot[key].bestLevel) tot[key].bestLevel=b.level; });
+  var list=Object.keys(tot).map(function(k){ return tot[k]; });
+  list.sort(function(a,b){ return b.points-a.points || b.bestLevel-a.bestLevel; });
+  return list;
+}
+function setBoardTab(tab){ boardTab=tab; var w=$('boardTabWeek'), m=$('boardTabMonth'), a=$('boardTabAll'); if(w) w.classList.toggle('on', tab==='week'); if(m) m.classList.toggle('on', tab==='month'); if(a) a.classList.toggle('on', tab==='all'); fetchGlobalBoard(tab); }
 function fetchGlobalBoard(tab){
   var el=$('globalBoard'); if(!el) return;
   if(boardCache[tab]){ renderGlobalRows(boardCache[tab]); return; }
   el.innerHTML='<div class="lb-row"><span>Loading the global board…</span><b>⏳</b></div>';
-  var since=tab==='week'?weekStartISO():monthStartISO();
-  fetch(SB_URL+'/rest/v1/scores?select=player_name,level,stars,time_sec,created_at&mode=eq.level&created_at=gte.'+encodeURIComponent(since)+'&order=stars.desc,level.desc,time_sec.asc&limit=50',{headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}})
+  var since=tab==='week'?weekStartISO():(tab==='month'?monthStartISO():null);
+  var q=SB_URL+'/rest/v1/scores?select=player_name,level,stars,time_sec,created_at&mode=eq.level'+(since?'&created_at=gte.'+encodeURIComponent(since):'')+'&order=created_at.desc&limit=200';
+  fetch(q,{headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}})
   .then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
   .then(function(rows){ boardCache[tab]=rows; renderGlobalRows(rows); })
   .catch(function(){ el.innerHTML='<div class="lb-row"><span>Couldn\'t load the global board — check your connection and try again.</span><b>⚠️</b></div>'; });
 }
 function renderGlobalRows(rows){
   var el=$('globalBoard'); if(!el) return;
+  var list=aggregateBoard(rows);
+  if(!list.length){ el.innerHTML='<div class="lb-row"><span>No scores yet '+(boardTab==='week'?'this week':boardTab==='month'?'this month':'yet')+' — clear a level and be the first!</span><b>🏆</b></div>'; return; }
   var me=playerName().toLowerCase();
-  var best={}; rows.forEach(function(r){ var k=(r.player_name||'').toLowerCase(); if(!best[k]) best[k]=r; });
-  var list=Object.keys(best).map(function(k){ return best[k]; });
-  list.sort(function(a,b){ return (b.stars-a.stars)||(b.level-a.level)||(a.time_sec-b.time_sec); });
-  list=list.slice(0,20);
-  if(!list.length){ el.innerHTML='<div class="lb-row"><span>No scores yet '+(boardTab==='week'?'this week':'this month')+' — clear a level and be the first!</span><b>🏆</b></div>'; return; }
-  el.innerHTML=list.map(function(r,i){ var isMe=me!==''&&(r.player_name||'').toLowerCase()===me; return '<div class="lb-row"'+(isMe?' style="background:var(--surface2); border-radius:8px; padding-left:8px; padding-right:8px;"':'')+'><span>'+(i+1)+'. '+escapeHtml(r.player_name)+' · Level '+r.level+' · '+fmtTime(r.time_sec)+'</span><b>'+'★'.repeat(Math.max(1,Math.min(3,r.stars||1)))+'</b></div>'; }).join('');
+  var medals=['🥇','🥈','🥉'];
+  function podHTML(r, rank){ var isMe=me!==''&&(r.name||'').toLowerCase()===me; return '<div class="pod'+(rank===1?' first':'')+(isMe?' me':'')+'"><div class="medal">'+medals[rank-1]+'</div>'+avatarHtml(r.name)+'<div class="pod-name">'+escapeHtml(r.name)+'</div><div class="pod-pts num">'+fmtPts(r.points)+'</div><div class="pod-sub">Level '+r.bestLevel+'</div></div>'; }
+  var html='';
+  if(list.length>=1){ var top=list.slice(0,3); var order=top.length===3?[top[1],top[0],top[2]]:top; html+='<div class="podium">'+order.map(function(r,i){ var rank=top.length===3?[2,1,3][i]:i+1; return podHTML(r, rank); }).join('')+'</div>'; }
+  var rest=list.slice(3,20);
+  if(rest.length){ html+=rest.map(function(r,i){ var isMe=me!==''&&(r.name||'').toLowerCase()===me; return '<div class="lb-row lb-rank"'+(isMe?' style="background:var(--surface2); border-radius:8px; padding-left:8px; padding-right:8px;"':'')+'><span class="lb-left"><b class="lb-num num">'+(i+4)+'</b>'+avatarHtml(r.name)+'<span><b>'+escapeHtml(r.name)+'</b><br><span style="font-size:12px; color:var(--muted);">Level '+r.bestLevel+'</span></span></span><b class="num">'+fmtPts(r.points)+'</b></div>'; }).join(''); }
+  el.innerHTML=html;
+}
+function maybeCongrats(stars){
+  var name=playerName(); if(!name){ showWin(stars); return; }
+  fetch(SB_URL+'/rest/v1/scores?select=player_name,level,stars,time_sec,created_at&mode=eq.level&created_at=gte.'+encodeURIComponent(weekStartISO())+'&order=created_at.desc&limit=200',{headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}})
+  .then(function(r){ return r.json(); })
+  .then(function(rows){ var list=aggregateBoard(rows); var idx=-1; for(var i=0;i<list.length;i++){ if((list[i].name||'').toLowerCase()===name.toLowerCase()){ idx=i; break; } } if(idx>=0&&idx<3){ showCongrats(idx+1, pointsFor(G.level, stars, G.timeSec), stars); } else { showWin(stars); } })
+  .catch(function(){ showWin(stars); });
+}
+function showCongrats(rank, pts, stars){
+  G.lastCongrats={rank:rank, pts:pts, level:G.level, stars:stars};
+  $('congratsAv').innerHTML=avatarHtml(playerName());
+  $('congratsName').textContent=playerName();
+  $('congratsPts').textContent='+ '+fmtPts(pts)+' points';
+  $('congratsRank').textContent='You are #'+rank+' on the weekly leaderboard!';
+  $('congratsStars').textContent='★'.repeat(stars)+' · Level '+G.level+' cleared';
+  openModal('modalCongrats'); refreshHomeStats();
+}
+function shareScore(){
+  var c=G.lastCongrats; if(!c) return;
+  var txt='🏆 I am #'+c.rank+' on the CHROMA weekly leaderboard with '+fmtPts(c.pts)+' points! (Level '+c.level+', '+'★'.repeat(c.stars)+') Can you beat me? Play: https://drakol2006-alt.github.io/Chroma-arrow-escape/';
+  if(navigator.share){ navigator.share({title:'CHROMA: ARROW ESCAPE', text:txt}).catch(function(){}); return; }
+  var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast('Copied — paste it anywhere!','good'); }catch(e){ toast('Copy failed — long-press to copy','warn'); } document.body.removeChild(ta);
 }
 function refreshHomeStats(){
   updateRewardUI();
@@ -2402,6 +2457,10 @@ click('btnBoard', function(){ AudioSys.click(); renderBoard(); var inp=$('player
 click('btnSaveName', function(){ AudioSys.click(); var inp=$('playerNameInput'); var n=inp?inp.value.trim():''; if(!n){ toast('Type your name first','warn'); return; } setPlayerName(n.slice(0,24)); boardCache={}; renderGlobalRows(boardCache[boardTab]||[]); fetchGlobalBoard(boardTab); toast('Name saved — your next cleared level posts to the global board','good'); });
 click('boardTabWeek', function(){ AudioSys.click(); setBoardTab('week'); });
 click('boardTabMonth', function(){ AudioSys.click(); setBoardTab('month'); });
+click('boardTabAll', function(){ AudioSys.click(); setBoardTab('all'); });
+click('btnCongratsBoard', function(){ AudioSys.click(); closeModal('modalCongrats'); renderBoard(); var inp=$('playerNameInput'); if(inp) inp.value=playerName(); setBoardTab('week'); openModal('modalBoard'); });
+click('btnCongratsShare', function(){ AudioSys.click(); shareScore(); });
+click('btnCongratsHome', function(){ AudioSys.click(); closeModal('modalCongrats'); showScreen('scr-home'); refreshHomeStats(); });
 click('btnBoardClose', function(){ AudioSys.click(); closeModal('modalBoard'); });
 click('btnTheme', function(){ AudioSys.click(); applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); });
 click('btnLevelsBack', function(){ AudioSys.click(); showScreen('scr-home'); refreshHomeStats(); });
