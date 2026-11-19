@@ -63,6 +63,9 @@
   .reward-dots i{width:36px; height:36px; border-radius:50%; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-style:normal; font-size:13px; background:var(--surface2); color:#DC2626;}
   .reward-dots i.done{background:#FEF3C7; border-color:#F5B921;}
   .reward-dots i.today{box-shadow:0 0 0 2px #111827;}
+  .lb-row{display:flex; justify-content:space-between; padding:7px 2px; border-bottom:1px solid var(--line); font-size:14px;}
+  .ms-row{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 2px; border-bottom:1px solid var(--line);}
+  .ms-prize{color:#B45309; font-weight:800;}
   .menu-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
   .menu-grid .btn{min-height:56px; font-size:14.5px; padding:10px 12px;}
   .menu-grid #btnDaily{flex-wrap:wrap; align-content:center;}
@@ -301,6 +304,8 @@
           <button class="btn" id="btnLevels"><span>▦</span> Level Select</button>
           <button class="btn" id="btnShapes"><span>⬡</span> Shape Gallery</button>
           <button class="btn" id="btnHow"><span>?</span> How to Play</button>
+          <button class="btn" id="btnRewards"><span>🏆</span> Rewards · up to ₹200</button>
+          <button class="btn" id="btnBoard"><span>📊</span> Leaderboard</button>
         </div>
         <div class="menu-row">
           <button class="btn small" id="btnSettings"><span>⚙</span> Settings</button>
@@ -350,7 +355,8 @@
     <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M6 22 H20 M14 10 L26 22 L14 34" stroke="#399BFF" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,-6)"/></svg></div><div><h3>2 · The exit path must be clear</h3><p>An arrow slides out in the direction its head points, out through the edge of the shape. If <em>any</em> arrow sits in its path, it's blocked — tap a blocked arrow and the one in its way flashes red, with a ring on the exact cell where it blocks you. Bent arrows (L, U and zig-zag) still exit head-first.</p></div></div>
     <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M20 4 L36 34 H4 Z" fill="none" stroke="#111827" stroke-width="2.4" stroke-linejoin="round" transform="scale(.85) translate(3,3)"/></svg></div><div><h3>3 · A different shape on every level</h3><p>Level 1 is a square, Level 2 a triangle, Level 3 a circle, Level 4 a diamond — then the creative boards arrive fast: a mushroom at Level 5, an elephant at 8, a cat at 10, a horse at 15 and a maze at 20, mixed in with pentagon, hexagon, heart, star, cross, ring, lightning, arrowhead and spiral, so no two levels in a row ever look the same. The same shapes you meet in the Daily Challenge are all here in the levels too — nothing is daily-only. Every silhouette is packed edge to edge with thin winding arrows — the whole shape is filled, right out to its edges and tip — and the outline changes the exits and blocking paths. A new arrow colour also unlocks every 5 levels — Green at Level 5, Orange at 10, Purple at 15, Yellow at 20, Cyan at 25 — and stays in the pool forever.</p></div></div>
     <div class="how-step"><div class="hs-ic"><span style="font-size:15px; font-weight:800; letter-spacing:1px;"><span style="color:#FF4D5E;">R</span> → <span style="color:#7AC70C;">G</span> → <span style="color:#FF4D5E;">R</span> → <span style="color:#2F7DFF;">B</span></span></div><div><h3>Mixed sequence — a new target every move</h3><p>Each level hides a built-in colour sequence generated together with the board, so the puzzle is always solvable. The target changes after <b>every</b> escape — Red → Green → Red → Blue is normal, and the same colour can appear twice in a row, but it never waits for a whole colour to be finished. Watch the NEXT dots in the banner to plan ahead.</p></div></div>
-    <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M17 29 C6 21 4 14 8 9.5 C11 6.5 16 7.5 17 11 C18 7.5 23 6.5 26 9.5 C30 14 28 21 17 29Z" fill="#FF4D5E"/></svg></div><div><h3>4 · Three hearts per level</h3><p>Wrong colour or blocked arrow = one heart lost. Lose all three and the level ends. Within a colour, free blocked arrows by removing the ones in front first.</p></div></div>
+    <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M17 29 C6 21 4 14 8 9.5 C11 6.5 16 7.5 17 11 C18 7.5 23 6.5 26 9.5 C30 14 28 21 17 29Z" fill="#FF4D5E"/></svg></div><div><h3>4 · Hearts per level</h3><p>Wrong colour or blocked arrow = one heart lost. Lose all your hearts and the level ends. (A claimed Daily Reward adds bonus hearts for the day.) Within a colour, free blocked arrows by removing the ones in front first.</p></div></div>
+    <div class="how-step"><div class="hs-ic"><span style="font-size:26px;">⭐</span></div><div><h3>5 · Stars, target time &amp; moves</h3><p>3 stars need a perfect board — no mistakes, no hints — finished inside the target time shown next to the clock. You also have a limited move budget: every tap counts, including wrong ones. Undo gives one move back, and running out of moves ends the level.</p></div></div>
     <div class="how-step"><div class="hs-ic"><span style="font-size:26px;">💡</span></div><div><h3>Tools &amp; keys</h3><p><b>Undo</b> reverses your last escape, <b>Hint</b> highlights an arrow that can escape right now, <b>Restart</b> resets the level. On desktop: <span class="kbd">U</span> undo · <span class="kbd">H</span> hint · <span class="kbd">R</span> restart · <span class="kbd">Esc</span> pause.</p></div></div>
     <button class="btn primary" id="btnHowPlay" style="width:100%; margin-top:6px;">▶ Start Level 1</button>
   </section>
@@ -368,7 +374,7 @@
 
     <div class="stats-bar" role="status" aria-label="Level stats">
       <div class="stat-cell"><div class="s-lab">HEARTS</div><div class="s-val"><span class="hearts" id="hearts" aria-label="Lives"></span><span class="num" id="heartsNum">3</span></div></div>
-      <div class="stat-cell"><div class="s-lab">MOVES</div><div class="s-val num" id="statMoves">0</div></div>
+      <div class="stat-cell"><div class="s-lab">MOVES LEFT</div><div class="s-val num" id="statMoves">0</div></div>
       <div class="stat-cell"><div class="s-lab">LEFT</div><div class="s-val num" id="statLeft">0/0</div></div>
       <div class="stat-cell"><div class="s-lab">TIME</div><div class="s-val num" id="statTime">00:00</div></div>
     </div>
@@ -397,6 +403,8 @@
 <div class="modal-back" id="modalPause"><div class="modal"><h2>Paused</h2><p id="pauseSub">Level 1</p><button class="btn primary" id="btnResume">▶ Resume</button><button class="btn" id="btnPauseRestart">↻ Restart Level</button><div class="set-row"><div><div class="sr-t">Sound effects</div><div class="sr-d">Taps, escapes, errors</div></div><button class="toggle" id="tgSound" aria-pressed="true" aria-label="Toggle sound effects"></button></div><div class="set-row"><div><div class="sr-t">Music</div><div class="sr-d">Soft background loop</div></div><button class="toggle" id="tgMusic" aria-pressed="true" aria-label="Toggle music"></button></div><div class="set-row"><div><div class="sr-t">Vibration</div><div class="sr-d">Buzz on wrong moves (mobile)</div></div><button class="toggle" id="tgVib" aria-pressed="true" aria-label="Toggle vibration"></button></div><button class="btn" id="btnQuitLevels">▦ Level Select</button><button class="btn" id="btnQuitHome">⌂ Home</button></div></div>
 <div class="modal-back" id="modalSettings"><div class="modal"><h2>Settings</h2><p>Audio and feedback preferences.</p><div class="set-row"><div><div class="sr-t">Sound effects</div><div class="sr-d">Taps, escapes, errors</div></div><button class="toggle" id="tgSound2" aria-pressed="true" aria-label="Toggle sound effects"></button></div><div class="set-row"><div><div class="sr-t">Music</div><div class="sr-d">Soft background loop</div></div><button class="toggle" id="tgMusic2" aria-pressed="true" aria-label="Toggle music"></button></div><div class="set-row"><div><div class="sr-t">Vibration</div><div class="sr-d">Buzz on wrong moves (mobile)</div></div><button class="toggle" id="tgVib2" aria-pressed="true" aria-label="Toggle vibration"></button></div><button class="btn primary" id="btnSettingsClose">Done</button></div></div>
 <div class="modal-back" id="modalReward"><div class="modal"><h2>🎁 Daily Reward</h2><p id="rewardText">Come back every day to keep your streak alive.</p><div class="reward-dots" id="rewardDots"></div><p id="rewardSub" style="font-size:12.5px;"></p><button class="btn primary" id="btnClaimReward">Claim today's reward</button><button class="btn" id="btnRewardClose">Not now</button></div></div>
+<div class="modal-back" id="modalRewards"><div class="modal"><h2>🏆 Rewards · up to ₹200</h2><p style="font-size:13px;">Finish a milestone, claim your code, and DM it with a screenshot to <b>@tamataruniverse</b> on Instagram. Tanishq approves every claim by hand and pays via UPI — no automatic payment, approval can take a few days.</p><div id="rewardMilestones"></div><button class="btn" id="btnRewardsClose">Close</button></div></div>
+<div class="modal-back" id="modalBoard"><div class="modal"><h2>📊 Leaderboard</h2><p style="font-size:13px;">Your boards on this device — weekly and monthly.</p><div id="boardBody"></div><p style="font-size:12.5px; color:var(--muted);">🌍 Global leaderboard — coming soon. It needs player accounts + a server, so no fake worldwide ranks are shown here.</p><button class="btn" id="btnBoardClose">Close</button></div></div>
 <div class="modal-back" id="modalWin"><div class="modal"><h2 id="winTitle">Level Complete!</h2><div class="win-stars" id="winStars"></div><p id="winText">Board cleared.</p><button class="btn primary" id="btnNext">▶ Next Level</button><button class="btn" id="btnWinReplay">↻ Replay</button><button class="btn" id="btnWinLevels">▦ Level Select</button></div></div>
 <div class="modal-back" id="modalUnlock"><div class="modal"><span class="unlock-badge">NEW COLOUR UNLOCKED</span><div class="unlock-swatch" id="unlockSwatch"><svg viewBox="0 0 64 64"><path d="M14 32 H44 M34 18 L50 32 L34 46" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="unlock-name" id="unlockName">Green</div><p id="unlockText">Green arrows now join the maze — permanently, for every level from here on.</p><div class="unlock-pool" id="unlockPool"></div><p style="font-size:12px;">Your colour pool keeps growing every 5 levels.</p><button class="btn primary" id="btnUnlockGo">▶ Let's Play</button></div></div>
 <div class="modal-back" id="modalOver"><div class="modal"><h2 style="color:#DC2626;">Out of Hearts</h2><p id="overText">Three wrong moves. Watch the target colour — and check the exit path before you tap.</p><button class="btn primary" id="btnRetry">↻ Retry Level</button><button class="btn" id="btnOverLevels">▦ Level Select</button></div></div>
@@ -1637,13 +1645,20 @@ var Progress={ unlocked:1, stars:{}, dailyDoneSeed:0 };
    works. If storage is unavailable the game just falls back to
    session-only instead of breaking.) */
 var SAVE_KEY='chroma-save-v1';
-var Reward={lastClaim:'', streak:0, bonusDate:'', bonusHearts:0};
+var Reward={lastClaim:'', streak:0, bestStreak:0, bonusDate:'', bonusHearts:0};
+/* Weekly/monthly boards + Instagram campaign claims — all local to this
+   device (same localStorage save as progress). No fake global ranks. */
+var Stats={week:{key:'',stars:0,levels:0,best:0}, month:{key:'',stars:0,levels:0,best:0}};
+var Claims={streak:null, level50:null};
+function weekKey(d){ var t=new Date(d.getFullYear(),d.getMonth(),d.getDate()); var day=(t.getDay()+6)%7; t.setDate(t.getDate()-day+3); var first=new Date(t.getFullYear(),0,4); var fd=(first.getDay()+6)%7; first.setDate(first.getDate()-fd+3); var w=1+Math.round(((t-first)/86400000-3)/7); return t.getFullYear()+'-W'+(w<10?'0':'')+w; }
+function monthKey(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2); }
+function recordStats(starDelta, firstClear, sec){ var now=new Date(); [[Stats.week,weekKey(now)],[Stats.month,monthKey(now)]].forEach(function(pair){ var b=pair[0]; if(b.key!==pair[1]){ b.key=pair[1]; b.stars=0; b.levels=0; b.best=0; } b.stars+=starDelta; if(firstClear) b.levels++; if(sec>0 && (b.best===0||sec<b.best)) b.best=sec; }); }
 function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
 function yesterdayStr(){ var d=new Date(); d.setDate(d.getDate()-1); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
-function saveProgress(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({unlocked:Progress.unlocked, stars:Progress.stars, dailyDoneSeed:Progress.dailyDoneSeed, reward:Reward})); }catch(e){} }
-function loadProgress(){ try{ var d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(!d) return; if(d.unlocked>1) Progress.unlocked=Math.min(100, d.unlocked); if(d.stars) Progress.stars=d.stars; if(d.dailyDoneSeed) Progress.dailyDoneSeed=d.dailyDoneSeed; if(d.reward){ if(d.reward.lastClaim) Reward.lastClaim=d.reward.lastClaim; if(d.reward.streak) Reward.streak=d.reward.streak; if(d.reward.bonusDate) Reward.bonusDate=d.reward.bonusDate; if(d.reward.bonusHearts) Reward.bonusHearts=d.reward.bonusHearts; } }catch(e){} }
+function saveProgress(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({unlocked:Progress.unlocked, stars:Progress.stars, dailyDoneSeed:Progress.dailyDoneSeed, reward:Reward, stats:Stats, claims:Claims})); }catch(e){} }
+function loadProgress(){ try{ var d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(!d) return; if(d.unlocked>1) Progress.unlocked=Math.min(100, d.unlocked); if(d.stars) Progress.stars=d.stars; if(d.dailyDoneSeed) Progress.dailyDoneSeed=d.dailyDoneSeed; if(d.reward){ if(d.reward.lastClaim) Reward.lastClaim=d.reward.lastClaim; if(d.reward.streak) Reward.streak=d.reward.streak; if(d.reward.bestStreak) Reward.bestStreak=d.reward.bestStreak; if(d.reward.bonusDate) Reward.bonusDate=d.reward.bonusDate; if(d.reward.bonusHearts) Reward.bonusHearts=d.reward.bonusHearts; } if(d.stats){ if(d.stats.week) Stats.week=d.stats.week; if(d.stats.month) Stats.month=d.stats.month; } if(d.claims) Claims=d.claims; }catch(e){} }
 function bonusHeartsToday(){ return (Reward.bonusDate===todayStr()) ? (Reward.bonusHearts||0) : 0; }
-function claimReward(){ var t=todayStr(); if(Reward.lastClaim===t) return false; Reward.streak=(Reward.lastClaim===yesterdayStr()) ? Reward.streak+1 : 1; var day=((Reward.streak-1)%7)+1; Reward.bonusHearts=(day===3||day===6||day===7) ? 2 : 1; Reward.lastClaim=t; Reward.bonusDate=t; saveProgress(); return true; }
+function claimReward(){ var t=todayStr(); if(Reward.lastClaim===t) return false; Reward.streak=(Reward.lastClaim===yesterdayStr()) ? Reward.streak+1 : 1; Reward.bestStreak=Math.max(Reward.bestStreak||0, Reward.streak); var day=((Reward.streak-1)%7)+1; Reward.bonusHearts=(day===3||day===6||day===7) ? 2 : 1; Reward.lastClaim=t; Reward.bonusDate=t; saveProgress(); return true; }
 loadProgress();
 function totalStars(){ var s=0; for(var k in Progress.stars) s+=Progress.stars[k]; return s; }
 function completedCount(){ var n=0; for(var k in Progress.stars){ if(k!=='daily') n++; } return n; }
@@ -1660,7 +1675,7 @@ function canExit(a){ return !findBlocker(a); }
 setInterval(function(){
   if(!$('scr-game') || !$('scr-game').classList.contains('active')) return;
   if(G.paused||G.over||G.won||!G.data) return;
-  G.timeSec++; var m=Math.floor(G.timeSec/60), s=G.timeSec%60; $('statTime').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  G.timeSec++; $('statTime').textContent=timeText();
 },1000);
 </script>
 <script>
@@ -1865,7 +1880,7 @@ function wrongMove(rec, kind){
   toast(kind==='wrong' ? 'Only '+act.name+' arrows can move' : (blocker ? 'Blocked by the '+colorById(blocker.rec.color).name+' arrow' : 'That arrow is blocked'), 'err');
   updateHearts(true);
   updateHUD();
-  if(G.lives<=0){ G.over=true; setTimeout(gameOver, 620); }
+  if(G.lives<=0){ G.over=true; setTimeout(gameOver, 620); } else if(checkMovesOut()){ setTimeout(function(){ gameOver('moves'); }, 620); }
 }
 /* ---------- PATH-FOLLOWING EXIT ANIMATION ----------
    The arrow leaves like a train on its own track. The track is the
@@ -1982,6 +1997,7 @@ function afterRemoval(rec){
   G.moveIdx++;
   G.colorIdx=G.moveIdx;
   if(aliveArrows().length===0){ levelComplete(); return; }
+  if(checkMovesOut()){ setTimeout(function(){ gameOver('moves'); }, 400); return; }
   var nc=colorById(activeColorId());
   var sw=$('targetSwatch'); sw.style.transform='scale(1.25)'; setTimeout(function(){ sw.style.transform=''; },220);
   if(nc.id!==rec.color){
@@ -2000,6 +2016,7 @@ function doUndo(){
   if(G.animating>0){ toast('Wait for the arrow to finish…'); return; }
   var h=G.history.pop();
   if(!h){ toast('Nothing to undo yet'); return; }
+  G.moves=Math.max(0,G.moves-1);
   var rec=G.arrows[h.id]; if(!rec) return;
   AudioSys.click();
   rec.alive=true; rec.animating=false;
@@ -2033,15 +2050,24 @@ function doHint(){
 }
 function levelComplete(){
   G.won=true;
-  var stars = (G.mistakes===0&&G.hintsUsed===0)?3 : (G.mistakes<=1?2:1);
+  /* STAR RATING v2 — hearts + time: 3 stars need a perfect board (no
+     mistakes, no hints) finished inside the target time; 2 stars for a
+     near-perfect board within 1.5x target, or a perfect-but-slow board. */
+  var withinTarget=G.timeSec<=G.targetTime;
+  var perfect=(G.mistakes===0&&G.hintsUsed===0);
+  var stars = (perfect&&withinTarget)?3 : ((G.mistakes<=1&&G.timeSec<=Math.round(G.targetTime*1.5))||perfect)?2 : 1;
   AudioSys.win(); vibrate([30,40,30]);
   G.scene.confetti();
-  if(G.mode==='level'){ if(!Progress.stars[G.level]||Progress.stars[G.level]<stars) Progress.stars[G.level]=stars; if(G.level>=Progress.unlocked && G.level<100) Progress.unlocked=G.level+1; }
-  else { Progress.dailyDoneSeed=dailySeed(); if(!Progress.stars['daily']||Progress.stars['daily']<stars) Progress.stars['daily']=stars; }
+  var key=(G.mode==='level')?G.level:'daily';
+  var prev=Progress.stars[key]||0;
+  if(G.mode==='level'){ if(!prev||prev<stars) Progress.stars[G.level]=stars; if(G.level>=Progress.unlocked && G.level<100) Progress.unlocked=G.level+1; }
+  else { Progress.dailyDoneSeed=dailySeed(); if(!prev||prev<stars) Progress.stars['daily']=stars; }
+  recordStats(Math.max(0,stars-prev), prev===0, G.timeSec);
   saveProgress();
   setTimeout(function(){ showWin(stars); },650);
 }
-function gameOver(){ AudioSys.over(); vibrate([60,40,60]); $('overText').textContent = G.mode==='daily' ? 'The Daily Challenge got you this time. It stays the same all day — retry and crack it.' : (G.maxLives||3)+' wrong moves on Level '+G.level+'. Check the target colour first, then the exit path.'; openModal('modalOver'); }
+function checkMovesOut(){ if(!G.won && !G.over && G.moveBudget && G.moves>=G.moveBudget && aliveArrows().length>0){ G.over=true; return true; } return false; }
+function gameOver(reason){ AudioSys.over(); vibrate([60,40,60]); $('overText').textContent = (reason==='moves') ? ('Out of moves on '+(G.mode==='daily' ? 'today\'s Daily Challenge' : 'Level '+G.level)+' — every tap counts, and Undo gives one back. Try again!') : (G.mode==='daily' ? 'The Daily Challenge got you this time. It stays the same all day — retry and crack it.' : (G.maxLives||3)+' wrong moves on Level '+G.level+'. Check the target colour first, then the exit path.'); openModal('modalOver'); }
 </script>
 <script>
 var toastTimer=null;
@@ -2104,7 +2130,7 @@ function previewShape(shape){
 }
 function openModal(id){ $(id).classList.add('open'); }
 function closeModal(id){ $(id).classList.remove('open'); }
-function closeAllModals(){ ['modalPause','modalSettings','modalWin','modalOver','modalUnlock','modalReward'].forEach(closeModal); }
+function closeAllModals(){ ['modalPause','modalSettings','modalWin','modalOver','modalUnlock','modalReward','modalRewards','modalBoard'].forEach(closeModal); }
 var shownUnlocks={};
 function maybeShowUnlock(n){
   if(G.mode!=='level') return;
@@ -2129,6 +2155,7 @@ function renderHearts(popLast){
 }
 function updateHearts(pop){ renderHearts(pop); }
 function fmtTime(sec){ var m=Math.floor(sec/60), s=sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+function timeText(){ return G.targetTime ? fmtTime(G.timeSec)+' / '+fmtTime(G.targetTime) : fmtTime(G.timeSec); }
 function updateHUD(){
   if(!G.data) return;
   var act=colorById(activeColorId());
@@ -2139,9 +2166,9 @@ function updateHUD(){
   var leftActive=aliveArrows().filter(function(a){return a.color===act.id;}).length;
   var moveNo=Math.min(G.moveIdx+1, G.totalArrows);
   $('targetLeft').textContent='Move '+moveNo+' of '+G.totalArrows+' · '+leftActive+' '+act.name.toLowerCase()+' arrow'+(leftActive===1?'':'s')+' on board';
-  $('statMoves').textContent=G.moves;
+  $('statMoves').textContent=Math.max(0,(G.moveBudget||0)-G.moves);
   $('statLeft').textContent=aliveArrows().length+'/'+G.totalArrows;
-  $('statTime').textContent=fmtTime(G.timeSec);
+  $('statTime').textContent=timeText();
   var q=$('queueDots'); q.innerHTML='<span class="q-lab">NEXT</span>';
   var fullSeq=G.data.moveSequence||G.data.seq;
   var upcoming=fullSeq.slice(G.moveIdx, G.moveIdx+8);
@@ -2159,6 +2186,9 @@ function startLevel(n, mode){
   var shape = shapeForLevel(n, G.mode==='daily');
   G.data=genLevel(seed, P, shape);
   G.totalArrows=G.data.arrows.length;
+  var slack = G.mode==='daily' ? 2 : ({Beginner:4, Easy:3, Normal:2, Hard:2, Expert:1, Master:1}[P.tier]||2);
+  G.moveBudget=G.totalArrows+slack;
+  G.targetTime=Math.ceil((20+4*G.totalArrows)/5)*5;
   $('hudLevel').textContent = G.mode==='daily' ? 'Daily Challenge' : 'Level '+n;
   $('hudDiff').textContent = (G.mode==='daily' ? 'Hard · Changes Daily' : P.tier+' · '+G.data.seq.length+' Colours');
   $('shapeName').textContent = G.data.shapeName+' Board';
@@ -2166,7 +2196,8 @@ function startLevel(n, mode){
   showScreen('scr-game');
   // re-trigger board pop animation
   var bw=$('board-wrap'); bw.style.animation='none'; void bw.offsetWidth; bw.style.animation='';
-  setTip(G.mode==='daily' ? 'Today\'s special '+G.data.shapeName.toLowerCase()+' board. Same puzzle all day — crack it in 3 hearts.' : (LEVEL_TIPS[n]||('A '+G.data.shapeName.toLowerCase()+' board, filled edge to edge! '+colorById(activeColorId()).name+' is the first target — and the target changes after every escape.')), '');
+  var baseTip = G.mode==='daily' ? 'Today\'s special '+G.data.shapeName.toLowerCase()+' board. Same puzzle all day — crack it in 3 hearts.' : (LEVEL_TIPS[n]||('A '+G.data.shapeName.toLowerCase()+' board, filled edge to edge! '+colorById(activeColorId()).name+' is the first target — and the target changes after every escape.'));
+  setTip(baseTip+' Target '+fmtTime(G.targetTime)+' · '+G.moveBudget+' moves — every tap counts, Undo gives one back.', '');
   if(G.scene && G.scene.sys && G.scene.sys.isActive()){ G.scene.renderLevel(G.data); }
   else { G.pendingData=G.data; }
   updateHUD();
@@ -2177,7 +2208,7 @@ function showWin(stars){
   var wh=$('winStars'); wh.innerHTML='';
   for(var i=0;i<3;i++){ var s=document.createElement('span'); s.textContent='★'; if(i>=stars) s.className='off'; wh.appendChild(s); }
   var last = G.mode==='level' && G.level>=100;
-  $('winText').textContent = G.mode==='daily' ? 'You beat today\'s board with '+stars+' star'+(stars===1?'':'s')+'. A fresh challenge arrives tomorrow.' : (last ? 'That was the final level — you are a CHROMA master! Replay any level to chase 3 stars.' : 'Board cleared in '+fmtTime(G.timeSec)+' with '+G.mistakes+' mistake'+(G.mistakes===1?'':'s')+(G.hintsUsed?' and '+G.hintsUsed+' hint'+(G.hintsUsed===1?'':'s'):'')+'. Onward — the boards only get denser from here!');
+  $('winText').textContent = G.mode==='daily' ? 'You beat today\'s board in '+fmtTime(G.timeSec)+' (target '+fmtTime(G.targetTime)+') with '+stars+' star'+(stars===1?'':'s')+'. A fresh challenge arrives tomorrow.' : (last ? 'That was the final level — you are a CHROMA master! Replay any level to chase 3 stars.' : 'Board cleared in '+fmtTime(G.timeSec)+' (target '+fmtTime(G.targetTime)+') · '+G.moves+' moves · '+G.mistakes+' mistake'+(G.mistakes===1?'':'s')+(G.hintsUsed?' and '+G.hintsUsed+' hint'+(G.hintsUsed===1?'':'s'):'')+'. Onward — the boards only get denser from here!');
   $('btnNext').style.display = (G.mode==='level' && G.level<100) ? '' : 'none';
   openModal('modalWin');
   refreshHomeStats();
@@ -2198,6 +2229,31 @@ function renderRewardModal(){
   for(var d=1;d<=7;d++){ var i=document.createElement('i'); i.textContent=(d===3||d===6||d===7)?'♥♥':'♥'; if(claimed && d<=day) i.className='done'; if(!claimed && d===day) i.className='today'; if(!claimed && d<day) i.className='done'; dots.appendChild(i); }
   $('rewardSub').textContent='Streak: '+Reward.streak+' day'+(Reward.streak===1?'':'s')+' · Saved on this device · Miss a day and the streak restarts at Day 1.';
   var b=$('btnClaimReward'); b.textContent=claimed ? 'Claimed ✓' : 'Claim +'+bonus+' ❤️'; b.disabled=claimed;
+}
+function boardRow(label, b){ return '<div class="lb-row"><span>'+label+'</span><b>'+b+'</b></div>'; }
+function renderBoard(){
+  var w=Stats.week, m=Stats.month;
+  $('boardBody').innerHTML =
+   '<h3 style="margin:10px 0 4px;">This week</h3>' +
+   boardRow('⭐ Stars earned', w.stars) + boardRow('▦ Levels cleared', w.levels) + boardRow('⏱ Fastest clear', w.best?fmtTime(w.best):'—') +
+   '<h3 style="margin:14px 0 4px;">This month</h3>' +
+   boardRow('⭐ Stars earned', m.stars) + boardRow('▦ Levels cleared', m.levels) + boardRow('⏱ Fastest clear', m.best?fmtTime(m.best):'—') +
+   '<h3 style="margin:14px 0 4px;">Streak</h3>' + boardRow('🔥 Daily streak', Reward.streak+' days (best '+(Reward.bestStreak||0)+')');
+}
+function renderRewards(){
+  var el=$('rewardMilestones'); el.innerHTML='';
+  var ms=[
+    {id:'streak', icon:'🔥', title:'7-day daily streak', prize:'₹100', done:(Reward.bestStreak||0)>=7, hint:'Best streak: '+(Reward.bestStreak||0)+' / 7 days'},
+    {id:'level50', icon:'🎯', title:'Reach Level 50', prize:'₹100', done:Progress.unlocked>=50, hint:'You are on Level '+Math.min(Progress.unlocked,100)}
+  ];
+  ms.forEach(function(x){
+    var c=Claims[x.id];
+    var row=document.createElement('div'); row.className='ms-row';
+    var st = c ? ('Claimed ✓ · Code <b>'+c.code+'</b> · Pending approval') : (x.done ? 'Eligible — tap Claim' : 'Locked · '+x.hint);
+    row.innerHTML='<div><b>'+x.icon+' '+x.title+'</b> <span class="ms-prize">'+x.prize+'</span><div style="font-size:12.5px; color:var(--muted);">'+st+'</div></div>';
+    if(x.done && !c){ var b=document.createElement('button'); b.className='btn small'; b.textContent='Claim'; b.onclick=function(){ var code='CHROMA-'+Math.random().toString(36).slice(2,8).toUpperCase(); Claims[x.id]={code:code, date:todayStr(), status:'pending'}; saveProgress(); renderRewards(); toast('Claim code '+code+' — DM it to @tamataruniverse','good'); }; row.appendChild(b); }
+    el.appendChild(row);
+  });
 }
 function refreshHomeStats(){
   updateRewardUI();
@@ -2267,6 +2323,10 @@ click('btnSoundQuick', function(){ Settings.sound=!Settings.sound; AudioSys.clic
 click('btnDailyReward', function(){ AudioSys.click(); renderRewardModal(); openModal('modalReward'); });
 click('btnClaimReward', function(){ AudioSys.click(); if(claimReward()){ renderRewardModal(); updateRewardUI(); toast('Daily reward claimed: +'+Reward.bonusHearts+' ❤️ for today!','good'); } });
 click('btnRewardClose', function(){ AudioSys.click(); closeModal('modalReward'); });
+click('btnRewards', function(){ AudioSys.click(); renderRewards(); openModal('modalRewards'); });
+click('btnRewardsClose', function(){ AudioSys.click(); closeModal('modalRewards'); });
+click('btnBoard', function(){ AudioSys.click(); renderBoard(); openModal('modalBoard'); });
+click('btnBoardClose', function(){ AudioSys.click(); closeModal('modalBoard'); });
 click('btnLevelsBack', function(){ AudioSys.click(); showScreen('scr-home'); refreshHomeStats(); });
 click('btnHowBack', function(){ AudioSys.click(); showScreen('scr-home'); });
 click('btnHowPlay', function(){ AudioSys.click(); startLevel(1,'level'); });
