@@ -85,7 +85,7 @@
   .reward-dots i.done{background:#FEF3C7; border-color:#F5B921;}
   .reward-dots i.today{box-shadow:0 0 0 2px #111827;}
   .lb-row{display:flex; justify-content:space-between; padding:7px 2px; border-bottom:1px solid var(--line); font-size:14px;}
-  .name-row{display:flex; gap:8px; align-items:center; margin:12px 0 4px;}
+  .name-row{display:grid; grid-template-columns:auto minmax(90px,1fr) auto; gap:8px; align-items:center; margin:12px 0 4px;}
   .name-row input{flex:1; min-width:0; min-height:44px; border:1.5px solid var(--line); border-radius:12px; padding:8px 12px; font:inherit; background:var(--surface); color:var(--ink);}
   .board-tabs{display:flex; gap:8px; margin:10px 0 4px;}
   .board-tabs .btn{flex:1;}
@@ -446,7 +446,7 @@
 <div class="modal-back" id="modalReward"><div class="modal"><h2>🎁 Daily Reward</h2><p id="rewardText">Come back every day to keep your streak alive.</p><div class="reward-dots" id="rewardDots"></div><p id="rewardSub" style="font-size:12.5px;"></p><button class="btn primary" id="btnClaimReward">Claim today's reward</button><button class="btn" id="btnRewardClose">Not now</button></div></div>
 <div class="modal-back" id="modalRewards"><div class="modal"><h2>🏆 Rewards · up to ₹200</h2><p style="font-size:13px;">Finish a milestone, claim your code, and DM it with a screenshot to <b>@tamataruniverse</b> on Instagram. Tanishq approves every claim by hand and pays via UPI — no automatic payment, approval can take a few days.</p><div id="rewardMilestones"></div><button class="btn" id="btnRewardsClose">Close</button></div></div>
 <div class="modal-back" id="modalBoard"><div class="modal"><h2>📊 Leaderboard</h2>
-<div class="name-row"><span style="flex:0 0 auto;">Your name</span><input id="playerNameInput" maxlength="24" placeholder="e.g. Tanishq" style="flex:1 1 90px; min-width:0;" /><button class="btn small" id="btnSaveName" style="flex:0 0 auto;">Save</button></div>
+<div class="name-row"><span>Your name</span><input id="playerNameInput" maxlength="24" placeholder="e.g. Tanishq" /><button class="btn small" id="btnSaveName">Save</button></div>
 <p id="nameHint" style="font-size:12.5px; color:var(--muted);">Set your name to appear on the global board — your score posts when you clear a level.</p>
 <div class="board-tabs"><button class="btn small on" id="boardTabWeek">Weekly</button><button class="btn small" id="boardTabMonth">Monthly</button><button class="btn small" id="boardTabAll">All-Time</button></div>
 <div id="globalBoard"></div>
