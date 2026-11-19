@@ -1,0 +1,2178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="color-scheme" content="light" />
+<link rel="icon" href="data:," />
+<title>CHROMA: ARROW ESCAPE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+<style>
+  :root{
+    --bg:#FFFFFF; --surface:#FFFFFF; --surface2:#F8F9FB; --line:#E7E9EE; --line2:#EEF0F3;
+    --ink:#111827; --muted:#6B7280; --dim:#9CA3AF;
+    --red:#FF4D5E; --blue:#399BFF; --green:#84CC16; --yellow:#F5B921; --violet:#8B7CFF; --teal:#14B8A6;
+    --radius:18px;
+    --shadow:0 8px 30px rgba(17,24,39,.06);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; font-size:16px; line-height:1.45; min-height:100dvh; overflow-x:hidden;}
+  button{font-family:inherit; min-height:44px; cursor:pointer;}
+  .num{font-family:'Space Grotesk',monospace;}
+  h1,h2,h3{font-family:'Outfit',sans-serif; margin:0;}
+  #app{max-width:640px; margin:0 auto; padding:14px 16px 40px; position:relative; z-index:1;}
+  .screen{display:none;}
+  .screen.active{display:block; animation:screenIn .32s cubic-bezier(.2,.8,.2,1) both;}
+  @keyframes screenIn{from{opacity:0; transform:translateY(10px) scale(.995);} to{opacity:1; transform:none;}}
+  @keyframes popIn{0%{transform:scale(.92); opacity:0;}100%{transform:scale(1); opacity:1;}}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(var(--r,0deg));}50%{transform:translateY(-14px) rotate(var(--r,0deg));}}
+  .bg-arrows{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; opacity:.5;}
+  .bg-arrows span{position:absolute; font-family:'Outfit'; font-weight:900; opacity:.05; animation:floaty 9s ease-in-out infinite;}
+
+  /* HOME */
+  .home-wrap{padding-top:4vh; text-align:center;}
+  .logo{font-family:'Outfit'; font-weight:900; line-height:.95; letter-spacing:.5px;}
+  .logo .chroma{font-size:clamp(46px,13vw,76px); display:block;}
+  .logo .sub{font-size:clamp(19px,5.6vw,30px); letter-spacing:6px; color:var(--ink); display:block; margin-top:8px; font-weight:800;}
+  .logo .sub small{display:block; letter-spacing:2.5px; font-size:11px; color:var(--muted); font-weight:600; margin-top:10px; font-family:'Inter';}
+  .c-r{color:var(--red);} .c-b{color:var(--blue);} .c-g{color:#84CC16;} .c-y{color:var(--yellow);} .c-v{color:var(--violet);} .c-t{color:var(--teal);}
+  .tagline{color:var(--muted); max-width:430px; margin:16px auto 4px; font-size:15px;}
+  .tagline strong{color:var(--ink);}
+  .shape-strip{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:20px auto 4px; max-width:440px;}
+  .shape-chip{display:flex; flex-direction:column; align-items:center; gap:5px; width:62px; padding:9px 2px 7px; border:1.5px solid var(--line); border-radius:14px; background:#fff; animation:popIn .4s both;}
+  .shape-chip:nth-child(2){animation-delay:.05s}.shape-chip:nth-child(3){animation-delay:.1s}.shape-chip:nth-child(4){animation-delay:.15s}.shape-chip:nth-child(5){animation-delay:.2s}.shape-chip:nth-child(6){animation-delay:.25s}
+  .shape-chip svg{width:30px;height:30px;}
+  .shape-chip span{font-size:9.5px; font-weight:700; letter-spacing:.6px; color:var(--muted); text-transform:uppercase;}
+  .menu{display:flex; flex-direction:column; gap:10px; max-width:340px; margin:24px auto 0;}
+  .btn{border:1.5px solid var(--line); background:var(--surface); color:var(--ink); border-radius:16px; padding:13px 20px; font-size:16px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px; transition:transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s; min-height:52px; text-decoration:none;}
+  .btn:hover{background:var(--surface2); transform:translateY(-1px);}
+  .btn:active{transform:scale(.97);}
+  .btn.primary{background:#111827; border-color:#111827; color:#fff; font-family:'Outfit'; font-weight:800; font-size:20px; letter-spacing:.5px; min-height:60px; box-shadow:0 10px 24px rgba(17,24,39,.18);}
+  .btn.primary:hover{background:#1F2937;}
+  .home-foot{margin-top:22px; color:var(--dim); font-size:12.5px;}
+  .home-stats{display:flex; gap:8px; justify-content:center; margin-top:18px; flex-wrap:wrap;}
+  .stat-chip{background:var(--surface2); border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:13px; color:var(--muted);}
+  .stat-chip b{color:var(--ink); font-family:'Space Grotesk';}
+
+  .topbar{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .icon-btn{width:44px; height:44px; min-height:44px; border-radius:12px; border:1.5px solid var(--line); background:#fff; color:var(--ink); font-size:19px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; transition:background .15s, transform .1s; font-weight:700;}
+  .icon-btn.dark{background:#111827; color:#fff; border-color:#111827;}
+  .icon-btn:hover{background:var(--surface2);} .icon-btn.dark:hover{background:#1F2937;}
+  .icon-btn:active{transform:scale(.93);}
+  .topbar h2{font-size:24px; font-weight:800; flex:1;}
+
+  /* LEVEL SELECT */
+  .progress-card{background:var(--surface2); border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:18px;}
+  .progress-card .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;}
+  .progress-card .row b{font-family:'Outfit'; font-size:17px;}
+  .bar{height:9px; background:#E5E7EB; border-radius:99px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:#111827; border-radius:99px; transition:width .5s ease;}
+  .tier-title{font-family:'Outfit'; font-weight:800; font-size:16px; margin:20px 2px 10px; display:flex; align-items:center; gap:8px;}
+  .tier-title .dot{width:10px; height:10px; border-radius:50%;}
+  .tier-title span{color:var(--muted); font-family:'Inter'; font-weight:500; font-size:12.5px;}
+  .lvl-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:9px;}
+  @media (max-width:420px){ .lvl-grid{grid-template-columns:repeat(4,1fr);} }
+  .lvl{position:relative; border-radius:14px; border:1.5px solid var(--line); background:#fff; color:var(--ink); padding:8px 4px 7px; min-height:64px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; transition:transform .1s, border-color .15s, box-shadow .15s;}
+  .lvl:hover:not(:disabled){border-color:#111827; box-shadow:var(--shadow);}
+  .lvl:active:not(:disabled){transform:scale(.95);}
+  .lvl .n{font-family:'Space Grotesk'; font-weight:700; font-size:17px; line-height:1;}
+  .lvl .shape-n{font-size:8.5px; font-weight:700; letter-spacing:.5px; color:var(--dim); text-transform:uppercase;}
+  .lvl .stars{font-size:10px; letter-spacing:1px; color:var(--yellow); height:13px;}
+  .lvl .stars .off{color:#E5E7EB;}
+  .lvl.current{border-color:#111827; box-shadow:0 0 0 1px #111827, var(--shadow);}
+  .lvl:disabled{opacity:.45; cursor:not-allowed; background:var(--surface2);}
+
+  /* GAME HUD — clean stats bar like reference */
+  .hud-top{display:flex; align-items:center; gap:10px;}
+  .hud-level{flex:1; min-width:0; text-align:center;}
+  .hud-level .lv-name{font-family:'Outfit'; font-weight:800; font-size:20px; line-height:1.1; white-space:nowrap;}
+  .hud-level .lv-diff{font-size:11px; color:var(--muted); font-weight:700; letter-spacing:.8px; text-transform:uppercase;}
+  .shape-badge{display:inline-flex; align-items:center; gap:6px; margin-top:10px; background:#111827; color:#fff; border-radius:999px; padding:5px 13px; font-size:11.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; animation:popIn .35s both;}
+  .shape-badge i{width:8px;height:8px;border-radius:50%;background:var(--yellow); display:inline-block;}
+  .stats-bar{display:grid; grid-template-columns:1.25fr .8fr .8fr .8fr; gap:0; margin:12px 0 12px; border:1.5px solid var(--line); border-radius:16px; overflow:hidden; background:#fff;}
+  .stat-cell{padding:9px 6px 8px; text-align:center; border-right:1px solid var(--line2);}
+  .stat-cell:last-child{border-right:none;}
+  .stat-cell .s-lab{font-size:9.5px; letter-spacing:1.4px; color:var(--dim); font-weight:800;}
+  .stat-cell .s-val{font-family:'Space Grotesk'; font-weight:700; font-size:19px; line-height:1.25; display:flex; align-items:center; justify-content:center; gap:3px; min-height:26px;}
+  .hearts{display:inline-flex; gap:2px; align-items:center;}
+  .heart{width:20px; height:20px; transition:transform .2s;}
+  .heart svg{width:100%; height:100%; display:block;}
+  .heart.lost svg path{fill:#E5E7EB; stroke:#E5E7EB;}
+  .heart.pop{animation:heartPop .45s ease;}
+  @keyframes heartPop{0%{transform:scale(1);}35%{transform:scale(1.6) rotate(-12deg);}100%{transform:scale(1);}}
+  .target-banner{margin:0 0 12px; background:#fff; border:1.5px solid var(--line); border-radius:var(--radius); padding:11px 14px; display:flex; align-items:center; gap:12px; position:relative; transition:border-color .3s;}
+  .target-banner::before{content:""; position:absolute; inset:-1.5px; border-radius:var(--radius); border:2px solid var(--tc,#FF4D5E); opacity:.5; pointer-events:none; animation:bannerPulse 1.6s ease-in-out infinite;}
+  @keyframes bannerPulse{0%,100%{opacity:.18;}50%{opacity:.6;}}
+  .target-swatch{width:44px; height:44px; border-radius:50%; background:var(--tc,#FF4D5E); flex:0 0 auto; display:flex; align-items:center; justify-content:center; font-size:22px; color:rgba(255,255,255,.9); font-weight:900; font-family:'Outfit'; transition:transform .2s, background .3s;}
+  .target-info{flex:1; min-width:0;}
+  .target-info .t-label{font-size:10px; letter-spacing:2px; color:var(--muted); font-weight:800;}
+  .target-info .t-name{font-family:'Outfit'; font-weight:800; font-size:22px; line-height:1.05;}
+  .target-info .t-left{font-size:12.5px; color:var(--muted);}
+  .queue{display:flex; gap:5px; align-items:center;}
+  .queue .q-dot{width:14px; height:14px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px var(--line);}
+  .queue .q-lab{font-size:9.5px; color:var(--dim); letter-spacing:1px; font-weight:800; margin-right:2px;}
+  #board-wrap{position:relative; width:100%; max-width:600px; margin:0 auto; aspect-ratio:1/1; background:#fff; border:1.5px solid var(--line); border-radius:24px; overflow:hidden; touch-action:none; user-select:none; -webkit-user-select:none; box-shadow:var(--shadow); animation:popIn .38s cubic-bezier(.2,.8,.2,1) both; cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cpath d='M5 2 L22 13 L13.5 14.8 L17 23 L13.8 24.4 L10.4 16.4 L5 21 Z' fill='%23111827' stroke='%23ffffff' stroke-width='1.6'/%3E%3C/svg%3E") 4 2, pointer;}
+  #board-wrap canvas{display:block;}
+  #phaser-holder{position:absolute; inset:0;}
+  .tip-line{min-height:22px; text-align:center; color:var(--muted); font-size:13.5px; margin:10px 4px 0; transition:color .2s;}
+  .tip-line.warn{color:#DC2626; font-weight:600;}
+  .tip-line.good{color:#65A30D; font-weight:600;}
+  .controls{display:flex; gap:9px; margin-top:10px; align-items:stretch;}
+  .ctl{flex:1; border-radius:16px; border:1.5px solid var(--line); background:#fff; color:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:9px 4px; min-height:58px; transition:border-color .15s, transform .1s, background .15s;}
+  .ctl:hover{border-color:#111827;}
+  .ctl:active{transform:scale(.95);}
+  .ctl:disabled{opacity:.4;}
+  .ctl .ci{font-size:20px; line-height:1.15;}
+  .ctl .cl{font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.5px;}
+
+  .modal-back{position:fixed; inset:0; background:rgba(17,24,39,.38); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; z-index:50; padding:18px;}
+  .modal-back.open{display:flex;}
+  .modal{background:#fff; border:1px solid var(--line); border-radius:22px; padding:26px 22px; max-width:400px; width:100%; text-align:center; animation:modalIn .28s cubic-bezier(.2,.8,.2,1) both; max-height:88dvh; overflow-y:auto; box-shadow:0 24px 60px rgba(0,0,0,.18);}
+  @keyframes modalIn{from{opacity:0; transform:scale(.92) translateY(10px);} to{opacity:1; transform:none;}}
+  .modal h2{font-size:27px; font-weight:800; margin-bottom:6px;}
+  .modal p{color:var(--muted); margin:6px 0 14px; font-size:14.5px;}
+  .modal .btn{width:100%; margin-top:10px;}
+  .win-stars{font-size:44px; letter-spacing:8px; margin:8px 0 2px; color:var(--yellow);}
+  .win-stars .off{color:#E5E7EB;}
+  .win-stars span{display:inline-block; animation:starIn .5s ease both;}
+  .win-stars span:nth-child(2){animation-delay:.15s;} .win-stars span:nth-child(3){animation-delay:.3s;}
+  @keyframes starIn{from{transform:scale(0) rotate(-40deg); opacity:0;} to{transform:scale(1) rotate(0); opacity:1;}}
+  .set-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 2px; border-bottom:1px solid var(--line2); text-align:left;}
+  .set-row:last-of-type{border-bottom:none;}
+  .set-row .sr-t{font-weight:600; font-size:15px;}
+  .set-row .sr-d{font-size:12.5px; color:var(--muted);}
+  .toggle{width:56px; height:32px; min-height:32px; border-radius:99px; border:1px solid var(--line); background:#E5E7EB; position:relative; flex:0 0 auto; padding:0; transition:background .2s;}
+  .toggle::after{content:""; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.2); transition:left .2s;}
+  .toggle[aria-pressed="true"]{background:#111827; border-color:#111827;}
+  .toggle[aria-pressed="true"]::after{left:27px; background:#fff;}
+  .how-step{display:flex; gap:14px; background:#fff; border:1.5px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:12px; text-align:left;}
+  .how-step .hs-ic{width:52px; height:52px; flex:0 0 auto; border-radius:14px; background:var(--surface2); border:1px solid var(--line2); display:flex; align-items:center; justify-content:center;}
+  .how-step h3{font-size:16.5px; font-weight:700; margin-bottom:3px;}
+  .how-step p{color:var(--muted); font-size:14px; margin:0;}
+  .kbd{background:var(--surface2); border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; padding:0 6px; font-family:'Space Grotesk'; font-size:12.5px;}
+  .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px); z-index:60; background:#111827; border:1px solid #111827; color:#fff; padding:11px 18px; border-radius:999px; font-size:14px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; max-width:92vw; text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.22);}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .unlock-badge{display:inline-block; background:#111827; color:#fff; font-size:10.5px; font-weight:800; letter-spacing:2px; padding:5px 12px; border-radius:999px;}
+  .unlock-swatch{width:104px; height:104px; margin:18px auto 6px; border-radius:50%; display:flex; align-items:center; justify-content:center; animation:unlockPop .7s cubic-bezier(.2,1.4,.3,1) both; box-shadow:0 14px 34px rgba(17,24,39,.18);}
+  @keyframes unlockPop{0%{transform:scale(0) rotate(-30deg); opacity:0;}60%{transform:scale(1.12) rotate(4deg); opacity:1;}100%{transform:scale(1) rotate(0);}}
+  .unlock-swatch svg{width:64px; height:64px;}
+  .unlock-name{font-family:'Outfit'; font-weight:900; font-size:34px; line-height:1.05; animation:popIn .5s .18s both;}
+  .unlock-pool{display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin:14px 0 4px; animation:popIn .5s .3s both;}
+  .unlock-pool i{width:18px; height:18px; border-radius:50%; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px var(--line);}
+  .unlock-pool i.new{transform:scale(1.35); box-shadow:0 0 0 2px #111827;}
+  .shape-gallery{display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:9px;}
+  .shape-tile{border:1.5px solid var(--line); background:#fff; border-radius:14px; padding:8px 4px 7px; display:flex; flex-direction:column; align-items:center; gap:4px; min-height:96px;}
+  .shape-tile:hover{border-color:#111827;} .shape-tile:active{transform:scale(.96);}
+  .shape-tile svg{width:64px;height:64px;}
+  .shape-tile span{font-size:10px; font-weight:700; letter-spacing:.5px; color:var(--muted); text-transform:uppercase; text-align:center;}
+  .shape-tile b{font-size:9px; color:var(--dim); font-family:'Space Grotesk';}
+  #shapePreview{margin-top:16px; border:1.5px solid var(--line); border-radius:18px; padding:16px; background:#fff;}
+  #shapePreview svg{width:100%; max-width:420px; height:auto; display:block; margin:0 auto;}
+  .toast.err{background:#DC2626; border-color:#DC2626;}
+  .toast.good{background:#65A30D; border-color:#65A30D;}
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms !important; transition-duration:.01ms !important;} }
+</style>
+</head>
+<body>
+<div class="bg-arrows" id="bgArrows" aria-hidden="true"></div>
+<div id="app">
+  <section class="screen active" id="scr-home">
+    <div class="home-wrap">
+      <div class="logo" role="img" aria-label="CHROMA: Arrow Escape">
+        <span class="chroma"><b class="c-r">C</b><b class="c-b">H</b><b class="c-g">R</b><b class="c-y">O</b><b class="c-v">M</b><b class="c-t">A</b></span>
+        <span class="sub">ARROW ESCAPE<small>THE ONE-COLOUR-RULE PUZZLE</small></span>
+      </div>
+      <p class="tagline">Clear a dense maze of thin arrows — but only the <strong>target colour</strong> shown in the banner, and it changes after <strong>every single escape</strong> in a mixed, unpredictable sequence (Red → Green → Red → Blue…). You start with <strong>Red + Blue</strong> — a <strong>new colour unlocks every 5 levels</strong> (Green at 5, Orange at 10, Purple at 15, Yellow at 20, Cyan at 25…). Every level is a <strong>different shape</strong> — square, triangle, circle, diamond, mushroom, elephant, heart, cat, star, horse, lightning, spiral, maze and more — filled edge to edge with arrows, and winding arrows now travel out along their full path, turn by turn.</p>
+      <div class="shape-strip" aria-hidden="true">
+        <div class="shape-chip"><svg viewBox="0 0 40 40"><path d="M20 4 L36 34 H4 Z" fill="none" stroke="#111827" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 14 V26 M15 21 L20 27 L25 21" fill="none" stroke="#FF4D5E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Triangle</span></div>
+        <div class="shape-chip"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#111827" stroke-width="2.4"/><path d="M13 24 C13 16 20 13 27 16" fill="none" stroke="#399BFF" stroke-width="2.4" stroke-linecap="round"/><path d="M23 12 L28 16 L22 18" fill="none" stroke="#399BFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Circle</span></div>
+        <div class="shape-chip"><svg viewBox="0 0 40 40"><path d="M20 35 C7 26 4 17 8.5 11.5 C12 7.5 18 8.5 20 13 C22 8.5 28 7.5 31.5 11.5 C36 17 33 26 20 35Z" fill="none" stroke="#111827" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 20 H24" stroke="#FF4D5E" stroke-width="2.4" stroke-linecap="round"/><path d="M21 16 L26 20 L21 24" fill="none" stroke="#FF4D5E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Heart</span></div>
+        <div class="shape-chip"><svg viewBox="0 0 40 40"><path d="M5 20 L20 6 L35 20 V35 H5 Z" fill="none" stroke="#111827" stroke-width="2.4" stroke-linejoin="round"/><path d="M13 27 H24 M20 21 L26 27 L20 33" fill="none" stroke="#84CC16" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" transform="translate(-2,0)"/></svg><span>House</span></div>
+        <div class="shape-chip"><svg viewBox="0 0 40 40"><path d="M20 3 L24 14 L36 14 L26 22 L30 34 L20 26 L10 34 L14 22 L4 14 L16 14 Z" fill="none" stroke="#111827" stroke-width="2" stroke-linejoin="round"/><circle cx="20" cy="19" r="3.4" fill="#F5B921"/></svg><span>Star</span></div>
+        <div class="shape-chip"><svg viewBox="0 0 40 40"><path d="M20 4 L34 20 L20 36 L6 20 Z" fill="none" stroke="#111827" stroke-width="2.4" stroke-linejoin="round"/><path d="M14 20 H25 M21 15 L26 20 L21 25" fill="none" stroke="#8B7CFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Diamond</span></div>
+      </div>
+      <div class="home-stats">
+        <span class="stat-chip">Progress <b id="statProgress">Level 1</b></span>
+        <span class="stat-chip">Stars <b id="statStars">0 / 300</b></span>
+        <span class="stat-chip">Levels <b>100</b></span>
+      </div>
+      <div class="menu">
+        <button class="btn primary" id="btnPlay"><span>▶</span> PLAY</button>
+        <button class="btn" id="btnDaily"><span>📅</span> Daily Challenge <span class="num" id="dailyState" style="color:var(--muted); font-size:13px;"></span></button>
+        <button class="btn" id="btnLevels"><span>▦</span> Level Select</button>
+        <button class="btn" id="btnShapes"><span>⬡</span> Shape Gallery — Preview Every Silhouette</button>
+        <button class="btn" id="btnHow"><span>?</span> How to Play</button>
+        <button class="btn" id="btnSettings"><span>⚙</span> Settings</button>
+        <button class="btn" id="btnSoundQuick"><span id="soundQuickIc">🔊</span> <span id="soundQuickTx">Sound: On</span></button>
+      </div>
+      <p class="home-foot">100 levels · a different shape on every level, densely filled with arrows · a mixed colour sequence that changes after every move · every level is guaranteed solvable · progress is kept for this play session</p>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-levels">
+    <div class="topbar">
+      <button class="icon-btn" id="btnLevelsBack" aria-label="Back to home">←</button>
+      <div style="flex:1;"><h2>Level Select</h2><div style="color:var(--muted); font-size:13px;">Every level is a different shape — the shape name is on each tile</div></div>
+    </div>
+    <div class="progress-card">
+      <div class="row"><b>Your progress</b><span class="num" id="progText" style="color:var(--muted); font-size:13px;">0 / 100 levels</span></div>
+      <div class="bar"><i id="progBar" style="width:0%"></i></div>
+    </div>
+    <div role="status" style="background:#111827; color:#fff; border-radius:14px; padding:12px 14px; margin-bottom:18px; display:flex; gap:10px; align-items:center;">
+      <span style="font-size:20px; line-height:1;" aria-hidden="true">🔓</span>
+      <span style="font-size:14px; line-height:1.35;"><b>All 100 levels unlocked for testing</b> — tap any level to play it now, no need to complete previous levels first.</span>
+    </div>
+    <div id="lvlContainer"></div>
+  </section>
+
+  <section class="screen" id="scr-shapes">
+    <div class="topbar">
+      <button class="icon-btn" id="btnShapesBack" aria-label="Back to home">←</button>
+      <div style="flex:1;"><h2>Shape Gallery</h2><div style="color:var(--muted); font-size:13px;">Every registered silhouette, drawn from its real mask. Tap any shape to generate a sample playable level inside it and verify it.</div></div>
+    </div>
+    <div class="shape-gallery" id="shapeGallery"></div>
+    <div id="shapePreview" style="display:none;">
+      <h3 id="spName" style="font-size:21px; text-align:center;">Shape</h3>
+      <p id="spMeta" style="color:var(--muted); font-size:13px; text-align:center; margin:4px 0 10px;"></p>
+      <div id="spSvg"></div>
+      <p id="spResult" style="font-size:13.5px; text-align:center; margin:10px 0 2px;"></p>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-how">
+    <div class="topbar">
+      <button class="icon-btn" id="btnHowBack" aria-label="Back to home">←</button>
+      <div style="flex:1;"><h2>How to Play</h2><div style="color:var(--muted); font-size:13px;">Easy to learn, hard to master</div></div>
+    </div>
+    <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="13" fill="#FF4D5E"/><path d="M12 17 h9 M17 11 l6 6 -6 6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(-1.5,0)"/></svg></div><div><h3>1 · Only the target colour moves</h3><p>The banner shows the active target colour. After every successful escape, the target jumps to the next colour in the level's mixed sequence — it might go Red, then Green, then Red again. Arrows of any other colour are locked — tapping one costs a heart, even if its exit looks wide open.</p></div></div>
+    <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M6 22 H20 M14 10 L26 22 L14 34" stroke="#399BFF" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,-6)"/></svg></div><div><h3>2 · The exit path must be clear</h3><p>An arrow slides out in the direction its head points, out through the edge of the shape. If <em>any</em> arrow sits in its path, it's blocked — tap a blocked arrow and the one in its way flashes red, with a ring on the exact cell where it blocks you. Bent arrows (L, U and zig-zag) still exit head-first.</p></div></div>
+    <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M20 4 L36 34 H4 Z" fill="none" stroke="#111827" stroke-width="2.4" stroke-linejoin="round" transform="scale(.85) translate(3,3)"/></svg></div><div><h3>3 · A different shape on every level</h3><p>Level 1 is a square, Level 2 a triangle, Level 3 a circle, Level 4 a diamond — then the creative boards arrive fast: a mushroom at Level 5, an elephant at 8, a cat at 10, a horse at 15 and a maze at 20, mixed in with pentagon, hexagon, heart, star, cross, ring, lightning, arrowhead and spiral, so no two levels in a row ever look the same. The same shapes you meet in the Daily Challenge are all here in the levels too — nothing is daily-only. Every silhouette is packed edge to edge with thin winding arrows — the whole shape is filled, right out to its edges and tip — and the outline changes the exits and blocking paths. A new arrow colour also unlocks every 5 levels — Green at Level 5, Orange at 10, Purple at 15, Yellow at 20, Cyan at 25 — and stays in the pool forever.</p></div></div>
+    <div class="how-step"><div class="hs-ic"><span style="font-size:15px; font-weight:800; letter-spacing:1px;"><span style="color:#FF4D5E;">R</span> → <span style="color:#7AC70C;">G</span> → <span style="color:#FF4D5E;">R</span> → <span style="color:#2F7DFF;">B</span></span></div><div><h3>Mixed sequence — a new target every move</h3><p>Each level hides a built-in colour sequence generated together with the board, so the puzzle is always solvable. The target changes after <b>every</b> escape — Red → Green → Red → Blue is normal, and the same colour can appear twice in a row, but it never waits for a whole colour to be finished. Watch the NEXT dots in the banner to plan ahead.</p></div></div>
+    <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M17 29 C6 21 4 14 8 9.5 C11 6.5 16 7.5 17 11 C18 7.5 23 6.5 26 9.5 C30 14 28 21 17 29Z" fill="#FF4D5E"/></svg></div><div><h3>4 · Three hearts per level</h3><p>Wrong colour or blocked arrow = one heart lost. Lose all three and the level ends. Within a colour, free blocked arrows by removing the ones in front first.</p></div></div>
+    <div class="how-step"><div class="hs-ic"><span style="font-size:26px;">💡</span></div><div><h3>Tools &amp; keys</h3><p><b>Undo</b> reverses your last escape, <b>Hint</b> highlights an arrow that can escape right now, <b>Restart</b> resets the level. On desktop: <span class="kbd">U</span> undo · <span class="kbd">H</span> hint · <span class="kbd">R</span> restart · <span class="kbd">Esc</span> pause.</p></div></div>
+    <button class="btn primary" id="btnHowPlay" style="width:100%; margin-top:6px;">▶ Start Level 1</button>
+  </section>
+
+  <section class="screen" id="scr-game">
+    <div class="hud-top">
+      <button class="icon-btn dark" id="btnBackLevels" aria-label="Back to level select">‹</button>
+      <div class="hud-level">
+        <div class="lv-name" id="hudLevel">Level 1</div>
+        <div class="lv-diff" id="hudDiff">BEGINNER</div>
+      </div>
+      <button class="icon-btn dark" id="btnPause" aria-label="Pause">Ⅱ</button>
+    </div>
+    <div style="text-align:center;"><span class="shape-badge"><i></i><span id="shapeName">Square Board</span></span></div>
+
+    <div class="stats-bar" role="status" aria-label="Level stats">
+      <div class="stat-cell"><div class="s-lab">HEARTS</div><div class="s-val"><span class="hearts" id="hearts" aria-label="Lives"></span><span class="num" id="heartsNum">3</span></div></div>
+      <div class="stat-cell"><div class="s-lab">MOVES</div><div class="s-val num" id="statMoves">0</div></div>
+      <div class="stat-cell"><div class="s-lab">LEFT</div><div class="s-val num" id="statLeft">0/0</div></div>
+      <div class="stat-cell"><div class="s-lab">TIME</div><div class="s-val num" id="statTime">00:00</div></div>
+    </div>
+
+    <div class="target-banner" id="targetBanner">
+      <div class="target-swatch" id="targetSwatch">➤</div>
+      <div class="target-info">
+        <div class="t-label">TARGET COLOUR</div>
+        <div class="t-name" id="targetName">Red</div>
+        <div class="t-left" id="targetLeft">4 arrows to go</div>
+      </div>
+      <div class="queue" id="queueDots"><span class="q-lab">NEXT</span></div>
+    </div>
+
+    <div id="board-wrap"><div id="phaser-holder"></div></div>
+    <p class="tip-line" id="tipLine">Tap a target-colour arrow with a clear path.</p>
+
+    <div class="controls">
+      <button class="ctl" id="btnUndo"><span class="ci">↩</span><span class="cl">UNDO</span></button>
+      <button class="ctl" id="btnHint"><span class="ci">💡</span><span class="cl">HINT</span></button>
+      <button class="ctl" id="btnRestart"><span class="ci">↻</span><span class="cl">RESTART</span></button>
+    </div>
+  </section>
+</div>
+
+<div class="modal-back" id="modalPause"><div class="modal"><h2>Paused</h2><p id="pauseSub">Level 1</p><button class="btn primary" id="btnResume">▶ Resume</button><button class="btn" id="btnPauseRestart">↻ Restart Level</button><div class="set-row"><div><div class="sr-t">Sound effects</div><div class="sr-d">Taps, escapes, errors</div></div><button class="toggle" id="tgSound" aria-pressed="true" aria-label="Toggle sound effects"></button></div><div class="set-row"><div><div class="sr-t">Music</div><div class="sr-d">Soft background loop</div></div><button class="toggle" id="tgMusic" aria-pressed="true" aria-label="Toggle music"></button></div><div class="set-row"><div><div class="sr-t">Vibration</div><div class="sr-d">Buzz on wrong moves (mobile)</div></div><button class="toggle" id="tgVib" aria-pressed="true" aria-label="Toggle vibration"></button></div><button class="btn" id="btnQuitLevels">▦ Level Select</button><button class="btn" id="btnQuitHome">⌂ Home</button></div></div>
+<div class="modal-back" id="modalSettings"><div class="modal"><h2>Settings</h2><p>Audio and feedback preferences.</p><div class="set-row"><div><div class="sr-t">Sound effects</div><div class="sr-d">Taps, escapes, errors</div></div><button class="toggle" id="tgSound2" aria-pressed="true" aria-label="Toggle sound effects"></button></div><div class="set-row"><div><div class="sr-t">Music</div><div class="sr-d">Soft background loop</div></div><button class="toggle" id="tgMusic2" aria-pressed="true" aria-label="Toggle music"></button></div><div class="set-row"><div><div class="sr-t">Vibration</div><div class="sr-d">Buzz on wrong moves (mobile)</div></div><button class="toggle" id="tgVib2" aria-pressed="true" aria-label="Toggle vibration"></button></div><button class="btn primary" id="btnSettingsClose">Done</button></div></div>
+<div class="modal-back" id="modalWin"><div class="modal"><h2 id="winTitle">Level Complete!</h2><div class="win-stars" id="winStars"></div><p id="winText">Board cleared.</p><button class="btn primary" id="btnNext">▶ Next Level</button><button class="btn" id="btnWinReplay">↻ Replay</button><button class="btn" id="btnWinLevels">▦ Level Select</button></div></div>
+<div class="modal-back" id="modalUnlock"><div class="modal"><span class="unlock-badge">NEW COLOUR UNLOCKED</span><div class="unlock-swatch" id="unlockSwatch"><svg viewBox="0 0 64 64"><path d="M14 32 H44 M34 18 L50 32 L34 46" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="unlock-name" id="unlockName">Green</div><p id="unlockText">Green arrows now join the maze — permanently, for every level from here on.</p><div class="unlock-pool" id="unlockPool"></div><p style="font-size:12px;">Your colour pool keeps growing every 5 levels.</p><button class="btn primary" id="btnUnlockGo">▶ Let's Play</button></div></div>
+<div class="modal-back" id="modalOver"><div class="modal"><h2 style="color:#DC2626;">Out of Hearts</h2><p id="overText">Three wrong moves. Watch the target colour — and check the exit path before you tap.</p><button class="btn primary" id="btnRetry">↻ Retry Level</button><button class="btn" id="btnOverLevels">▦ Level Select</button></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function $(id){return document.getElementById(id);}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+var Settings={sound:true,music:true,vibration:true};
+var AudioSys={
+  ctx:null,musicTimer:null,musicStep:0,
+  ensure:function(){ if(!this.ctx){ try{ this.ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ this.ctx=null; } } if(this.ctx && this.ctx.state==='suspended'){ this.ctx.resume(); } return this.ctx; },
+  tone:function(freq,dur,type,vol,when,slideTo){ if(!Settings.sound) return; var ctx=this.ensure(); if(!ctx) return; var t=ctx.currentTime+(when||0); var o=ctx.createOscillator(), g=ctx.createGain(); o.type=type||'sine'; o.frequency.setValueAtTime(freq,t); if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo,t+dur); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.15,t+0.012); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+dur+0.05); },
+  click:function(){ this.tone(660,0.07,'triangle',0.10); },
+  select:function(){ this.tone(520,0.06,'sine',0.08); this.tone(780,0.07,'sine',0.06,0.03); },
+  exit:function(){ this.tone(420,0.22,'sawtooth',0.05,0,980); this.tone(840,0.18,'sine',0.09,0.02,1320); },
+  error:function(){ this.tone(190,0.16,'square',0.07); this.tone(140,0.2,'square',0.07,0.07); },
+  heart:function(){ this.tone(320,0.25,'sine',0.12,0,90); },
+  unlock:function(){ var n=[523,659,784]; for(var i=0;i<3;i++) this.tone(n[i],0.14,'triangle',0.11,i*0.07); },
+  win:function(){ var n=[523,659,784,1046,1318]; for(var i=0;i<5;i++) this.tone(n[i],0.22,'triangle',0.12,i*0.09); },
+  over:function(){ var n=[392,330,262,196]; for(var i=0;i<4;i++) this.tone(n[i],0.26,'triangle',0.11,i*0.13); },
+  startMusic:function(){ if(this.musicTimer||!Settings.music) return; var self=this; var scale=[220,261.6,329.6,392,440,523.3]; this.musicTimer=setInterval(function(){ if(!Settings.music) return; var ctx=self.ensure(); if(!ctx) return; var step=self.musicStep++; if(step%2===0){ var f=scale[Math.floor(Math.random()*scale.length)]; var o=ctx.createOscillator(), g=ctx.createGain(), t=ctx.currentTime; o.type='sine'; o.frequency.value=f*2; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.028,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.5); o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+0.55); } if(step%8===0){ var o2=ctx.createOscillator(), g2=ctx.createGain(), t2=ctx.currentTime; o2.type='triangle'; o2.frequency.value=110; g2.gain.setValueAtTime(0.0001,t2); g2.gain.exponentialRampToValueAtTime(0.05,t2+0.03); g2.gain.exponentialRampToValueAtTime(0.0001,t2+1.1); o2.connect(g2); g2.connect(ctx.destination); o2.start(t2); o2.stop(t2+1.2); } },300); },
+  stopMusic:function(){ if(this.musicTimer){ clearInterval(this.musicTimer); this.musicTimer=null; } }
+};
+function vibrate(ms){ if(Settings.vibration && navigator.vibrate){ try{ navigator.vibrate(ms); }catch(e){} } }
+</script>
+<script>
+/* COLOUR UNLOCK LADDER — order IS the unlock order. A new colour is
+   permanently added every 5 levels: L1-4 Red+Blue, L5 Green, L10 Orange,
+   L15 Purple, L20 Yellow, L25 Cyan, then Pink, Teal, Magenta, Indigo,
+   Coral, Emerald and Charcoal for the highest levels. Colours are never
+   removed once unlocked. */
+var COLORS=[
+  {id:'red',     name:'Red',     hex:0xFF4D5E, css:'#FF4D5E'},
+  {id:'blue',    name:'Blue',    hex:0x2F7DFF, css:'#2F7DFF'},
+  {id:'green',   name:'Green',   hex:0x7AC70C, css:'#7AC70C'},
+  {id:'orange',  name:'Orange',  hex:0xFF8A1E, css:'#FF8A1E'},
+  {id:'purple',  name:'Purple',  hex:0x8B5CF6, css:'#8B5CF6'},
+  {id:'yellow',  name:'Yellow',  hex:0xF5B921, css:'#F5B921'},
+  {id:'cyan',    name:'Cyan',    hex:0x06B6D4, css:'#06B6D4'},
+  {id:'pink',    name:'Pink',    hex:0xEC4899, css:'#EC4899'},
+  {id:'teal',    name:'Teal',    hex:0x14B8A6, css:'#14B8A6'},
+  {id:'magenta', name:'Magenta', hex:0xD946EF, css:'#D946EF'},
+  {id:'indigo',  name:'Indigo',  hex:0x4F46E5, css:'#4F46E5'},
+  {id:'coral',   name:'Coral',   hex:0xFF6F61, css:'#FF6F61'},
+  {id:'emerald', name:'Emerald', hex:0x059669, css:'#059669'},
+  {id:'charcoal',name:'Charcoal',hex:0x475569, css:'#475569'}
+];
+var COLOR_ORDER=COLORS.map(function(c){return c.id;});
+function unlockedColorCount(n){
+  if(n==null||n<1) return 2;
+  return Math.min(COLORS.length, 2+Math.floor(n/5));
+}
+function unlockedPalette(n){ return COLOR_ORDER.slice(0, unlockedColorCount(n)); }
+function newColorForLevel(n){
+  if(!n || n<5 || n%5!==0) return null;
+  var idx=unlockedColorCount(n)-1;
+  if(idx<2 || idx>=COLORS.length) return null;
+  if(unlockedColorCount(n-1)>=unlockedColorCount(n)) return null;
+  return COLORS[idx];
+}
+var DIRS=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+function colorById(id){ for(var i=0;i<COLORS.length;i++) if(COLORS[i].id===id) return COLORS[i]; return COLORS[0]; }
+function key(x,y){ return x+','+y; }
+
+/* ---------- BOARD SHAPES — a different outline on every level ---------- */
+var SHAPE_DEFS=[
+  {id:'square', name:'Square', mask:function(x,y,g){ return true; }},
+  {id:'circle', name:'Circle', mask:function(x,y,g){ var c=(g-1)/2, dx=x-c, dy=y-c; return dx*dx+dy*dy <= (g/2)*(g/2)+0.6; }},
+  {id:'triangle', name:'Triangle', mask:function(x,y,g){ var c=(g-1)/2; var half=(y/Math.max(1,g-1))*c+0.45; return Math.abs(x-c)<=half; }},
+  {id:'diamond', name:'Diamond', mask:function(x,y,g){ var c=(g-1)/2; return Math.abs(x-c)+Math.abs(y-c)<=c+0.6; }},
+  {id:'heart', name:'Heart', mask:function(x,y,g){ var nx=(x-(g-1)/2)/(g/2.35); var ny=((g-1)/2-y)/(g/2.35)+0.12; return Math.pow(nx*nx+ny*ny-1,3)-nx*nx*Math.pow(ny,3)<=0.02; }},
+  {id:'house', name:'House', mask:function(x,y,g){ var c=(g-1)/2; var roof=Math.ceil(g*0.36); if(y<roof){ var half=(y/Math.max(1,roof-1))*c+0.3; return Math.abs(x-c)<=half; } return x>=1 && x<=g-2; }},
+  {id:'hexagon', name:'Hexagon', mask:function(x,y,g){ var c=(g-1)/2, dx=Math.abs(x-c), dy=Math.abs(y-c); return dx<=c+0.5 && dy<=c+0.5 && dx+dy<=c*1.6+0.4; }},
+  {id:'cross', name:'Cross', mask:function(x,y,g){ var c=(g-1)/2, t=Math.ceil(g/6)+0.2; return Math.abs(x-c)<=t || Math.abs(y-c)<=t; }},
+  {id:'ring', name:'Ring', mask:function(x,y,g){ var c=(g-1)/2, dx=x-c, dy=y-c, d2=dx*dx+dy*dy, R=g/2; return d2<=R*R+0.6 && d2>=(R*0.36)*(R*0.36); }},
+  {id:'star', name:'Star', mask:function(x,y,g){ var c=(g-1)/2, dx=x-c, dy=y-c; var r=Math.sqrt(dx*dx+dy*dy); if(r<0.6) return true; var th=Math.atan2(dy,dx); var lim=(g/2+0.4)*(0.74+0.30*Math.cos(5*th+Math.PI/2)); /* 5-point modulation */ return r<=lim; }},
+  {id:'steps', name:'Steps', mask:function(x,y,g){ var maxX=Math.floor(((y+1)/g)*(g-1))+1; return x<=maxX; }},
+  {id:'arrow', name:'Arrow Board', mask:function(x,y,g){ var c=(g-1)/2; var headStart=Math.floor(g*0.52); if(x<headStart){ return Math.abs(y-c)<=Math.max(1,Math.floor(g/6))+0.2; } var t=(x-headStart)/Math.max(1,g-1-headStart); var half=(1-t)*c+0.3; return Math.abs(y-c)<=half; }},
+  {id:'blob', name:'Cloud', mask:function(x,y,g){ var c=(g-1)/2; function inC(cx,cy,r){ var dx=x-cx, dy=y-cy; return dx*dx+dy*dy<=r*r; } return inC(c,c,g*0.34) || inC(c-g*0.26,c+g*0.08,g*0.26) || inC(c+g*0.26,c+g*0.08,g*0.26) || inC(c,c-g*0.24,g*0.27); }},
+  {id:'oval', name:'Oval', mask:function(x,y,g){ var c=(g-1)/2, dx=(x-c)/(g/2+0.4), dy=(y-c)/(g/2.6); return dx*dx+dy*dy<=1; }}
+];
+/* --- Additional genuinely-distinct silhouettes (polygon / analytic masks).
+   Each mask is tested per grid cell, so the playable boundary itself IS
+   the silhouette — arrows can only exist inside it. --- */
+function pip(nx,ny,poly){
+  var inside=false;
+  for(var i=0,j=poly.length-1;i<poly.length;j=i++){
+    var xi=poly[i][0], yi=poly[i][1], xj=poly[j][0], yj=poly[j][1];
+    if(((yi>ny)!==(yj>ny)) && (nx < (xj-xi)*(ny-yi)/(yj-yi)+xi)) inside=!inside;
+  }
+  return inside;
+}
+function normXY(x,y,g){ return {nx:g<=1?0.5:x/(g-1), ny:g<=1?0.5:y/(g-1)}; }
+SHAPE_DEFS.push(
+  {id:'pentagon', name:'Pentagon', mask:function(x,y,g){ var p=normXY(x,y,g); var poly=[]; for(var k=0;k<5;k++){ var a=-Math.PI/2+k*2*Math.PI/5; poly.push([0.5+0.52*Math.cos(a),0.52+0.52*Math.sin(a)]); } return pip(p.nx,p.ny,poly); }},
+  {id:'crescent', name:'Crescent', mask:function(x,y,g){ var p=normXY(x,y,g); var dx=p.nx-0.44, dy=p.ny-0.5; if(dx*dx+dy*dy>0.52*0.52) return false; var ex=p.nx-0.74, ey=p.ny-0.34; return ex*ex+ey*ey>0.34*0.34; }},
+  {id:'lightning', name:'Lightning', mask:function(x,y,g){ var p=normXY(x,y,g); function dSeg(px,py,ax,ay,bx,by){ var vx=bx-ax, vy=by-ay, wx=px-ax, wy=py-ay; var t=Math.max(0,Math.min(1,(wx*vx+wy*vy)/((vx*vx+vy*vy)||1))); var dx=wx-t*vx, dy=wy-t*vy; return Math.sqrt(dx*dx+dy*dy); } var d=Math.min(dSeg(p.nx,p.ny,0.62,0.0,0.34,0.52), dSeg(p.nx,p.ny,0.34,0.52,0.56,0.52), dSeg(p.nx,p.ny,0.56,0.52,0.38,1.0)); return d<=0.135; }},
+  {id:'spiral', name:'Spiral', mask:function(x,y,g){ var p=normXY(x,y,g); var dx=p.nx-0.5, dy=p.ny-0.5; var r=Math.sqrt(dx*dx+dy*dy); if(r>0.50) return false; if(r<0.16) return true; var th=Math.atan2(dy,dx); var gapC=r*9.0; var dth=Math.atan2(Math.sin(th-gapC),Math.cos(th-gapC)); return Math.abs(dth)>0.62; }},
+  {id:'twin', name:'Twin Circles', mask:function(x,y,g){ var p=normXY(x,y,g); function inC(cx,cy,r){ var dx=p.nx-cx, dy=p.ny-cy; return dx*dx+dy*dy<=r*r; } return inC(0.32,0.5,0.34)||inC(0.68,0.5,0.34)||(p.nx>=0.32&&p.nx<=0.68&&Math.abs(p.ny-0.5)<=0.13); }},
+  {id:'hourglass', name:'Hourglass', mask:function(x,y,g){ var p=normXY(x,y,g); var half=0.07+0.44*Math.abs(p.ny-0.5)*2; return Math.abs(p.nx-0.5)<=half; }},
+  {id:'arrowhead', name:'Arrowhead', mask:function(x,y,g){ var p=normXY(x,y,g); return pip(p.nx,p.ny,[[0.5,0.0],[1.0,0.52],[0.76,0.52],[0.76,1.0],[0.24,1.0],[0.24,0.52],[0.0,0.52]]); }},
+  {id:'interlock', name:'Interlock', mask:function(x,y,g){ var p=normXY(x,y,g); function inC(cx,cy,r){ var dx=p.nx-cx, dy=p.ny-cy; return dx*dx+dy*dy<=r*r; } var dia=Math.abs(p.nx-0.5)+Math.abs(p.ny-0.5)<=0.42; return dia||inC(0.22,0.22,0.20)||inC(0.78,0.78,0.20); }},
+  {id:'asym', name:'Asymmetric', mask:function(x,y,g){ var p=normXY(x,y,g); return pip(p.nx,p.ny,[[0.08,0.30],[0.38,0.06],[0.72,0.14],[0.94,0.42],[0.80,0.66],[0.88,0.92],[0.52,0.84],[0.20,0.96],[0.10,0.62]]); }},
+  {id:'sections', name:'Maze Sections', mask:function(x,y,g){ var p=normXY(x,y,g); var left=p.nx<=0.40&&p.ny>=0.06&&p.ny<=0.94; var tr=p.nx>=0.58&&p.ny>=0.06&&p.ny<=0.44; var br=p.nx>=0.58&&p.ny>=0.58&&p.ny<=0.94; var bridge1=p.nx>0.40&&p.nx<0.58&&Math.abs(p.ny-0.25)<=0.09; var bridge2=p.nx>0.40&&p.nx<0.58&&Math.abs(p.ny-0.75)<=0.09; return left||tr||br||bridge1||bridge2; }}
+);
+/* --- REAL OBJECT / ANIMAL SILHOUETTES — hand-authored polygons ---------
+   These are NOT names over a square: each is a closed polygon in
+   normalised 0..1 space, rasterised per grid cell with the same
+   point-in-polygon test (pip) as Pentagon / Arrowhead. Only cells whose
+   centre falls inside the polygon are playable, so the drawn boundary,
+   the tap zones and collision all follow the animal / object outline:
+   Elephant = big body + head + hanging trunk + two legs; Mushroom = wide
+   dome cap + narrow stem; Horse = raised head/neck + body + tail + legs;
+   Cat = two pointed ears + head + sitting body. Maze = an S-shaped
+   labyrinth corridor (three horizontal runs joined by alternating
+   vertical connectors), a silhouette no square rotation can mimic. --- */
+SHAPE_DEFS.push(
+  {id:'mushroom', name:'Mushroom', mask:function(x,y,g){ var p=normXY(x,y,g); return pip(p.nx,p.ny,[[0.08,0.44],[0.14,0.20],[0.32,0.08],[0.56,0.05],[0.80,0.14],[0.92,0.30],[0.92,0.44],[0.68,0.50],[0.65,0.50],[0.65,0.88],[0.60,0.93],[0.40,0.93],[0.35,0.88],[0.35,0.50],[0.32,0.50]]); }},
+  {id:'elephant', name:'Elephant', mask:function(x,y,g){ var p=normXY(x,y,g); return pip(p.nx,p.ny,[[0.12,0.30],[0.22,0.20],[0.55,0.16],[0.73,0.20],[0.86,0.26],[0.89,0.38],[0.93,0.58],[0.91,0.74],[0.82,0.74],[0.82,0.56],[0.76,0.48],[0.71,0.52],[0.71,0.88],[0.60,0.88],[0.59,0.62],[0.34,0.64],[0.32,0.88],[0.21,0.88],[0.20,0.60],[0.12,0.52],[0.07,0.44]]); }},
+  {id:'horse', name:'Horse', mask:function(x,y,g){ var p=normXY(x,y,g); return pip(p.nx,p.ny,[[0.78,0.04],[0.92,0.08],[0.94,0.18],[0.84,0.24],[0.76,0.22],[0.72,0.38],[0.71,0.50],[0.70,0.88],[0.60,0.88],[0.59,0.58],[0.36,0.60],[0.34,0.88],[0.24,0.88],[0.23,0.56],[0.16,0.50],[0.05,0.58],[0.03,0.38],[0.10,0.28],[0.16,0.24],[0.28,0.19],[0.58,0.17],[0.68,0.10]]); }},
+  {id:'cat', name:'Cat', mask:function(x,y,g){ var p=normXY(x,y,g); return pip(p.nx,p.ny,[[0.26,0.04],[0.38,0.16],[0.50,0.13],[0.62,0.16],[0.74,0.04],[0.77,0.24],[0.72,0.36],[0.80,0.58],[0.87,0.88],[0.80,0.93],[0.20,0.93],[0.13,0.88],[0.20,0.58],[0.28,0.36],[0.23,0.24]]); }},
+  {id:'maze', name:'Maze', mask:function(x,y,g){ var p=normXY(x,y,g); var band1=p.ny>=0.02&&p.ny<=0.27; var band2=p.ny>=0.375&&p.ny<=0.625; var band3=p.ny>=0.73&&p.ny<=0.98; var inX=p.nx>=0.02&&p.nx<=0.98; var conn1=p.nx>=0.76&&p.nx<=0.98&&p.ny>0.27&&p.ny<0.375; var conn2=p.nx>=0.02&&p.nx<=0.24&&p.ny>0.625&&p.ny<0.73; return (inX&&(band1||band2||band3))||conn1||conn2; }}
+);
+function shapeById(id){ for(var i=0;i<SHAPE_DEFS.length;i++) if(SHAPE_DEFS[i].id===id) return SHAPE_DEFS[i]; if(window.console && console.error) console.error('[CHROMA] shapeById: NO template registered for shape "'+id+'" — refusing to silently substitute another shape.'); return null; }
+/* A DIFFERENT shape on every single level — the full 14-shape rotation.
+   Consecutive levels never repeat: L1 Square, L2 Circle, L3 Triangle,
+   L4 Diamond, L5 Hexagon, L6 House, L7 Cross, L8 Heart, L9 Star, L10 Oval,
+   L11 Steps, L12 Arrow Board, L13 Cloud, L14 Ring, then the rotation
+   restarts shifted so the same shape never lands on the same slot twice. */
+var SHAPE_ROTATION=['triangle','circle','diamond','hexagon','square','house','cross','heart','star','oval','steps','arrow','blob','ring'];
+/* SHAPE PROGRESSION — every registered silhouette appears in the NORMAL
+   LEVELS within the first 29 levels, creative / animal shapes included.
+   The Daily Challenge draws from this exact same pool (SHAPE_ALL), so no
+   shape may be gated to late levels only: players were meeting Mushroom,
+   Elephant, Horse, Cat and Maze in the Daily board while the level ladder
+   kept them locked away until Levels 25–29, behind two dozen purely
+   geometric boards. The ladder therefore starts gently (Square tutorial,
+   Triangle, Circle, Diamond) and then interleaves the object / animal
+   silhouettes early — Mushroom at 5, Elephant at 8, Cat at 10, Horse at
+   15, Maze at 20 — alongside the geometric ones, with the most intricate
+   multi-section boards (Interlock, Maze Sections, Asymmetric) closing
+   the first cycle. After Level 29 all silhouettes rotate with a stride
+   of 7 so consecutive levels never repeat a shape and the same shape
+   never lands on the same rotation slot twice. */
+var SHAPE_PROGRESSION=['square','triangle','circle','diamond','mushroom','pentagon','hexagon','elephant','heart','cat','star','cross','oval','crescent','horse','ring','lightning','arrowhead','spiral','maze','twin','hourglass','arrow','interlock','sections','asym','steps','house','blob'];
+var SHAPE_ALL=SHAPE_PROGRESSION.slice();
+function shapeForLevel(n, isDaily){
+  if(isDaily){ var d=new Date(); return shapeById(SHAPE_ALL[(d.getDate()+d.getMonth()*3)%SHAPE_ALL.length]); }
+  n=Math.max(1,n);
+  if(n<=SHAPE_PROGRESSION.length) return shapeById(SHAPE_PROGRESSION[n-1]);
+  var idx=((n-1)*7)%SHAPE_ALL.length;
+  var prev=((n-2)*7)%SHAPE_ALL.length;
+  if(idx===prev) idx=(idx+1)%SHAPE_ALL.length;
+  return shapeById(SHAPE_ALL[idx]);
+}
+function buildMask(shape, grid){
+  var set={}, list=[];
+  for(var y=0;y<grid;y++) for(var x=0;x<grid;x++){ if(shape.mask(x,y,grid)){ set[key(x,y)]=true; list.push({x:x,y:y}); } }
+  return {set:set, list:list};
+}
+
+var FIXED_SEQ=COLOR_ORDER.slice();
+function levelParams(n){
+  /* arrows here is only a floor — genLevel recomputes the real count from
+     the shape's area so the silhouette ends up DENSELY FILLED (see fillFor).
+     clearHi is the difficulty target for the fraction of arrows that may
+     have a completely clear exit at the START of the level (section 3 of
+     the design: Beginner 30–45%, Normal 20–30%, Hard 10–20%, Expert
+     5–15% — Easy and Master interpolate). avgLen / maxTurns are sized so
+     multi-turn template paths (U, S, zigzag, staircase, rectangular
+     winding) actually fit: a 3-segment path needs at least 5–6 cells. */
+  var nc=unlockedColorCount(n);
+  if(n<=5)  return {grid:10, nColors:nc, arrows:12, tier:'Beginner', maxTurns:3, fill:0.86, avgLen:3.9, clearHi:0.45};
+  if(n<=15) return {grid:11, nColors:nc, arrows:20, tier:'Easy',     maxTurns:4, fill:0.88, avgLen:4.4, clearHi:0.35};
+  if(n<=30) return {grid:12, nColors:nc, arrows:30, tier:'Normal',   maxTurns:5, fill:0.90, avgLen:4.8, clearHi:0.30};
+  if(n<=50) return {grid:13, nColors:nc, arrows:38, tier:'Hard',     maxTurns:5, fill:0.92, avgLen:5.2, clearHi:0.20};
+  if(n<=75) return {grid:14, nColors:nc, arrows:46, tier:'Expert',   maxTurns:6, fill:0.93, avgLen:5.5, clearHi:0.15};
+  return           {grid:14, nColors:nc, arrows:54, tier:'Master',   maxTurns:6, fill:0.94, avgLen:5.7, clearHi:0.15};
+}
+function buildShape(rng, head, dir, occupied, grid, maxTurns, maskSet, targetLen){
+  /* Greedy winding walk BACKWARD from the head: at every step try straight,
+     left and right (shuffled, turns capped) and take the first free cell
+     inside the shape. This snakes arrows through empty space so the whole
+     silhouette fills up maze-style instead of leaving bare patches.
+     GEOMETRY RULE: a turn is only taken after at least 2 cells in the
+     current direction whenever straight is available — this enforces a
+     minimum segment length of 2 cells, so paths are made of clean, long
+     orthogonal runs with precise 90° corners instead of awkward 1-cell
+     jogs and tiny stub segments. A 1-cell turn is still allowed as a
+     fallback when straight is blocked, so narrow silhouettes still fill. */
+  var cells=[{x:head.x,y:head.y}];
+  var seen={}; seen[key(head.x,head.y)]=true;
+  var bx=-dir.x, by=-dir.y, cx=head.x, cy=head.y;
+  var want=targetLen||3;
+  var turnsUsed=0;
+  var runLen=0; /* cells walked in the current direction since the last turn */
+  for(var st=0; st<want-1; st++){
+    var straight={x:bx,y:by};
+    var left={x:-by,y:bx}, right={x:by,y:-bx};
+    var cands;
+    var roll=rng();
+    if(st===0) cands=[straight]; /* the first step behind the head MUST run
+       along the exit direction — the shaft always flows straight into the
+       arrowhead, never into its side. If that cell is unavailable the
+       whole candidate is rejected by the caller. */
+    else if(turnsUsed>=maxTurns) cands=[straight];
+    else if(runLen<1) cands=(roll<0.5)? [straight,left,right] : [straight,right,left];
+    else if(runLen<2) cands=(roll<0.62)? [straight,left,right] : ((roll<0.81)? [left,straight,right] : [right,straight,left]);
+    else if(roll<0.22) cands=[straight,left,right];
+    else if(roll<0.32) cands=[straight,right,left];
+    else if(roll<0.66) cands=[left,straight,right];
+    else cands=[right,straight,left];
+    var moved=false;
+    for(var ci=0; ci<cands.length; ci++){
+      var nx=cx+cands[ci].x, ny=cy+cands[ci].y;
+      if(nx<0||ny<0||nx>=grid||ny>=grid) continue;
+      if(maskSet && !maskSet[key(nx,ny)]) continue;
+      var k=key(nx,ny);
+      if(seen[k]||occupied[k]!==undefined) continue;
+      var isTurn=(cands[ci].x!==bx||cands[ci].y!==by);
+      if(isTurn) turnsUsed++;
+      bx=cands[ci].x; by=cands[ci].y; cx=nx; cy=ny;
+      runLen=isTurn?1:runLen+1;
+      seen[k]=true; cells.push({x:cx,y:cy}); moved=true; break;
+    }
+    if(!moved) break;
+  }
+  if(cells.length<2) return null;
+  cells.reverse();
+  return trimTailStub(cells);
+}
+/* TINY-SEGMENT REMOVAL: if a finished path (tail → head order) ends in a
+   1-cell tail stub (a single cell beyond the last turn), drop that stub
+   cell. The arrow keeps its head, direction and shape, but no longer
+   carries an awkward one-cell segment. The freed cell simply stays empty.
+   Staircase paths are exempt — their repeating 1-cell steps ARE the
+   design, not a stub. */
+function trimTailStub(cells, keepStair){
+  if(keepStair) return cells;
+  var wps0=pathWaypoints(cells);
+  while(wps0.length>=3 && cells.length>3){
+    var s0=Math.abs(wps0[1].x-wps0[0].x)+Math.abs(wps0[1].y-wps0[0].y);
+    if(s0!==1) break;
+    cells.shift();
+    wps0=pathWaypoints(cells);
+  }
+  return cells;
+}
+function rotDir(d, side){ /* rotate a unit direction 90°; side +1 / -1 */
+  return side>0 ? {x:-d.y, y:d.x} : {x:d.y, y:-d.x};
+}
+/* ---------- TEMPLATE PATH BUILDER — intentionally designed shapes ----------
+   Instead of hoping a random walk bends nicely, most arrows are now built
+   from a named geometric template: a list of segment directions (walking
+   BACKWARD from the head, first segment always along the reverse of the
+   exit direction, so the shaft flows straight into the arrowhead) plus a
+   segment length for each. Turn sequences define the family:
+     []              straight        [s]            L
+     [s,s]           U               [s,s,s]        rectangular winding
+     [s,-s]          S / Z           [s,-s,s,-s…]   zigzag / staircase
+     random ±        long winding
+   Every step is checked against the mask, the board edge, already-placed
+   arrows and the path itself. If a later segment cannot complete, the
+   path is truncated at the last completed segment (a failed U degrades
+   to a clean L, never to a stub) — so templates also help density. */
+var PATTERN_NAMES=['straight','L','U','S','rect','zigzag','stair','winding'];
+function pickPattern(rng, maxTurns, totalSteps){
+  if(totalSteps<3 || maxTurns<1) return 'straight';
+  if(totalSteps<4 || maxTurns<2){
+    var r0=rng();
+    return (totalSteps>=3 && r0<0.62)? 'L' : 'straight';
+  }
+  var pool;
+  if(maxTurns>=3 && totalSteps>=7) pool=[['straight',5],['L',13],['U',17],['S',15],['rect',16],['zigzag',14],['stair',12],['winding',10]];
+  else if(maxTurns>=2 && totalSteps>=5) pool=[['straight',6],['L',16],['U',20],['S',18],['rect',8],['zigzag',10],['stair',10],['winding',12]];
+  else pool=[['straight',8],['L',30],['U',22],['S',20],['winding',20]];
+  var sum=0, i; for(i=0;i<pool.length;i++) sum+=pool[i][1];
+  var roll=rng()*sum;
+  for(i=0;i<pool.length;i++){ roll-=pool[i][1]; if(roll<=0) return pool[i][0]; }
+  return 'L';
+}
+function patternSegments(rng, name, totalSteps, maxTurns){
+  var s=(rng()<0.5)? 1:-1;
+  function segLens(n, minL){
+    /* distribute totalSteps over n segments, each >= minL where possible */
+    var lens=[], left=totalSteps, i, give;
+    for(i=0;i<n;i++){
+      var reserve=minL*(n-1-i);
+      give=(i===n-1)? left : Math.max(minL, Math.min(left-reserve, minL+Math.floor(rng()*2.4)));
+      lens.push(give); left-=give;
+    }
+    return lens;
+  }
+  switch(name){
+    case 'straight': return {turns:[], lens:[totalSteps], stair:false};
+    case 'L': return {turns:[s], lens:segLens(2,2), stair:false};
+    case 'U': { var lu=segLens(3,2); if(lu[2]>lu[0]+1) lu[2]=lu[0]+1; return {turns:[s,s], lens:lu, stair:false}; }
+    case 'S': return {turns:[s,-s], lens:segLens(3,2), stair:false};
+    case 'rect': { var lr=segLens(4,2); if(lr[2]>=lr[0] && lr[3]>=lr[1]) lr[3]=Math.max(1,lr[1]-1); return {turns:[s,s,s], lens:lr, stair:false}; }
+    case 'zigzag': { var nz=Math.min(maxTurns, 3+Math.floor(rng()*2)); var tz=[], i2; for(i2=0;i2<nz;i2++) tz.push(i2%2===0? s:-s); return {turns:tz, lens:segLens(nz+1,2), stair:false}; }
+    case 'stair': { var ns=Math.min(maxTurns+1, 4+Math.floor(rng()*3)); var ts=[], i3, ls=[]; for(i3=0;i3<ns-1;i3++) ts.push(i3%2===0? s:-s); var leftS=totalSteps; for(i3=0;i3<ns;i3++){ var g=(i3===ns-1)? leftS : Math.min(leftS-(ns-1-i3), 1+Math.floor(rng()*2)); ls.push(Math.max(1,g)); leftS-=ls[i3]; } return {turns:ts, lens:ls, stair:true}; }
+    default: { /* winding: 2–5 turns, random sides, runs of 2–3 */
+      var nw=Math.min(maxTurns, 2+Math.floor(rng()*3)); var tw=[], i4; for(i4=0;i4<nw;i4++) tw.push(rng()<0.5? s:-s);
+      return {turns:tw, lens:segLens(nw+1,2), stair:false};
+    }
+  }
+}
+function buildPatternPath(rng, head, dir, occupied, grid, maxTurns, maskSet, targetLen, patternName){
+  var totalSteps=Math.max(1,(targetLen||3)-1);
+  var name=patternName||pickPattern(rng, maxTurns, totalSteps);
+  var spec=patternSegments(rng, name, totalSteps, maxTurns);
+  if(spec.turns.length>maxTurns) return null;
+  var dirs=[{x:-dir.x, y:-dir.y}];
+  for(var ti=0; ti<spec.turns.length; ti++) dirs.push(rotDir(dirs[ti], spec.turns[ti]));
+  var cells=[{x:head.x, y:head.y}];
+  var seen={}; seen[key(head.x,head.y)]=true;
+  var cx=head.x, cy=head.y, completedSegs=0;
+  for(var si=0; si<dirs.length; si++){
+    var segStart=cells.length;
+    var segOk=true;
+    for(var stp=0; stp<spec.lens[si]; stp++){
+      var nx=cx+dirs[si].x, ny=cy+dirs[si].y;
+      if(nx<0||ny<0||nx>=grid||ny>=grid){ segOk=false; break; }
+      if(maskSet && !maskSet[key(nx,ny)]){ segOk=false; break; }
+      var kk=key(nx,ny);
+      if(seen[kk]||occupied[kk]!==undefined){ segOk=false; break; }
+      seen[kk]=true; cells.push({x:nx,y:ny}); cx=nx; cy=ny;
+    }
+    if(!segOk){
+      var added=cells.length-segStart;
+      if(added===0){
+        if(si===0) return null; /* cannot even leave the head backward */
+        cells.length=segStart; /* drop the empty segment — keep clean geometry */
+      }
+      /* a partially completed segment (>=1 cell) is kept as the final
+         segment; trimTailStub later removes it again if it is a 1-cell
+         stub beyond the last turn, so geometry stays clean either way */
+      break;
+    }
+    completedSegs++;
+  }
+  if(cells.length<2) return null;
+  if(completedSegs<dirs.length && cells.length<3) return null;
+  cells.reverse();
+  return trimTailStub(cells, spec.stair);
+}
+/* Path signature for variety accounting: turn count + turn-side pattern,
+   e.g. '0' straight, '1L' L, '2LL' U, '2LR' S, '3LLL' rectangular,
+   '4LRLR' zigzag/staircase. Used to score how varied a level really is. */
+function pathSignature(cells){
+  var w=pathWaypoints(cells);
+  if(!w || w.length<=2) return '0';
+  var sig='', prev=null;
+  for(var i=1;i<w.length;i++){
+    var d={x:Math.sign(w[i].x-w[i-1].x), y:Math.sign(w[i].y-w[i-1].y)};
+    if(prev){
+      var cross=prev.x*d.y-prev.y*d.x;
+      sig+=(cross>0)? 'L':'R';
+    }
+    prev=d;
+  }
+  return sig.length+sig;
+}
+function levelVariety(data){
+  var sigs={}, multi=0, straight=0;
+  data.arrows.forEach(function(a){
+    var sg=pathSignature(a.cells);
+    sigs[sg]=true;
+    var turns=pathWaypoints(a.cells).length-2;
+    if(turns>=2) multi++;
+    if(turns===0) straight++;
+  });
+  var n=Math.max(1,data.arrows.length);
+  return {distinct:Object.keys(sigs).length, multiFrac:multi/n, straightFrac:straight/n};
+}
+/* ---------- PATH GEOMETRY: unique, simplified, validated polylines ----------
+   Every arrow owns a unique pathId and its own segment list. The render
+   polyline is the SIMPLIFIED waypoint list: collinear intermediate cells
+   are removed, so a straight run is drawn as ONE segment and vertices
+   exist only at the tail, at genuine 90° turns, and at the head. No tiny
+   duplicate segments, no per-cell joints, no duplicated strokes. */
+function pathWaypoints(cells){
+  if(!cells || cells.length<=2) return cells? cells.slice():[];
+  var out=[cells[0]];
+  for(var wi=1; wi<cells.length-1; wi++){
+    var dx1=cells[wi].x-cells[wi-1].x, dy1=cells[wi].y-cells[wi-1].y;
+    var dx2=cells[wi+1].x-cells[wi].x, dy2=cells[wi+1].y-cells[wi].y;
+    if(dx1!==dx2 || dy1!==dy2) out.push(cells[wi]);
+  }
+  out.push(cells[cells.length-1]);
+  return out;
+}
+function pathSegments(cells){
+  var w=pathWaypoints(cells), segs=[];
+  for(var si=1; si<w.length; si++) segs.push({x1:w[si-1].x, y1:w[si-1].y, x2:w[si].x, y2:w[si].y});
+  return segs;
+}
+function edgeKey(ax,ay,bx,by){
+  return (ax<bx || (ax===bx && ay<by)) ? ax+','+ay+'>'+bx+','+by : bx+','+by+'>'+ax+','+ay;
+}
+/* Which axes pass through a given cell of an arrow: 'h' if the arrow has a
+   horizontal segment incident to that cell, 'v' for vertical. Used to tell
+   a genuine blocking crossing (perpendicular — fine) from a visual MERGE
+   (another arrow continuing this arrow's own line — forbidden). */
+function cellAxes(a, c){
+  var h=false, v=false;
+  for(var i=0;i<a.cells.length;i++){
+    if(a.cells[i].x!==c.x || a.cells[i].y!==c.y) continue;
+    if(i>0){ if(a.cells[i-1].y===c.y) h=true; else v=true; }
+    if(i<a.cells.length-1){ if(a.cells[i+1].y===c.y) h=true; else v=true; }
+  }
+  return {h:h, v:v};
+}
+/* SEPARATION VALIDATION for a whole level. Returns true only if:
+   - no two arrows share a cell or an edge (unique segment ownership),
+   - every arrow's cells form one continuous orthogonal chain (no
+     disconnected segments) ending exactly at its single head cell,
+   - no arrow's tail or head visually continues into another arrow: the
+     cell just beyond an endpoint, along that endpoint's own axis, must
+     not carry a collinear segment of a different arrow. (A perpendicular
+     blocker in front of a head is normal gameplay and stays allowed.) */
+function validatePathSeparation(data){
+  var cellOwner={}, edgeOwner={}, byId={};
+  var i, j, c, a;
+  for(i=0;i<data.arrows.length;i++){
+    a=data.arrows[i];
+    if(!a.cells || a.cells.length<2) return false;
+    if(!a.head || a.head.x!==a.cells[a.cells.length-1].x || a.head.y!==a.cells[a.cells.length-1].y) return false;
+    byId[a.id]=a;
+    for(j=0;j<a.cells.length;j++){
+      c=a.cells[j];
+      if(cellOwner[key(c.x,c.y)]!==undefined) return false; /* shared cell */
+      cellOwner[key(c.x,c.y)]=a.id;
+      if(j>0){
+        var p=a.cells[j-1];
+        if(Math.abs(c.x-p.x)+Math.abs(c.y-p.y)!==1) return false; /* disconnected / non-orthogonal */
+        var ek=edgeKey(p.x,p.y,c.x,c.y);
+        if(edgeOwner[ek]!==undefined) return false; /* shared edge */
+        edgeOwner[ek]=a.id;
+      }
+    }
+  }
+  for(i=0;i<data.arrows.length;i++){
+    a=data.arrows[i];
+    var tail=a.cells[0], tailDir={x:a.cells[1].x-tail.x, y:a.cells[1].y-tail.y};
+    var tailOut={x:tail.x-tailDir.x, y:tail.y-tailDir.y};
+    var tailAxis=(tailDir.y===0)? 'h':'v';
+    var to=cellOwner[key(tailOut.x,tailOut.y)];
+    if(to!==undefined && to!==a.id){ var ax1=cellAxes(byId[to], tailOut); if((tailAxis==='h'&&ax1.h)||(tailAxis==='v'&&ax1.v)) return false; }
+    var headOut={x:a.head.x+a.dir.x, y:a.head.y+a.dir.y};
+    var headAxis=(a.dir.y===0)? 'h':'v';
+    var ho=cellOwner[key(headOut.x,headOut.y)];
+    if(ho!==undefined && ho!==a.id){ var ax2=cellAxes(byId[ho], headOut); if((headAxis==='h'&&ax2.h)||(headAxis==='v'&&ax2.v)) return false; }
+  }
+  return true;
+}
+/* Incremental version used DURING generation: would placing `cells`
+   (a candidate arrow with exit dir) merge with an already-placed arrow?
+   Checks both directions — the candidate's endpoints continuing into a
+   placed arrow, and a placed arrow's endpoint continuing into the
+   candidate. edgeOwner/cellOwner are maintained by tryGen. */
+function placementMerges(cells, dir, byId, cellOwner, edgeOwner, endpointOut){
+  var j, c;
+  for(j=1;j<cells.length;j++){
+    if(edgeOwner[edgeKey(cells[j-1].x,cells[j-1].y,cells[j].x,cells[j].y)]!==undefined) return true;
+  }
+  var probe={cells:cells, dir:dir, head:cells[cells.length-1]};
+  var tail=cells[0], tailDir={x:cells[1].x-tail.x, y:cells[1].y-tail.y};
+  var tailOut={x:tail.x-tailDir.x, y:tail.y-tailDir.y};
+  var to=cellOwner[key(tailOut.x,tailOut.y)];
+  if(to!==undefined){ var ax1=cellAxes(byId[to], tailOut); if((tailDir.y===0&&ax1.h)||(tailDir.y!==0&&ax1.v)) return true; }
+  var headOut={x:probe.head.x+dir.x, y:probe.head.y+dir.y};
+  var ho=cellOwner[key(headOut.x,headOut.y)];
+  if(ho!==undefined){ var ax2=cellAxes(byId[ho], headOut); if((dir.y===0&&ax2.h)||(dir.y!==0&&ax2.v)) return true; }
+  /* a placed arrow's endpoint pointing collinearly into this candidate
+     (endpointOut values: 'h', 'v', or 'hv' when two placed endpoints
+     point into the same cell along different axes) */
+  for(j=0;j<cells.length;j++){
+    c=cells[j];
+    var eo=endpointOut[key(c.x,c.y)];
+    if(eo!==undefined){
+      var axN=cellAxes(probe, c);
+      if(eo==='hv'||(eo==='h'&&axN.h)||(eo==='v'&&axN.v)) return true;
+    }
+  }
+  return false;
+}
+function rayCells(head, dir, grid){
+  var out=[], x=head.x+dir.x, y=head.y+dir.y;
+  while(x>=0&&y>=0&&x<grid&&y<grid){ out.push({x:x,y:y}); x+=dir.x; y+=dir.y; }
+  return out;
+}
+/* ---------- SHARED GEOMETRY — ONE SOURCE OF TRUTH ----------
+   The renderer, the tap zones and the collision system ALL work from the
+   same arrow.cells list. The drawn polyline passes through the CENTRE of
+   every cell in that list (see BoardScene.drawArrowShape), and blocking
+   is decided ONLY by firstBlockerCell below: walk the exit ray from the
+   head, in order, and report the first cell owned by a different arrow.
+   Generation, level validation and live gameplay all call this exact
+   function, so what the player sees crossing an exit lane is exactly
+   what the collision system will report — never a different answer. */
+function firstBlockerCell(head, dir, grid, occ, selfId){
+  var ray=rayCells(head, dir, grid);
+  for(var i=0;i<ray.length;i++){
+    var o=occ[key(ray[i].x,ray[i].y)];
+    if(o!==undefined && o!==selfId) return {id:o, cell:ray[i]};
+  }
+  return null;
+}
+/* CENTRE-COVERAGE VALIDATION: the polyline that will be drawn for an
+   arrow (its simplified segments) must pass through the centre of EVERY
+   cell the arrow occupies — tail, turns and head included — and its
+   final segment must run exactly along the exit direction into the head
+   centre. If a level's drawn lines would not cover the same cells its
+   collision uses, the level is rejected before it is ever shown. */
+function validateCenterCoverage(data){
+  for(var ai=0; ai<data.arrows.length; ai++){
+    var a=data.arrows[ai];
+    if(!a.cells || a.cells.length<2) return false;
+    var wps=(a.waypoints && a.waypoints.length>=2)? a.waypoints : pathWaypoints(a.cells);
+    if(wps[0].x!==a.cells[0].x || wps[0].y!==a.cells[0].y) return false; /* tail centre is the start */
+    var last=wps[wps.length-1], prev=wps[wps.length-2];
+    if(last.x!==a.head.x || last.y!==a.head.y) return false; /* head centre is the end */
+    var ldx=last.x-prev.x, ldy=last.y-prev.y, ll=Math.abs(ldx)+Math.abs(ldy);
+    if(ll===0 || ldx/ll!==a.dir.x || ldy/ll!==a.dir.y) return false; /* shaft flows into the head along dir */
+    var segs=pathSegments(a.cells);
+    for(var ci=0; ci<a.cells.length; ci++){
+      var c=a.cells[ci], on=false;
+      for(var si=0; si<segs.length; si++){
+        var s=segs[si];
+        if(s.y1===s.y2 && c.y===s.y1 && c.x>=Math.min(s.x1,s.x2) && c.x<=Math.max(s.x1,s.x2)) on=true;
+        if(s.x1===s.x2 && c.x===s.x1 && c.y>=Math.min(s.y1,s.y2) && c.y<=Math.max(s.y1,s.y2)) on=true;
+        if(on) break;
+      }
+      if(!on) return false; /* an occupied cell the drawn line would miss */
+    }
+  }
+  return true;
+}
+/* MIXED COLOUR SEQUENCE — the removal order is shuffled move-by-move, NOT
+   grouped by colour. A valid sequence has: no run longer than 2 of the same
+   colour (doubles like RED→RED are allowed, long blocks are not), plenty of
+   colour changes, and no simple repeating rotation pattern. Because the
+   board is then built by reversing this exact removal order, the sequence
+   and the board are designed together and the level is solvable by
+   construction — the colour at move i is the colour of the arrow that is
+   guaranteed to have a clear exit at move i. */
+function mixedRemoval(rng, paletteIds, counts){
+  var pool=[];
+  paletteIds.forEach(function(id,ci){ for(var k=0;k<counts[ci];k++) pool.push(id); });
+  function maxRun(s){ var m=1, r=1; for(var i=1;i<s.length;i++){ r=(s[i]===s[i-1])? r+1:1; if(r>m) m=r; } return m; }
+  function transitions(s){ var t=0; for(var i=1;i<s.length;i++) if(s[i]!==s[i-1]) t++; return t; }
+  function isRotation(s){ if(s.length<8) return false; for(var p=2;p<=4;p++){ var ok=true; for(var i=p;i<s.length;i++){ if(s[i]!==s[i-p]){ ok=false; break; } } if(ok) return true; } return false; }
+  var best=null, bestScore=-1e9;
+  for(var att=0; att<300; att++){
+    var s=pool.slice();
+    for(var i=s.length-1;i>0;i--){ var j=Math.floor(rng()*(i+1)); var tmp=s[i]; s[i]=s[j]; s[j]=tmp; }
+    var mr=maxRun(s), tr=transitions(s);
+    var score=tr-mr*4-(isRotation(s)?50:0);
+    if(score>bestScore){ bestScore=score; best=s; }
+    if(mr<=2 && !isRotation(s) && tr>=Math.floor(s.length*0.45)) return s;
+  }
+  return best||pool;
+}
+function tryGen(rng, P, shape, mask){
+  var paletteIds=COLOR_ORDER.slice(0,Math.min(COLORS.length,P.nColors));
+  var base=Math.floor(P.arrows/paletteIds.length), rem=P.arrows-base*paletteIds.length;
+  var counts=paletteIds.map(function(id,ci){ return base+(ci<rem?1:0); });
+  var removal=mixedRemoval(rng, paletteIds, counts);
+  var occupied={}, placed=[], occCells=0;
+  /* Path-ownership registries: every edge belongs to exactly ONE arrow,
+     and endpointOut maps the cell just beyond each placed arrow's tail /
+     head (along its own axis) so a later candidate can be rejected if it
+     would visually continue that arrow's line. */
+  var edgeOwner={}, byId={}, endpointOut={};
+  /* ---------- FORWARD CHAIN CONSTRUCTION ----------
+     Arrows are placed in REMOVAL order (first placed = first removed),
+     the mirror image of the classic reverse build, with two rules that
+     together guarantee both solvability and a hard cap on free moves:
+       1. A new arrow's BODY may never enter any already-placed arrow's
+          exit ray (the rayFreeSpace rule). So once an arrow's own
+          blockers are gone, nothing placed later can re-block it — it
+          becomes clear exactly at its turn in the removal order.
+       2. Except for a small number of designated STARTER arrows, a new
+          arrow's exit ray MUST hit an already-placed arrow's body. It
+          is therefore genuinely blocked at the start of the game (real
+          collision geometry), and it only frees when that earlier
+          arrow — which is removed before it — has left the board.
+     Consequence: the arrows removable at the very start are EXACTLY
+     the starters, so the initial-clear count is chosen directly from
+     the difficulty target (Beginner ~37%, Normal ~25%, Hard ~15%,
+     Expert/Master ~10% of the expected arrow count) instead of being
+     whatever luck produces. Dependency chains form naturally: a late
+     arrow's ray often crosses several earlier bodies, and an early
+     body can block many later arrows, so removing one arrow can free
+     the next link, which frees the next — A blocks B blocks C. */
+  var estPlaced=Math.round(mask.list.length*(P.fill||0.85)/(P.avgLen||4));
+  var starterTarget=Math.max(1, Math.round(estPlaced*Math.max(0.06,(P.clearHi||0.30)-0.05)*0.85)); /* 0.85 safety: actual placed counts run below the estimate, and the ratio is measured against them */
+  var rayFree={}; /* union of all placed arrows' exit-ray cells: future bodies must stay out */
+  var startersPlaced=0;
+  for(var oi=0; oi<removal.length; oi++){
+    var isStarter=oi<starterTarget;
+    var placedOk=false;
+    /* forbidden cells for path building this round: bodies + claimed rays */
+    var forbidden={};
+    (function(){ for(var k1 in occupied) forbidden[k1]=occupied[k1]; for(var k2 in rayFree) if(forbidden[k2]===undefined) forbidden[k2]=-1; })();
+    for(var attempt=0; attempt<380 && !placedOk; attempt++){
+      var head=mask.list.length? mask.list[Math.floor(rng()*mask.list.length)] : {x:Math.floor(rng()*P.grid), y:Math.floor(rng()*P.grid)};
+      if(!head || forbidden[key(head.x,head.y)]!==undefined) continue;
+      /* Exit direction: prefer the shortest lane that still crosses at
+         least 2 silhouette cells (a 0–1-cell lane claims almost no
+         ray space and, for non-starters, is unlikely to reach a body);
+         short lanes also leave more ray-free room for later bodies. */
+      var scored=DIRS.map(function(d){ var len=0, rx=head.x, ry=head.y; while(rx>=0&&ry>=0&&rx<P.grid&&ry<P.grid&&mask.set[key(rx,ry)]){ rx+=d.x; ry+=d.y; len++; } return {d:d, len:len}; });
+      scored.sort(function(a,b){ var ka=a.len<3? a.len+10:a.len, kb=b.len<3? b.len+10:b.len; return ka-kb; });
+      var roll=rng(); var dir=(roll<0.45? scored[0] : (roll<0.72? scored[1] : scored[Math.floor(rng()*4)])).d;
+      // long winding arrows early (board empty), medium mid-game, short
+      // fillers as the silhouette packs out
+      var fillRatio=occCells/Math.max(1,mask.list.length);
+      var baseLen=(P.avgLen||3.2);
+      var targetLen=fillRatio<0.40 ? Math.max(3,Math.round(baseLen+1+(rng()*3-0.5))) : (fillRatio<0.80 ? Math.max(3,Math.round(baseLen+(rng()*2-0.7))) : 3+Math.floor(rng()*2));
+      /* Late in the order the ray-free pockets are small: cap the length
+         by placement fraction, and shrink the request as attempts burn,
+         so short fillers still land instead of the slot being wasted. */
+      var oiFrac=oi/Math.max(1,removal.length-1);
+      if(oiFrac>0.62) targetLen=Math.min(targetLen,4);
+      if(oiFrac>0.82) targetLen=Math.min(targetLen,3);
+      targetLen=Math.max(2, targetLen-Math.floor(attempt/110));
+      /* PATH: template builder first — intentionally designed straight /
+         L / U / S / rectangular / zigzag / staircase / winding shapes —
+         with the greedy winding walk as a space-filling fallback. Both
+         build inside `forbidden`, so the body automatically respects
+         the ray-free rule. */
+      var cells=null;
+      if(rng()<0.84){
+        cells=buildPatternPath(rng, head, dir, forbidden, P.grid, P.maxTurns, mask.set, targetLen);
+        if(!cells && rng()<0.6) cells=buildPatternPath(rng, head, dir, forbidden, P.grid, P.maxTurns, mask.set, Math.max(3,targetLen-2));
+      }
+      if(!cells) cells=buildShape(rng, head, dir, forbidden, P.grid, P.maxTurns, mask.set, targetLen);
+      if(!cells) continue;
+      /* The blocking contract, checked with the SAME firstBlockerCell
+         walk the live game uses: starters must be clear of placed
+         bodies; every other arrow must be blocked by one. */
+      var hit=firstBlockerCell(head, dir, P.grid, occupied, '__candidate__');
+      if(isStarter? !!hit : !hit) continue;
+      var ray=rayCells(head, dir, P.grid);
+      // the arrow's own body must not sit in front of its own head either
+      var ownBody=false, ownSet={}; cells.forEach(function(c){ ownSet[key(c.x,c.y)]=true; });
+      for(var rj=0; rj<ray.length; rj++){ if(ownSet[key(ray[rj].x,ray[rj].y)]){ ownBody=true; break; } }
+      if(ownBody) continue;
+      /* SEPARATION: reject any candidate whose line would touch, share an
+         edge with, or collinearly continue another arrow's line — two
+         arrows must never read as one combined path, whatever their
+         colour, and never form a double-headed single line. */
+      if(placementMerges(cells, dir, byId, occupied, edgeOwner, endpointOut)) continue;
+      var arrow={id:placed.length, pathId:'arrow-'+placed.length, color:removal[oi], dir:dir, cells:cells, head:head, waypoints:pathWaypoints(cells), segments:pathSegments(cells)};
+      cells.forEach(function(c){ occupied[key(c.x,c.y)]=arrow.id; });
+      for(var ei=1; ei<cells.length; ei++) edgeOwner[edgeKey(cells[ei-1].x,cells[ei-1].y,cells[ei].x,cells[ei].y)]=arrow.id;
+      byId[arrow.id]=arrow;
+      var tDir={x:cells[1].x-cells[0].x, y:cells[1].y-cells[0].y};
+      var regOut=function(kk, ax){ var cur=endpointOut[kk]; endpointOut[kk]=(!cur||cur===ax)? ax:'hv'; };
+      regOut(key(cells[0].x-tDir.x, cells[0].y-tDir.y), (tDir.y===0)? 'h':'v');
+      regOut(key(head.x+dir.x, head.y+dir.y), (dir.y===0)? 'h':'v');
+      /* claim this arrow's exit lane: no later body may enter it */
+      ray.forEach(function(c){ rayFree[key(c.x,c.y)]=true; });
+      occCells+=cells.length;
+      placed.push(arrow); placedOk=true;
+      if(isStarter) startersPlaced++;
+    }
+  }
+  /* ---------- PHASE 2: ORDER-AWARE DENSITY INSERTIONS ----------
+     The forward rule (bodies avoid all earlier rays) caps density, so
+     once the chain core exists, extra arrows are INSERTED into the
+     removal order at a feasible position p. An inserted arrow E is
+     valid at position p iff:
+       (a) every body in E's exit ray belongs to an arrow ordered
+           BEFORE p (all gone when E's turn comes, and at least one
+           exists, so E is blocked at the start — the initial clear
+           set, exactly the starters, does not grow), and
+       (b) every arrow whose exit ray E's body enters is ordered at or
+           AFTER p (it simply waits for E, which leaves before it).
+     Feasible iff maxPos(ray-hit bodies) < minPos(arrows whose rays
+     E enters); p = maxPos+1 then works. Each candidate head tries all
+     four exit directions before being discarded — in the fragmented
+     pockets left by phase 1, the direction is usually what decides
+     feasibility. Insertions keep filling the silhouette toward the
+     fill target without touching solvability or the starter count. */
+  var targetFillCells=Math.floor(mask.list.length*(P.fill||0.85));
+  var insertTries=0;
+  function regIns(iArrow, iCells, iHead, iDir){
+    iCells.forEach(function(c){ occupied[key(c.x,c.y)]=iArrow.id; });
+    for(var ie=1; ie<iCells.length; ie++) edgeOwner[edgeKey(iCells[ie-1].x,iCells[ie-1].y,iCells[ie].x,iCells[ie].y)]=iArrow.id;
+    byId[iArrow.id]=iArrow;
+    var td={x:iCells[1].x-iCells[0].x, y:iCells[1].y-iCells[0].y};
+    var rg=function(kk, ax){ var cur=endpointOut[kk]; endpointOut[kk]=(!cur||cur===ax)? ax:'hv'; };
+    rg(key(iCells[0].x-td.x, iCells[0].y-td.y), (td.y===0)? 'h':'v');
+    rg(key(iHead.x+iDir.x, iHead.y+iDir.y), (iDir.y===0)? 'h':'v');
+  }
+  while(occCells<targetFillCells && insertTries<1500){
+    insertTries++;
+    var iHead=mask.list[Math.floor(rng()*mask.list.length)];
+    if(!iHead || occupied[key(iHead.x,iHead.y)]!==undefined) continue;
+    var iScored=DIRS.map(function(d){ var len=0, rx=iHead.x, ry=iHead.y; while(rx>=0&&ry>=0&&rx<P.grid&&ry<P.grid&&mask.set[key(rx,ry)]){ rx+=d.x; ry+=d.y; len++; } return {d:d, len:len}; });
+    iScored.sort(function(a,b){ var ka=a.len<3? a.len+10:a.len, kb=b.len<3? b.len+10:b.len; return ka-kb; });
+    var iFillR=occCells/targetFillCells;
+    var iLen= iFillR>0.82? 2+Math.floor(rng()*2) : (iFillR>0.6? 3+Math.floor(rng()*2) : 4+Math.floor(rng()*3));
+    for(var dop=0; dop<4; dop++){
+      var iDir=iScored[dop].d;
+      var iCells=null;
+      if(rng()<0.84) iCells=buildPatternPath(rng, iHead, iDir, occupied, P.grid, P.maxTurns, mask.set, iLen);
+      if(!iCells) iCells=buildShape(rng, iHead, iDir, occupied, P.grid, P.maxTurns, mask.set, iLen);
+      if(!iCells && iLen>3) iCells=buildPatternPath(rng, iHead, iDir, occupied, P.grid, P.maxTurns, mask.set, iLen-2);
+      if(!iCells && iLen>2) iCells=buildShape(rng, iHead, iDir, occupied, P.grid, P.maxTurns, mask.set, 2);
+      if(!iCells) continue;
+      var iRay=rayCells(iHead, iDir, P.grid);
+      var iOwn=false, iSet={}; iCells.forEach(function(c){ iSet[key(c.x,c.y)]=true; });
+      for(var ir=0; ir<iRay.length; ir++){ if(iSet[key(iRay[ir].x,iRay[ir].y)]){ iOwn=true; break; } }
+      if(iOwn) continue;
+      if(placementMerges(iCells, iDir, byId, occupied, edgeOwner, endpointOut)) continue;
+      /* order analysis against the current solution order */
+      var orderPos={}; placed.forEach(function(a,idx){ orderPos[a.id]=idx; });
+      var maxHitPos=-1, seenHit={};
+      for(var ih=0; ih<iRay.length; ih++){
+        var io=occupied[key(iRay[ih].x,iRay[ih].y)];
+        if(io!==undefined && !seenHit[io]){ seenHit[io]=true; if(orderPos[io]>maxHitPos) maxHitPos=orderPos[io]; }
+      }
+      if(maxHitPos<0){
+        /* Ray hits nothing: this arrow would be clear at the start.
+           Only acceptable as a replacement for a starter slot that
+           failed during phase 1 — inserted at the very front of the
+           order it becomes a designated starter, and the initial
+           clear set stays exactly as designed. */
+        if(startersPlaced>=starterTarget) continue;
+        var sArrow={id:placed.length, pathId:'arrow-'+placed.length, color:'red', dir:iDir, cells:iCells, head:iHead, waypoints:pathWaypoints(iCells), segments:pathSegments(iCells)};
+        regIns(sArrow, iCells, iHead, iDir);
+        placed.unshift(sArrow);
+        startersPlaced++;
+        occCells+=iCells.length;
+        break;
+      }
+      var minEnteredPos=placed.length;
+      for(var ia=0; ia<placed.length; ia++){
+        var aRay=rayCells(placed[ia].head, placed[ia].dir, P.grid), enters=false;
+        for(var ib=0; ib<aRay.length; ib++){ if(iSet[key(aRay[ib].x,aRay[ib].y)]){ enters=true; break; } }
+        if(enters && orderPos[placed[ia].id]<minEnteredPos) minEnteredPos=orderPos[placed[ia].id];
+      }
+      if(maxHitPos>=minEnteredPos) continue; /* no feasible slot in the order for this direction */
+      var iArrow={id:placed.length, pathId:'arrow-'+placed.length, color:'red', dir:iDir, cells:iCells, head:iHead, waypoints:pathWaypoints(iCells), segments:pathSegments(iCells)};
+      regIns(iArrow, iCells, iHead, iDir);
+      placed.splice(maxHitPos+1, 0, iArrow);
+      occCells+=iCells.length;
+      break;
+    }
+  }
+  /* ---------- PHASE 3: SYSTEMATIC GAP FILL ----------
+     Phase 2 samples random heads, so the last pockets of a silhouette —
+     an elephant's trunk and legs, a cat's ears, a mushroom's stem, the
+     points of a star, a crescent's tips — are usually left bare: a
+     random head rarely lands in them and long paths rarely fit. This
+     phase instead walks EVERY still-empty mask cell and tries to grow a
+     short functional arrow (2–4 cells) that covers it: head on the gap
+     cell itself or on a neighbour so the path runs through the gap,
+     every exit direction tried, inserted at a feasible position in the
+     removal order using exactly the phase-2 order analysis. An arrow
+     whose exit lane is completely empty may also be inserted while the
+     level's initially-clear ratio stays inside its difficulty band
+     (clearHi + the gate's 0.02 tolerance) — it becomes an extra starter
+     at the silhouette's edge instead of leaving the edge bare. Passes
+     repeat until the fill target is reached or a full pass adds
+     nothing, so no large empty region survives inside any silhouette. */
+  var clearCount=startersPlaced;
+  function rayKeysOf(a){
+    if(!a._rayKeys){ a._rayKeys=rayCells(a.head, a.dir, P.grid).map(function(c){ return key(c.x,c.y); }); }
+    return a._rayKeys;
+  }
+  function attemptFillInsert(fCells, fHead, fDir){
+    var fRay=rayCells(fHead, fDir, P.grid);
+    var fSet={}; fCells.forEach(function(c){ fSet[key(c.x,c.y)]=true; });
+    for(var fr=0; fr<fRay.length; fr++){ if(fSet[key(fRay[fr].x,fRay[fr].y)]) return false; } /* own body in own lane */
+    if(placementMerges(fCells, fDir, byId, occupied, edgeOwner, endpointOut)) return false;
+    var orderPos={}; placed.forEach(function(a,idx){ orderPos[a.id]=idx; });
+    var maxHitPos=-1, seenHit={};
+    for(var fh=0; fh<fRay.length; fh++){
+      var fo=occupied[key(fRay[fh].x,fRay[fh].y)];
+      if(fo!==undefined && !seenHit[fo]){ seenHit[fo]=true; if(orderPos[fo]>maxHitPos) maxHitPos=orderPos[fo]; }
+    }
+    var minEnteredPos=placed.length;
+    for(var fa=0; fa<placed.length; fa++){
+      var rk=rayKeysOf(placed[fa]), enters=false;
+      for(var fb=0; fb<rk.length; fb++){ if(fSet[rk[fb]]){ enters=true; break; } }
+      if(enters && orderPos[placed[fa].id]<minEnteredPos) minEnteredPos=orderPos[placed[fa].id];
+    }
+    var fArrow={id:placed.length, pathId:'arrow-'+placed.length, color:'red', dir:fDir, cells:fCells, head:fHead, waypoints:pathWaypoints(fCells), segments:pathSegments(fCells)};
+    if(maxHitPos>=0){
+      if(maxHitPos>=minEnteredPos) return false; /* no feasible slot in the order */
+      regIns(fArrow, fCells, fHead, fDir);
+      placed.splice(maxHitPos+1, 0, fArrow);
+    } else if(startersPlaced<starterTarget){
+      regIns(fArrow, fCells, fHead, fDir);
+      placed.unshift(fArrow);
+      startersPlaced++; clearCount++;
+    } else if((clearCount+1)/(placed.length+1) <= (P.clearHi||0.30)+0.02){
+      regIns(fArrow, fCells, fHead, fDir);
+      placed.splice(minEnteredPos, 0, fArrow);
+      clearCount++;
+    } else return false;
+    occCells+=fCells.length;
+    return true;
+  }
+  /* Deterministic small-path enumeration for one gap cell: EVERY
+     straight or single-turn path of length 2–3 that covers the cell,
+     built by walking from every start within reach — no randomness, so
+     a pocket that can hold a filler always gets its chance, unlike the
+     random builders which usually miss 1–2-cell-wide trunk / ear /
+     stem corridors entirely. Length-3 paths are tried before length-2
+     (more coverage per arrow); the pattern/walk builders remain as the
+     fallback for length 4 and for pockets the enumeration cannot fit. */
+  function enumSmallPaths(e){
+    var len2=[], len3=[];
+    function cellFree(x,y){ return x>=0&&y>=0&&x<P.grid&&y<P.grid && !!mask.set[key(x,y)] && occupied[key(x,y)]===undefined; }
+    for(var sy=e.y-2; sy<=e.y+2; sy++) for(var sx=e.x-2; sx<=e.x+2; sx++){
+      if(Math.abs(sx-e.x)+Math.abs(sy-e.y)>2) continue;
+      if(!cellFree(sx,sy)) continue;
+      for(var di=0; di<4; di++){
+        var d1=DIRS[di];
+        var c1={x:sx+d1.x, y:sy+d1.y};
+        if(!cellFree(c1.x,c1.y)) continue;
+        var p2=[{x:sx,y:sy}, c1];
+        if(sx===e.x&&sy===e.y || c1.x===e.x&&c1.y===e.y) len2.push({cells:p2, head:{x:c1.x,y:c1.y}, dir:{x:d1.x,y:d1.y}});
+        var d2opts=[d1, rotDir(d1,1), rotDir(d1,-1)];
+        for(var d2i=0; d2i<3; d2i++){
+          var d2=d2opts[d2i];
+          var c2={x:c1.x+d2.x, y:c1.y+d2.y};
+          if(!cellFree(c2.x,c2.y)) continue;
+          if(c2.x===sx&&c2.y===sy) continue;
+          if(sx===e.x&&sy===e.y || c1.x===e.x&&c1.y===e.y || c2.x===e.x&&c2.y===e.y)
+            len3.push({cells:[{x:sx,y:sy}, c1, c2], head:{x:c2.x,y:c2.y}, dir:{x:d2.x,y:d2.y}});
+        }
+      }
+    }
+    return len3.concat(len2).slice(0,48);
+  }
+  /* Longer winding fillers (4–5 cells, up to 2 turns) for the pockets
+     where every short path dies on the separation rule: a longer body
+     can route AROUND the endpoint-hot cells that block the straight
+     little paths. Walks are pruned while growing — a step into a cell
+     whose registered endpoint-out axis matches the step's own axis can
+     never pass placementMerges, so that branch is cut immediately —
+     and the survivors still face the full attemptFillInsert checks. */
+  function enumLongPaths(e){
+    var out=[];
+    function cellFree(x,y){ return x>=0&&y>=0&&x<P.grid&&y<P.grid && !!mask.set[key(x,y)] && occupied[key(x,y)]===undefined; }
+    function hotAxis(x,y,axis){ var eo=endpointOut[key(x,y)]; return eo!==undefined && (eo==='hv'||eo===axis); }
+    function walk(cells, lastDir, turns){
+      if(out.length>=30) return;
+      if(cells.length>=4){
+        var cov=false;
+        for(var ci=0; ci<cells.length; ci++){ if(cells[ci].x===e.x&&cells[ci].y===e.y){ cov=true; break; } }
+        if(cov) out.push({cells:cells.slice(), head:{x:cells[cells.length-1].x, y:cells[cells.length-1].y}, dir:{x:lastDir.x, y:lastDir.y}});
+        if(cells.length>=5) return;
+      }
+      var opts=[lastDir, rotDir(lastDir,1), rotDir(lastDir,-1)];
+      for(var oi=0; oi<3; oi++){
+        var nd=opts[oi];
+        if(oi>0 && turns>=2) break;
+        var nx=cells[cells.length-1].x+nd.x, ny=cells[cells.length-1].y+nd.y;
+        if(!cellFree(nx,ny)) continue;
+        var dup=false;
+        for(var di2=0; di2<cells.length; di2++){ if(cells[di2].x===nx&&cells[di2].y===ny){ dup=true; break; } }
+        if(dup) continue;
+        if(hotAxis(nx,ny, nd.y===0? 'h':'v')) continue; /* this step's segment would read as continuing another arrow */
+        cells.push({x:nx,y:ny});
+        walk(cells, nd, turns+(oi>0?1:0));
+        cells.pop();
+        if(out.length>=30) return;
+      }
+    }
+    for(var sy=e.y-3; sy<=e.y+3; sy++) for(var sx=e.x-3; sx<=e.x+3; sx++){
+      if(Math.abs(sx-e.x)+Math.abs(sy-e.y)>3) continue;
+      if(!cellFree(sx,sy)) continue;
+      if(hotAxis(sx,sy,'h') && hotAxis(sx,sy,'v')) continue;
+      for(var d0=0; d0<4; d0++){
+        var dd0=DIRS[d0];
+        var c1={x:sx+dd0.x, y:sy+dd0.y};
+        if(!cellFree(c1.x,c1.y)) continue;
+        if(hotAxis(c1.x,c1.y, dd0.y===0? 'h':'v')) continue;
+        walk([{x:sx,y:sy}, c1], dd0, 0);
+        if(out.length>=30) break;
+      }
+      if(out.length>=30) break;
+    }
+    /* shuffle so different pockets get different first chances */
+    for(var sh2=out.length-1; sh2>0; sh2--){ var sj2=Math.floor(rng()*(sh2+1)); var st2=out[sh2]; out[sh2]=out[sj2]; out[sj2]=st2; }
+    return out;
+  }
+  var fillPass=0, fillEvals=0;
+  var fillBudget=2600+mask.list.length*14; /* larger silhouettes have more gap cells to work through */
+  var triedFill={}; /* paths already attempted in the current pass — reset per pass, so a failed path gets a fresh chance after other insertions change the order */
+  function tryFillPath(fc, fh, fd){
+    var tk=fc.map(function(c){ return c.x+','+c.y; }).join('|')+'>'+fd.x+','+fd.y;
+    if(triedFill[tk]) return false;
+    triedFill[tk]=true; fillEvals++;
+    return attemptFillInsert(fc, fh, fd);
+  }
+  /* Fill ONE gap cell by any means: enumerated short paths, longer
+     winding fillers routing around endpoint-hot cells, then builder
+     paths (length 3–4) grown from the gap cell or a neighbour so the
+     path runs through the gap. */
+  function fillOneCell(ec){
+    var ep, enumP=enumSmallPaths(ec);
+    for(ep=0; ep<enumP.length; ep++){ if(tryFillPath(enumP[ep].cells, enumP[ep].head, enumP[ep].dir)) return true; }
+    var el, enumL=enumLongPaths(ec);
+    for(el=0; el<enumL.length; el++){ if(tryFillPath(enumL[el].cells, enumL[el].head, enumL[el].dir)) return true; }
+    var headCands=[ec, {x:ec.x+1,y:ec.y}, {x:ec.x-1,y:ec.y}, {x:ec.x,y:ec.y+1}, {x:ec.x,y:ec.y-1}];
+    for(var hc=0; hc<headCands.length; hc++){
+      var hh=headCands[hc];
+      if(hh.x<0||hh.y<0||hh.x>=P.grid||hh.y>=P.grid) continue;
+      if(!mask.set[key(hh.x,hh.y)] || occupied[key(hh.x,hh.y)]!==undefined) continue;
+      var dirOrder=DIRS.slice();
+      for(var ds=dirOrder.length-1; ds>0; ds--){ var dj=Math.floor(rng()*(ds+1)); var dtmp=dirOrder[ds]; dirOrder[ds]=dirOrder[dj]; dirOrder[dj]=dtmp; }
+      for(var dd=0; dd<dirOrder.length; dd++){
+        var lens=[3,2,4];
+        for(var ll2=0; ll2<lens.length; ll2++){
+          fillEvals++;
+          var fCells2=null;
+          if(rng()<0.8) fCells2=buildPatternPath(rng, hh, dirOrder[dd], occupied, P.grid, P.maxTurns, mask.set, lens[ll2]);
+          if(!fCells2) fCells2=buildShape(rng, hh, dirOrder[dd], occupied, P.grid, P.maxTurns, mask.set, lens[ll2]);
+          if(!fCells2) continue;
+          var covers=false;
+          for(var cv=0; cv<fCells2.length; cv++){ if(fCells2[cv].x===ec.x && fCells2[cv].y===ec.y){ covers=true; break; } }
+          if(!covers) continue;
+          if(tryFillPath(fCells2, hh, dirOrder[dd])) return true;
+        }
+      }
+    }
+    return false;
+  }
+  while(occCells<targetFillCells && fillPass<10 && fillEvals<fillBudget){
+    fillPass++;
+    triedFill={};
+    var empties=[];
+    mask.list.forEach(function(c){ if(occupied[key(c.x,c.y)]===undefined) empties.push(c); });
+    for(var sh=empties.length-1; sh>0; sh--){ var sj=Math.floor(rng()*(sh+1)); var stmp=empties[sh]; empties[sh]=empties[sj]; empties[sj]=stmp; }
+    var addedPass=0;
+    for(var ei2=0; ei2<empties.length; ei2++){
+      if(occCells>=targetFillCells || fillEvals>=fillBudget) break;
+      var ec=empties[ei2];
+      if(occupied[key(ec.x,ec.y)]!==undefined) continue;
+      if(fillOneCell(ec)) addedPass++;
+    }
+    if(!addedPass) break;
+  }
+  /* ---------- PHASE 3b: SWAP REPAIR ----------
+     Some pockets stay unfillable because ONE short placed arrow sits
+     exactly where every filler path needs to go — its body, its
+     endpoint zones or its order position block all candidates. Swap
+     repair removes such a neighbour arrow, refills the gap AND the
+     freed cells with fresh arrows, and keeps the swap only when the
+     board ends with strictly MORE covered cells than before;
+     otherwise the original arrow is restored untouched. Solvability
+     is never at risk: colours are (re)assigned from the final order
+     afterwards and the finished board must still pass validateLevel,
+     validatePathSeparation and validateCenterCoverage. */
+  function rebuildRegistries(){
+    edgeOwner={}; byId={}; endpointOut={};
+    placed.forEach(function(a){
+      byId[a.id]=a;
+      for(var ei3=1; ei3<a.cells.length; ei3++) edgeOwner[edgeKey(a.cells[ei3-1].x,a.cells[ei3-1].y,a.cells[ei3].x,a.cells[ei3].y)]=a.id;
+      var td={x:a.cells[1].x-a.cells[0].x, y:a.cells[1].y-a.cells[0].y};
+      var rg2=function(kk, ax){ var cur=endpointOut[kk]; endpointOut[kk]=(!cur||cur===ax)? ax:'hv'; };
+      rg2(key(a.cells[0].x-td.x, a.cells[0].y-td.y), (td.y===0)? 'h':'v');
+      rg2(key(a.head.x+a.dir.x, a.head.y+a.dir.y), (a.dir.y===0)? 'h':'v');
+    });
+  }
+  function renumberPlaced(){
+    placed.forEach(function(a,idx){ a.id=idx; a.pathId='arrow-'+idx; });
+    var occ2={};
+    placed.forEach(function(a){ a.cells.forEach(function(c){ occ2[key(c.x,c.y)]=a.id; }); });
+    occupied=occ2;
+    rebuildRegistries();
+  }
+  var swapTries=0;
+  while(occCells<targetFillCells && swapTries<36 && fillEvals<fillBudget*1.7){
+    var empties2=[];
+    mask.list.forEach(function(c){ if(occupied[key(c.x,c.y)]===undefined) empties2.push(c); });
+    if(!empties2.length) break;
+    swapTries++;
+    var ec2=empties2[Math.floor(rng()*empties2.length)];
+    var victims=[];
+    placed.forEach(function(a){
+      if(a.cells.length>5) return;
+      for(var vc=0; vc<a.cells.length; vc++){ if(Math.abs(a.cells[vc].x-ec2.x)+Math.abs(a.cells[vc].y-ec2.y)<=2){ victims.push(a); return; } }
+    });
+    if(!victims.length) continue;
+    victims.sort(function(a,b){ return a.cells.length-b.cells.length; });
+    var victim=victims[Math.floor(rng()*Math.min(3, victims.length))];
+    var snapPlaced=placed.slice();
+    var snapOcc={}; for(var sk in occupied) snapOcc[sk]=occupied[sk];
+    var snapOccCells=occCells, snapStarters=startersPlaced, snapClear=clearCount;
+    placed.splice(placed.indexOf(victim),1);
+    victim.cells.forEach(function(c){ delete occupied[key(c.x,c.y)]; });
+    occCells-=victim.cells.length;
+    rebuildRegistries();
+    triedFill={};
+    var targets=[ec2].concat(victim.cells);
+    for(var tg=0; tg<targets.length; tg++){
+      var tc=targets[tg];
+      if(occupied[key(tc.x,tc.y)]===undefined) fillOneCell(tc);
+      if(fillEvals>=fillBudget*1.7) break;
+    }
+    if(occCells>snapOccCells){
+      renumberPlaced(); /* ids may have been reused after the removal — make them sequential again */
+    } else {
+      placed=snapPlaced; occupied=snapOcc; occCells=snapOccCells; startersPlaced=snapStarters; clearCount=snapClear;
+      rebuildRegistries();
+    }
+  }
+  renumberPlaced();
+  if(placed.length<Math.max(6,Math.floor(estPlaced*0.55))) return null; /* sanity floor vs the realistic placed estimate */
+  /* Placement order IS the removal order. Colours are (re)assigned
+     along that final order with the mixed-sequence builder — balanced
+     per colour, no run longer than 2, no fixed rotation — so board and
+     sequence are one and the same design, phase-2 insertions included. */
+  var totalPlaced=placed.length;
+  var baseC=Math.floor(totalPlaced/paletteIds.length), remC=totalPlaced-baseC*paletteIds.length;
+  var countsC=paletteIds.map(function(id,ci){ return baseC+(ci<remC?1:0); });
+  var moveSeq=mixedRemoval(rng, paletteIds, countsC);
+  placed.forEach(function(a,idx){ a.color=moveSeq[idx]; });
+  for(var pi=0; pi<paletteIds.length; pi++){ if(moveSeq.indexOf(paletteIds[pi])<0) return null; }
+  var runLen2=1, maxRunSeen=1;
+  for(var mi=1; mi<moveSeq.length; mi++){ runLen2=(moveSeq[mi]===moveSeq[mi-1])? runLen2+1:1; if(runLen2>maxRunSeen) maxRunSeen=runLen2; }
+  if(moveSeq.length>=8 && maxRunSeen>2) return null; /* sequence slipped back into grouping — reject */
+  placed.forEach(function(a){ delete a._rayKeys; }); /* generation-only cache — never part of the shipped level data */
+  var data={grid:P.grid, tier:P.tier, seq:paletteIds.slice(), moveSequence:moveSeq, arrows:placed, solution:placed.map(function(a){return a.id;}), shapeId:shape.id, shapeName:shape.name, maskList:mask.list, maskSet:mask.set};
+  data._fill=occCells/Math.max(1,mask.list.length);
+  /* Final-board strategic stats, measured with the same shared ray walk
+     the live game uses: how many arrows are removable at the very start,
+     and how varied the path shapes are. genLevel ranks candidates by
+     all three goals — dense fill, few initial moves, real shape variety
+     — instead of fill alone. */
+  var finalOcc={}; placed.forEach(function(a){ a.cells.forEach(function(c){ finalOcc[key(c.x,c.y)]=a.id; }); });
+  var startClear=0;
+  placed.forEach(function(a){ if(!firstBlockerCell(a.head, a.dir, P.grid, finalOcc, a.id)) startClear++; });
+  data._clearRatio=placed.length? startClear/placed.length : 1;
+  var variety=levelVariety(data);
+  data._multiFrac=variety.multiFrac;
+  data._distinctSigs=variety.distinct;
+  var clearHi=(P.clearHi||0.30);
+  var overClear=Math.max(0, data._clearRatio-clearHi);
+  data._score=occCells + paletteIds.length*5
+    - overClear*mask.list.length*2.6            /* too many free first moves — heavy penalty */
+    - Math.max(0, variety.straightFrac-0.30)*85 /* mostly-straight boards are the old failure */
+    + variety.multiFrac*52                      /* U / S / zigzag / multi-turn reward */
+    + Math.min(14, variety.distinct*1.6);       /* many different signatures on one board */
+  /* Ship only if ALL validations pass: solvable with the mixed sequence,
+     geometrically separated (no shared edges, no merged paths, no
+     disconnected segments, exactly one head per arrow), AND centre-
+     covered — the drawn polyline passes through the centre of every
+     occupied cell, so rendering and collision describe the same cells. */
+  return (validateLevel(data) && validatePathSeparation(data) && validateCenterCoverage(data))?data:null;
+}
+function validateLevel(data){
+  // The mixed sequence must exist, cover every arrow, and match the
+  // guaranteed solution move-for-move: at step i the solution arrow's
+  // colour must equal moveSequence[i], so the active target always has a
+  // matching arrow with a clear exit at that stage.
+  if(!data.moveSequence || data.moveSequence.length!==data.arrows.length) return false;
+  if(data.solution.length!==data.arrows.length) return false;
+  var byId={}; data.arrows.forEach(function(a){ byId[a.id]=a; });
+  for(var ci3=0; ci3<data.solution.length; ci3++){ var ca=byId[data.solution[ci3]]; if(!ca) return false; if(ca.color!==data.moveSequence[ci3]) return false; }
+  var occ={};
+  data.arrows.forEach(function(a){ a.cells.forEach(function(c){ occ[key(c.x,c.y)]=a.id; }); });
+  var alive={}; data.arrows.forEach(function(a){ alive[a.id]=a; });
+  for(var si=0; si<data.solution.length; si++){
+    var a=alive[data.solution[si]]; if(!a) return false;
+    /* The shared blocker test again — validation must agree with the
+       live canExit() check move for move. */
+    if(firstBlockerCell(a.head, a.dir, data.grid, occ, a.id)) return false;
+    a.cells.forEach(function(c){ delete occ[key(c.x,c.y)]; });
+    delete alive[a.id];
+  }
+  return Object.keys(alive).length===0;
+}
+function genLevel(seed, P0, shape){
+  var grid=P0.grid;
+  var mask=buildMask(shape, grid);
+  /* DENSE FILL: the arrow count is derived from the shape's own area.
+     Target = fill% of every cell inside the silhouette covered by arrows,
+     so a Circle level is filled to its round edges, a Triangle to its tip,
+     a Star into its points — no bare patches, like the reference mazes. */
+  var fillT=P0.fill||0.82, avgLen=P0.avgLen||3.3;
+  var wantArrows=Math.max(P0.arrows, Math.round(mask.list.length*fillT/avgLen));
+  var P=Object.assign({},P0,{grid:grid, arrows:wantArrows});
+  var best=null;
+  /* Candidate selection is FILL-FIRST: while either board is below the
+     80% gate, the fuller board wins (score only breaks near-ties), so a
+     sparse-but-pretty candidate can never outrank a denser one and get
+     shipped as the "best" degraded level. Above the gate, the normal
+     strategic score decides. */
+  function candRank(d){
+    return (d._fill>=hardFill? 4:0) + (d._clearRatio<=hardClear? 2:0) + (d._multiFrac>=minMulti? 1:0);
+  }
+  function betterCand(d, b){
+    if(!b) return true;
+    var rd=candRank(d), rb=candRank(b);
+    if(rd!==rb) return rd>rb;
+    if(d._fill<hardFill && Math.abs(d._fill-b._fill)>0.005) return d._fill>b._fill;
+    return d._score>b._score;
+  }
+  var clearHi=(P0.clearHi||0.30);
+  var minMulti=(P0.maxTurns>=5)? 0.30 : (P0.maxTurns>=4? 0.24 : 0.16);
+  /* HARD ACCEPTANCE GATE: a level may only ship when it is genuinely
+     dense AND genuinely strategic — fill at least 80% of the shape's
+     OWN playable mask cells (an absolute floor, not 80% of a target:
+     the old fillT*0.80 formula quietly meant 69–75% for most tiers)
+     and an initially-removable ratio inside the difficulty band
+     (clearHi + 0.02 tolerance, not the old +0.10 that let a Beginner
+     board ship with 55% of its arrows removable against a 30–45%
+     band). Candidates outside the gate are rejected and generation
+     keeps trying; a level that still misses after every retry ships
+     only with the loud _degraded flag below, never silently. */
+  var hardFill=0.80;
+  var hardClear=clearHi+0.02;
+  var stages=[1, 0.88, 0.74];
+  for(var st=0; st<stages.length; st++){
+    var Ps=Object.assign({},P,{arrows:Math.max(8, Math.round(P.arrows*stages[st]))});
+    for(var attempt=0; attempt<10; attempt++){
+      var rng=mulberry32((seed*2654435761 + attempt*977 + st*131071 + 1013904223)>>>0);
+      var d=tryGen(rng, Ps, shape, mask);
+      if(!d) continue;
+      if(betterCand(d, best)) best=d;
+      /* Ship immediately only when ALL THREE goals hold at once: the
+         silhouette is properly full, only a small difficulty-capped
+         fraction of arrows is removable at the start, and a healthy
+         share of arrows are multi-turn shapes (U / S / zigzag /
+         staircase / rectangular) rather than straights and simple Ls. */
+      if(d._fill>=Math.max(0.80, fillT*stages[st]*0.92) && d._clearRatio<=hardClear && d._multiFrac>=minMulti) return d;
+    }
+    if(best && best._fill>=hardFill && best._clearRatio<=hardClear && best._multiFrac>=minMulti*0.6) break; /* inside the hard gate with a real share of winding paths — stop searching (the rescue round below still hunts for the full variety target) */
+  }
+  if(best && best._fill>=hardFill && best._clearRatio<=hardClear) return best;
+  /* RESCUE ROUND: the best candidate so far is outside the gate, so
+     keep generating at full size with fresh seeds instead of shipping
+     a sparse or too-easy board. */
+  var Prescue=Object.assign({},P,{arrows:Math.max(8, Math.round(P.arrows*0.88))});
+  for(var ra=0; ra<12; ra++){
+    var rrng=mulberry32((seed*2246822519 + ra*31337 + 777001)>>>0);
+    var rd=tryGen(rrng, (ra%2===0)? P : Prescue, shape, mask);
+    if(!rd) continue;
+    if(betterCand(rd, best)) best=rd;
+    if(rd._fill>=Math.max(0.80, fillT*0.92) && rd._clearRatio<=hardClear && rd._multiFrac>=minMulti) return rd;
+    if(best._fill>=hardFill && best._clearRatio<=hardClear && best._multiFrac>=minMulti) return best;
+  }
+  if(best){
+    /* Ship the best board found. The _degraded flag is reserved for a
+       genuine gate miss — fill below 80% of the mask or an
+       initially-clear ratio outside the difficulty band — and is set
+       loudly on the level data and in the console, never silently.
+       A board that meets the fill and difficulty gates but merely
+       missed the variety preference is NOT mislabelled as degraded. */
+    if(best._fill<hardFill || best._clearRatio>hardClear){
+      best._degraded=true;
+      if(window.console && console.warn) console.warn('[CHROMA] Level seed '+seed+' shipped below the density/difficulty gate (fill '+(best._fill||0).toFixed(2)+' vs '+hardFill.toFixed(2)+', clear '+(best._clearRatio||0).toFixed(2)+' vs '+hardClear.toFixed(2)+').');
+    }
+    return best;
+  }
+  /* WINDING RESCUE: before dropping to straight-only arrows, retry the
+     real generator on a slightly smaller, easier-to-place board that
+     KEEPS the winding path variety (same maxTurns, near-full length).
+     A level should never lose its U / S / zigzag arrows silently. */
+  for(var wa=0; wa<18; wa++){
+    var wrng=mulberry32((seed*3266489917 + wa*6151 + 424243)>>>0);
+    var Pw=Object.assign({},P0,{grid:grid, arrows:Math.max(8, Math.floor(mask.list.length/3.4)), avgLen:Math.max(3,(P0.avgLen||3.3)-0.7)});
+    var wd=tryGen(wrng, Pw, shape, mask);
+    if(wd){ wd._fallback='winding-rescue'; if(window.console && console.warn) console.warn('[CHROMA] Level seed '+seed+' used the winding-rescue generator tier.'); return wd; }
+  }
+  /* Emergency fallback — SAME shape, short 2-cell arrows only (they almost
+     always place). The level keeps its promised silhouette; it never
+     silently swaps to a square. This tier is a LOUD last resort: the
+     level data is flagged and the fallback is logged, never silent. */
+  for(var fa=0; fa<24; fa++){
+    var frng=mulberry32((seed*40503 + fa*7717 + 97)>>>0);
+    var Pf=Object.assign({},P0,{grid:grid, arrows:Math.max(8, Math.floor(mask.list.length/2.6)), avgLen:2, maxTurns:1});
+    var fd=tryGen(frng, Pf, shape, mask);
+    if(fd){ fd._fallback='straight-emergency'; if(window.console && console.warn) console.warn('[CHROMA] Level seed '+seed+' used the STRAIGHT-ONLY emergency fallback — path variety lost on this level.'); return fd; }
+  }
+  /* Deterministic same-shape fallback: pair up neighbouring cells inside
+     the silhouette into short right-pointing arrows; removing them
+     right-to-left always works, colours assigned in that removal order. */
+  var used={}, pairs=[];
+  mask.list.forEach(function(c){
+    if(used[key(c.x,c.y)]) return;
+    var r={x:c.x+1,y:c.y};
+    if(mask.set[key(r.x,r.y)] && !used[key(r.x,r.y)]){
+      used[key(c.x,c.y)]=true; used[key(r.x,r.y)]=true;
+      /* GAP CELL after every pair: reserve the next cell in the row so the
+         next pair's tail never sits directly beyond this pair's head —
+         the two arrows stay visibly separate, never one double-headed
+         line (validatePathSeparation holds for this fallback too). */
+      var gap={x:r.x+1,y:r.y};
+      if(mask.set[key(gap.x,gap.y)]) used[key(gap.x,gap.y)]=true;
+      pairs.push({tail:c, head:r});
+    }
+  });
+  pairs.sort(function(a,b){ return b.head.x-a.head.x; });
+  var fbPalette=COLOR_ORDER.slice(0, Math.min(COLORS.length, P.nColors||2));
+  var fbRng=mulberry32((seed*97+13)>>>0);
+  var fbCounts=fbPalette.map(function(id,ci){ return Math.floor(pairs.length/fbPalette.length)+(ci<pairs.length%fbPalette.length?1:0); });
+  var fbSeq=mixedRemoval(fbRng, fbPalette, fbCounts);
+  var fArrows=pairs.map(function(p,i){ return {id:i, color:fbSeq[i%fbSeq.length], dir:{x:1,y:0}, head:p.head, cells:[p.tail,p.head]}; });
+  var fb={grid:grid, tier:P.tier, seq:fbPalette.slice(), moveSequence:fArrows.map(function(a){return a.color;}), shapeId:shape.id, shapeName:shape.name, maskList:mask.list, maskSet:mask.set, arrows:fArrows, solution:fArrows.map(function(a){return a.id;})};
+  if(fArrows.length>=2 && validateLevel(fb) && validatePathSeparation(fb) && validateCenterCoverage(fb)){ fb._fallback='paired-deterministic'; if(window.console && console.warn) console.warn('[CHROMA] Level seed '+seed+' used the deterministic paired-arrow fallback.'); return fb; }
+  if(window.console && console.warn) console.warn('[CHROMA] Level seed '+seed+' fell through EVERY generator tier — shipping the hardcoded 4-arrow board IN THE ASSIGNED '+shape.name.toUpperCase()+' SHAPE (never a substituted square).');
+  var m2=buildMask(shape,5);
+  return {grid:5,tier:P.tier,seq:['red','blue'],moveSequence:['red','blue','blue','red'],shapeId:shape.id,shapeName:shape.name,maskList:m2.list,maskSet:m2.set,arrows:[
+    {id:0,color:'blue',dir:{x:1,y:0},head:{x:3,y:1},cells:[{x:2,y:1},{x:3,y:1}]},
+    {id:1,color:'red',dir:{x:0,y:-1},head:{x:1,y:1},cells:[{x:1,y:2},{x:1,y:1}]},
+    {id:2,color:'blue',dir:{x:1,y:0},head:{x:4,y:3},cells:[{x:3,y:3},{x:4,y:3}]},
+    {id:3,color:'red',dir:{x:0,y:1},head:{x:2,y:4},cells:[{x:2,y:3},{x:2,y:4}]}
+  ],solution:[1,2,0,3]};
+}
+function dailySeed(){ var d=new Date(); return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(); }
+function dailyParams(){ return {grid:12, nColors:7, arrows:40, tier:'Daily Challenge', maxTurns:5, fill:0.90, avgLen:5.0, clearHi:0.20}; }
+/* TESTING UNLOCK: all 100 levels are open for testing right now — the
+   progression lock in Level Select is disabled via this flag. Progress
+   (Progress.unlocked) still tracks how far the player has actually
+   reached, so PLAY continues from there and the "current" tile still
+   highlights, but no level is ever gated behind it while this is true. */
+var ALL_LEVELS_UNLOCKED=true;
+var Progress={ unlocked:1, stars:{}, dailyDoneSeed:0 };
+function totalStars(){ var s=0; for(var k in Progress.stars) s+=Progress.stars[k]; return s; }
+function completedCount(){ var n=0; for(var k in Progress.stars){ if(k!=='daily') n++; } return n; }
+var G={ mode:'level', level:1, data:null, scene:null, arrows:{}, occupied:{}, colorIdx:0, moveIdx:0, lives:3, mistakes:0, moves:0, hintsUsed:0, totalArrows:0, timeSec:0, history:[], over:false, won:false, paused:false, animating:0 };
+function activeColorId(){ if(!G.data) return null; if(G.data.moveSequence && G.data.moveSequence.length) return G.data.moveSequence[Math.min(G.moveIdx, G.data.moveSequence.length-1)]; return G.data.seq[G.colorIdx]; }
+function aliveArrows(){ return Object.keys(G.arrows).map(function(k){return G.arrows[k];}).filter(function(a){return a.alive;}); }
+/* Live blocking uses the SAME firstBlockerCell walk, the SAME rayCells
+   and the SAME G.occupied map that is built from the arrow.cells lists
+   the renderer draws — one shared source of truth, so a tap can never
+   disagree with the picture. findBlocker also names the exact arrow and
+   cell in the way, so a blocked tap can show the player the obstruction. */
+function findBlocker(a){ if(!G.data) return null; var hit=firstBlockerCell(a.head, a.dir, G.data.grid, G.occupied, a.id); if(!hit) return null; var rec=G.arrows[hit.id]; return rec? {rec:rec, cell:hit.cell, id:hit.id} : null; }
+function canExit(a){ return !findBlocker(a); }
+setInterval(function(){
+  if(!$('scr-game') || !$('scr-game').classList.contains('active')) return;
+  if(G.paused||G.over||G.won||!G.data) return;
+  G.timeSec++; var m=Math.floor(G.timeSec/60), s=G.timeSec%60; $('statTime').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+},1000);
+</script>
+<script>
+var BW=680;
+var BoardScene={
+  cell:80, pad:34,
+  create:function(){
+    var scene=this; G.scene=scene;
+    scene.pad=34; scene.cell=80;
+    scene.cellCenter=function(c){ return BoardScene.cellCenter.call(scene,c); };
+    scene.renderLevel=function(d){ BoardScene.renderLevel.call(scene,d); };
+    scene.spawnArrow=function(a,idx){ return BoardScene.spawnArrow.call(scene,a,idx); };
+    scene.drawArrowShape=function(g,gl,a,c){ BoardScene.drawArrowShape.call(scene,g,gl,a,c); };
+    scene.showHover=function(r){ BoardScene.showHover.call(scene,r); };
+    scene.showBlocker=function(r,c){ BoardScene.showBlocker.call(scene,r,c); };
+    scene.refreshGlows=function(){ BoardScene.refreshGlows.call(scene); };
+    scene.burst=function(x,y,h,n){ BoardScene.burst.call(scene,x,y,h,n); };
+    scene.confetti=function(){ BoardScene.confetti.call(scene); };
+    scene.bgG=scene.add.graphics().setDepth(0);
+    scene.hoverG=scene.add.graphics().setDepth(5);
+    scene.hintG=scene.add.graphics().setDepth(6);
+    scene.flashG=scene.add.graphics().setDepth(7);
+    scene.blockerG=scene.add.graphics().setDepth(8);
+    if(G.pendingData){ scene.renderLevel(G.pendingData); G.pendingData=null; }
+  },
+  cellCenter:function(c){ return { x:this.pad+c.x*this.cell+this.cell/2, y:this.pad+c.y*this.cell+this.cell/2 }; },
+  renderLevel:function(data){
+    var scene=this;
+    if(scene.blockerG) scene.blockerG.clear();
+    if(scene.flashG) scene.flashG.clear();
+    if(scene.arrowLayer){ scene.arrowLayer.removeAll(true); scene.arrowLayer.destroy(); }
+    scene.arrowLayer=scene.add.container(0,0).setDepth(2);
+    var grid=data.grid;
+    this.cell=(BW-this.pad*2)/grid;
+    var g=scene.bgG; g.clear();
+    var maskSet=data.maskSet||{};
+    var cell=this.cell, pad=this.pad;
+    // shape interior — very light grey cells so the outline reads cleanly on white
+    g.fillStyle(0xF7F8FA,1);
+    data.maskList.forEach(function(c){ var x=pad+c.x*cell, y=pad+c.y*cell; g.fillRect(x,y,cell,cell); });
+    // soft dots inside shape
+    g.fillStyle(0xD9DEE7,0.8);
+    data.maskList.forEach(function(c){ var p=scene.cellCenter(c); g.fillCircle(p.x,p.y,Math.max(1.8,cell*0.04)); });
+    // shape outline — draw an edge wherever a neighbour is outside the shape
+    g.lineStyle(Math.max(3,cell*0.07),0x111827,1);
+    data.maskList.forEach(function(c){
+      var x=pad+c.x*cell, y=pad+c.y*cell;
+      if(!maskSet[key(c.x,c.y-1)]){ g.lineBetween(x,y,x+cell,y); }
+      if(!maskSet[key(c.x,c.y+1)]){ g.lineBetween(x,y+cell,x+cell,y+cell); }
+      if(!maskSet[key(c.x-1,c.y)]){ g.lineBetween(x,y,x,y+cell); }
+      if(!maskSet[key(c.x+1,c.y)]){ g.lineBetween(x+cell,y,x+cell,y+cell); }
+    });
+    G.arrows={}; G.occupied={};
+    data.arrows.forEach(function(a,idx){ scene.spawnArrow(a, idx); });
+    this.refreshGlows();
+  },
+  spawnArrow:function(a, idx){
+    var scene=this, col=colorById(a.color);
+    var cont=scene.add.container(0,0);
+    var glow=scene.add.graphics(), gfx=scene.add.graphics();
+    this.drawArrowShape(gfx, glow, a, col);
+    cont.add([glow,gfx]);
+    cont.setAlpha(0);
+    scene.tweens.add({targets:cont, alpha:1, duration:260, delay:Math.min(600,(idx||0)*28), ease:'Sine.easeOut'});
+    scene.arrowLayer.add(cont);
+    /* The live record carries the SAME cells, waypoints and segments as
+       the level data the collision system uses — drawing, tap zones,
+       occupancy and blocker checks all read this one geometry. */
+    var rec={id:a.id,color:a.color,dir:a.dir,cells:a.cells,head:a.head,waypoints:(a.waypoints&&a.waypoints.length>=2)?a.waypoints:pathWaypoints(a.cells),segments:(a.segments&&a.segments.length)?a.segments:pathSegments(a.cells),alive:true,animating:false,container:cont,glow:glow,gfx:gfx};
+    a.cells.forEach(function(c){
+      var p=scene.cellCenter(c);
+      var z=scene.add.zone(p.x,p.y,scene.cell*0.98,scene.cell*0.98).setInteractive({useHandCursor:true});
+      z.on('pointerdown',function(){ onArrowTap(rec); });
+      z.on('pointerover',function(){ if(rec.alive&&!G.over&&!G.paused) scene.showHover(rec); });
+      z.on('pointerout',function(){ scene.hoverG.clear(); });
+      cont.add(z); rec['zone'+c.x+'_'+c.y]=z;
+    });
+    G.arrows[a.id]=rec;
+    a.cells.forEach(function(c){ G.occupied[key(c.x,c.y)]=a.id; });
+    return rec;
+  },
+  drawArrowShape:function(gfx, glow, a, col){
+    var scene=this, cell=scene.cell;
+    /* ONE clean continuous polyline per arrow, built from the simplified
+       waypoints (tail → genuine 90° turns → head). Collinear cells are
+       NOT drawn as separate segments, so there are no tiny segments, no
+       duplicated strokes and no per-cell joints. */
+    var wps=(a.waypoints && a.waypoints.length>=2)? a.waypoints : pathWaypoints(a.cells);
+    var pts=wps.map(function(c){ return scene.cellCenter(c); });
+    /* Consistent THIN stroke for every arrow on the board. */
+    var thick=clamp(cell*0.07, 2.4, 4.2);
+    /* CENTRE-EXACT GEOMETRY — NO ENDPOINT TRIMMING. Every drawn point is
+       EXACTLY a cell centre from the shared arrow.cells data: horizontal
+       segments run along the horizontal centreline of their cells,
+       vertical segments along the vertical centreline, and every turn
+       sits precisely on the centre of its turn cell, where the two
+       centrelines meet. The line starts AT the tail cell centre and ends
+       AT the head cell centre, so it covers the centre of every occupied
+       cell. (The old 0.16-cell tail trim stopped the line short of the
+       tail centre — a blocking arrow whose tail cell sat in an exit lane
+       then looked as if it stopped before the lane, while collision
+       still counted it. That mismatch is gone.)
+       Separation between arrows does NOT come from trimming: generation
+       already forbids any arrow from continuing another arrow's line
+       (validatePathSeparation), and the arrowhead tip stops 0.34 cell
+       past the head centre — well short of the next cell centre — so
+       neighbouring arrows keep a clear visible gap on their own. */
+    var d=a.dir;
+    var line=pts;
+    function stroke(gr, points){ gr.beginPath(); gr.moveTo(points[0].x, points[0].y); for(var i=1;i<points.length;i++) gr.lineTo(points[i].x, points[i].y); gr.strokePath(); }
+    /* Soft glow for the active colour — same trimmed polyline, only
+       slightly wider than the shaft so it can never bridge a gap. */
+    glow.clear();
+    glow.lineStyle(thick+3.5, col.hex, 0.13);
+    stroke(glow, line);
+    gfx.clear();
+    /* White separation casing: a hair wider than the shaft, in the board
+       colour — it knocks out the grid dot underneath and guarantees a
+       clean halo between this arrow and anything drawn near it. */
+    gfx.lineStyle(thick+2.6, 0xFFFFFF, 0.95);
+    stroke(gfx, line);
+    gfx.lineStyle(thick, col.hex, 1);
+    stroke(gfx, line);
+    /* Seal ONLY the genuine turn corners with a joint disc of exactly the
+       shaft radius — corners stay precise 90° turns with no gap and no
+       blob. No discs along straight runs or at the tail/head. */
+    gfx.fillStyle(col.hex,1);
+    for(var ji=1; ji<line.length-1; ji++) gfx.fillCircle(line[ji].x, line[ji].y, thick/2);
+    gfx.fillCircle(line[0].x, line[0].y, thick/2); /* rounded tail cap */
+    /* Small, consistently proportioned arrowhead: 0.38 cell long,
+       0.155 cell half-width, identical for every arrow. Its base sits
+       just BEHIND the head centre so the shaft (which ends exactly at
+       the head centre) tucks inside the triangle with no gap, and its
+       tip stops well short of the next cell centre, so it never touches
+       a neighbouring arrow — a blocker in the next cell stays a clearly
+       separate arrow sitting across the exit lane. */
+    var hp=scene.cellCenter(a.head);
+    var tip={x:hp.x+d.x*cell*0.34, y:hp.y+d.y*cell*0.34};
+    var bx=hp.x-d.x*cell*0.04, by=hp.y-d.y*cell*0.04;
+    var px=-d.y, py=d.x, w=cell*0.155;
+    gfx.fillStyle(col.hex,1);
+    gfx.fillTriangle(tip.x, tip.y, bx+px*w, by+py*w, bx-px*w, by-py*w);
+  },
+  showHover:function(rec){ var g=this.hoverG; g.clear(); g.fillStyle(0x111827,0.07); var s=this; rec.cells.forEach(function(c){ var p=s.cellCenter(c); g.fillRoundedRect(p.x-s.cell/2+2,p.y-s.cell/2+2,s.cell-4,s.cell-4,10); }); },
+  /* BLOCKER HIGHLIGHT: when a tap is rejected as blocked, flash the
+     ACTUAL obstructing arrow — a warning halo along its exact centreline
+     polyline (the same shared waypoints it is drawn from) — and ring the
+     exact grid cell where it crosses the exit lane, the same cell
+     firstBlockerCell reported. Subtle pulse, about a second, no extra
+     permanent lines on the board. */
+  showBlocker:function(blockerRec, hit){
+    var scene=this;
+    if(!scene.blockerG || !blockerRec || !hit || !hit.cell) return;
+    var g=scene.blockerG;
+    if(scene._blockerTween){ scene._blockerTween.stop(); scene._blockerTween=null; }
+    if(scene._blockerTimer){ clearTimeout(scene._blockerTimer); scene._blockerTimer=null; }
+    g.clear();
+    var wps=(blockerRec.waypoints && blockerRec.waypoints.length>=2)? blockerRec.waypoints : pathWaypoints(blockerRec.cells);
+    var pts=wps.map(function(c){ return scene.cellCenter(c); });
+    var thick=clamp(scene.cell*0.07, 2.4, 4.2);
+    g.lineStyle(thick+7, 0xDC2626, 0.30);
+    g.beginPath(); g.moveTo(pts[0].x, pts[0].y); for(var i=1;i<pts.length;i++) g.lineTo(pts[i].x, pts[i].y); g.strokePath();
+    g.lineStyle(2.5, 0xDC2626, 0.95);
+    g.beginPath(); g.moveTo(pts[0].x, pts[0].y); for(var j=1;j<pts.length;j++) g.lineTo(pts[j].x, pts[j].y); g.strokePath();
+    var p=scene.cellCenter(hit.cell);
+    g.lineStyle(3, 0xDC2626, 1);
+    g.strokeRoundedRect(p.x-scene.cell/2+2, p.y-scene.cell/2+2, scene.cell-4, scene.cell-4, 10);
+    g.strokeCircle(p.x, p.y, scene.cell*0.21);
+    g.setAlpha(1);
+    scene._blockerTween=scene.tweens.add({targets:g, alpha:0.2, duration:150, yoyo:true, repeat:5, ease:'Sine.easeInOut', onComplete:function(){ g.clear(); g.setAlpha(1); }});
+    scene._blockerTimer=setTimeout(function(){ g.clear(); g.setAlpha(1); }, 1600);
+  },
+  refreshGlows:function(){ var act=activeColorId(); Object.keys(G.arrows).forEach(function(k){ var r=G.arrows[k]; if(!r.glow) return; var isAct=r.color===act; r.glow.setVisible(r.alive && isAct); if(r.alive && !r.animating){ /* keep entrance alpha; only dim non-active slightly via gfx alpha */ if(r.gfx) r.gfx.setAlpha(isAct?1:0.88); } }); },
+  burst:function(x,y,hex,n){ var scene=this; for(var i=0;i<(n||10);i++){ var c=scene.add.circle(x,y,3+Math.random()*4,hex,1).setDepth(9); var ang=Math.random()*Math.PI*2, dist=24+Math.random()*46; scene.tweens.add({targets:c, x:x+Math.cos(ang)*dist, y:y+Math.sin(ang)*dist, alpha:0, scale:0.3, duration:380+Math.random()*220, ease:'Cubic.easeOut', onComplete:(function(cc){return function(){cc.destroy();};})(c)}); } },
+  confetti:function(){ var scene=this, cols=[0xFF4D5E,0x2F7DFF,0x7AC70C,0xF5B921,0x8B7CFF,0x14B8A6]; for(var i=0;i<70;i++){ var x=Math.random()*BW, r=scene.add.rectangle(x,-20-Math.random()*160,7,12,cols[i%6],1).setDepth(10).setAngle(Math.random()*180); scene.tweens.add({targets:r, y:BW+40, x:x+(Math.random()*90-45), angle:r.angle+260, duration:1400+Math.random()*1300, ease:'Cubic.easeIn', delay:Math.random()*350, onComplete:(function(cc){return function(){cc.destroy();};})(r)}); } }
+};
+function onArrowTap(rec){
+  if(G.over||G.won||G.paused||!rec.alive||rec.animating) return;
+  AudioSys.ensure();
+  var act=activeColorId();
+  if(rec.color!==act){ wrongMove(rec,'wrong'); return; }
+  if(!canExit(rec)){ wrongMove(rec,'blocked'); return; }
+  AudioSys.select();
+  removeArrow(rec);
+}
+function wrongMove(rec, kind){
+  /* For a blocked tap, identify the obstruction FIRST, from the same
+     shared occupancy + ray walk that rejected the move — the highlight
+     and the message below name that exact arrow and cell. */
+  var blocker=(kind==='blocked')? findBlocker(rec) : null;
+  G.mistakes++; G.moves++; G.lives--;
+  AudioSys.error(); setTimeout(function(){ AudioSys.heart(); },90);
+  vibrate(45);
+  var scene=G.scene, cont=rec.container, ox=cont.x;
+  if(blocker && scene.showBlocker) scene.showBlocker(blocker.rec, blocker);
+  scene.tweens.add({targets:cont, x:ox+7, duration:45, yoyo:true, repeat:3, ease:'Sine.easeInOut', onComplete:function(){ cont.x=ox; }});
+  var fg=scene.flashG; fg.clear(); fg.lineStyle(3,0xDC2626,0.95);
+  rec.cells.forEach(function(c){ var p=scene.cellCenter(c); fg.strokeRoundedRect(p.x-scene.cell/2+2,p.y-scene.cell/2+2,scene.cell-4,scene.cell-4,10); });
+  setTimeout(function(){ fg.clear(); },340);
+  var act=colorById(activeColorId());
+  setTip(kind==='wrong' ? ('Wrong colour — only '+act.name.toUpperCase()+' arrows can escape right now.') : (blocker ? ('Blocked — the flashing '+colorById(blocker.rec.color).name+' arrow is sitting in its exit path. Remove that one first.') : 'Blocked! Another arrow is in its exit path.'), 'warn');
+  toast(kind==='wrong' ? 'Only '+act.name+' arrows can move' : (blocker ? 'Blocked by the '+colorById(blocker.rec.color).name+' arrow' : 'That arrow is blocked'), 'err');
+  updateHearts(true);
+  updateHUD();
+  if(G.lives<=0){ G.over=true; setTimeout(gameOver, 620); }
+}
+/* ---------- PATH-FOLLOWING EXIT ANIMATION ----------
+   The arrow leaves like a train on its own track. The track is the
+   arrow's ACTUAL ordered path (tail → every turn → head, from the same
+   shared waypoints the renderer and collision use) extended straight
+   out of the board along the exit direction. Every point of the arrow
+   advances along that track by the same distance, so the tail travels
+   up the first segment, rounds each real turning point in order, and
+   follows every L / U / S / zigzag bend before exiting — it NEVER
+   slides straight toward the final exit direction, and no segment is
+   ever skipped. Speed is constant (linear advance along the track);
+   the arrowhead stays oriented along the track at the head. */
+function buildExitTrack(scene, rec){
+  var wps=(rec.waypoints && rec.waypoints.length>=2)? rec.waypoints : pathWaypoints(rec.cells);
+  var pts=wps.map(function(c){ return scene.cellCenter(c); });
+  var grid=G.data.grid, steps=0, x=rec.head.x, y=rec.head.y;
+  while(x>=0&&y>=0&&x<grid&&y<grid){ x+=rec.dir.x; y+=rec.dir.y; steps++; }
+  var exitLen=(steps+1.5)*scene.cell;
+  var hp=pts[pts.length-1];
+  pts.push({x:hp.x+rec.dir.x*exitLen, y:hp.y+rec.dir.y*exitLen});
+  var cum=[0];
+  for(var i=1;i<pts.length;i++){ var dx=pts[i].x-pts[i-1].x, dy=pts[i].y-pts[i-1].y; cum.push(cum[i-1]+Math.sqrt(dx*dx+dy*dy)); }
+  return {pts:pts, cum:cum, total:cum[cum.length-1]};
+}
+function trackPointAt(track, dist){
+  var pts=track.pts, cum=track.cum;
+  if(dist<=0) return {x:pts[0].x, y:pts[0].y};
+  if(dist>=track.total){ var l=pts[pts.length-1]; return {x:l.x, y:l.y}; }
+  for(var i=1;i<cum.length;i++){
+    if(dist<=cum[i]){
+      var segLen=cum[i]-cum[i-1]||1, t=(dist-cum[i-1])/segLen;
+      return {x:pts[i-1].x+(pts[i].x-pts[i-1].x)*t, y:pts[i-1].y+(pts[i].y-pts[i-1].y)*t};
+    }
+  }
+  var e=pts[pts.length-1]; return {x:e.x, y:e.y};
+}
+/* Unit direction of the track at a given travelled distance — the
+   tangent of the segment the point is currently on. Used to orient the
+   travelling arrowhead so it turns WITH the path (up on the vertical
+   leg of an L, right only after the corner) instead of pointing at the
+   final exit direction for the whole ride. */
+function trackDirAt(track, dist){
+  var pts=track.pts, cum=track.cum;
+  if(dist<0) dist=0;
+  if(dist>=track.total) dist=track.total-0.001;
+  for(var i=1;i<cum.length;i++){
+    if(dist<cum[i] || i===cum.length-1){
+      var dx=pts[i].x-pts[i-1].x, dy=pts[i].y-pts[i-1].y, L=Math.sqrt(dx*dx+dy*dy)||1;
+      return {x:dx/L, y:dy/L};
+    }
+  }
+  return {x:1, y:0};
+}
+function drawTravellingArrow(scene, rec, track, s){
+  var col=colorById(rec.color), cell=scene.cell;
+  var basePts=(rec.waypoints && rec.waypoints.length>=2)? rec.waypoints : pathWaypoints(rec.cells);
+  var adv=[];
+  for(var i=0;i<basePts.length;i++){
+    /* distance of this waypoint along the track from the tail */
+    var d0=track.cum[i];
+    var p=trackPointAt(track, d0+s);
+    if(!adv.length || Math.abs(p.x-adv[adv.length-1].x)>0.4 || Math.abs(p.y-adv[adv.length-1].y)>0.4) adv.push(p);
+  }
+  if(adv.length<2) adv.push(trackPointAt(track, track.cum[track.cum.length-2]+s));
+  var thick=clamp(cell*0.07, 2.4, 4.2);
+  var gfx=rec.gfx, glow=rec.glow;
+  function stroke(gr){ gr.beginPath(); gr.moveTo(adv[0].x, adv[0].y); for(var j=1;j<adv.length;j++) gr.lineTo(adv[j].x, adv[j].y); gr.strokePath(); }
+  glow.clear(); glow.setVisible(true); glow.lineStyle(thick+3.5, col.hex, 0.13); stroke(glow);
+  gfx.clear();
+  gfx.lineStyle(thick+2.6, 0xFFFFFF, 0.95); stroke(gfx);
+  gfx.lineStyle(thick, col.hex, 1); stroke(gfx);
+  gfx.fillStyle(col.hex,1);
+  for(var ji=1; ji<adv.length-1; ji++) gfx.fillCircle(adv[ji].x, adv[ji].y, thick/2);
+  gfx.fillCircle(adv[0].x, adv[0].y, thick/2);
+  /* Arrowhead at the advanced head, oriented along the TRACK TANGENT
+     at the head's current position — the direction of the segment the
+     head is actually travelling on right now. On an L / U / S / zigzag
+     path the head visibly turns at every corner together with the body;
+     it no longer points at the final exit direction from the start. */
+  var d=trackDirAt(track, track.cum[basePts.length-1]+s), headP=adv[adv.length-1];
+  var tip={x:headP.x+d.x*cell*0.34, y:headP.y+d.y*cell*0.34};
+  var bx=headP.x-d.x*cell*0.04, by=headP.y-d.y*cell*0.04;
+  var px=-d.y, py=d.x, w=cell*0.155;
+  gfx.fillTriangle(tip.x, tip.y, bx+px*w, by+py*w, bx-px*w, by-py*w);
+}
+function removeArrow(rec){
+  var scene=G.scene; rec.alive=false; rec.animating=true; G.animating++; G.moves++;
+  rec.cells.forEach(function(c){ delete G.occupied[key(c.x,c.y)]; });
+  Object.keys(rec).forEach(function(k){ if(k.indexOf('zone')===0) rec[k].disableInteractive(); });
+  scene.hoverG.clear();
+  if(scene.blockerG) scene.blockerG.clear();
+  var colorIdxBefore=G.colorIdx;
+  var moveIdxBefore=G.moveIdx;
+  var hp=scene.cellCenter(rec.head);
+  scene.burst(hp.x+rec.dir.x*scene.cell*0.4, hp.y+rec.dir.y*scene.cell*0.4, colorById(rec.color).hex, 12);
+  AudioSys.exit();
+  var track=buildExitTrack(scene, rec);
+  var state={s:0};
+  var duration=clamp(track.total/0.95, 340, 980); /* ~950 px per second, constant speed */
+  scene.tweens.add({ targets:state, s:track.total, duration:duration, ease:'Linear',
+    onUpdate:function(){
+      drawTravellingArrow(scene, rec, track, state.s);
+      var f=state.s/track.total;
+      rec.container.setAlpha(f>0.78 ? Math.max(0, 1-(f-0.78)/0.22) : 1);
+    },
+    onComplete:function(){ rec.animating=false; G.animating--; rec.container.setVisible(false); rec.container.setAlpha(1); G.history.push({id:rec.id, colorIdx:colorIdxBefore, moveIdx:moveIdxBefore}); afterRemoval(rec); } });
+  updateHUD();
+}
+function afterRemoval(rec){
+  if(G.won||G.over) { updateHUD(); return; }
+  /* MIXED SEQUENCE: advance to the next target colour after EVERY single
+     successful removal — never wait for a colour to be fully cleared.
+     Other arrows of the colour just played usually remain on the board. */
+  G.moveIdx++;
+  G.colorIdx=G.moveIdx;
+  if(aliveArrows().length===0){ levelComplete(); return; }
+  var nc=colorById(activeColorId());
+  var sw=$('targetSwatch'); sw.style.transform='scale(1.25)'; setTimeout(function(){ sw.style.transform=''; },220);
+  if(nc.id!==rec.color){
+    AudioSys.unlock();
+    setTip('Next target: '+nc.name+'! The target changes after every escape — check the banner.','good');
+    toast('➤ Next: '+nc.name,'good');
+  } else {
+    setTip(nc.name+' again — the mixed sequence can repeat a colour. Keep going!','');
+    toast('➤ '+nc.name+' again','');
+  }
+  G.scene.refreshGlows();
+  updateHUD();
+}
+function doUndo(){
+  if(G.over||G.won||G.paused) return;
+  if(G.animating>0){ toast('Wait for the arrow to finish…'); return; }
+  var h=G.history.pop();
+  if(!h){ toast('Nothing to undo yet'); return; }
+  var rec=G.arrows[h.id]; if(!rec) return;
+  AudioSys.click();
+  rec.alive=true; rec.animating=false;
+  rec.container.setVisible(true); rec.container.setPosition(0,0); rec.container.setAlpha(1);
+  if(rec.gfx) rec.gfx.setAlpha(1);
+  /* The exit animation redrew this arrow mid-travel — restore its
+     original path drawing at its original cells. */
+  if(G.scene && G.scene.drawArrowShape) G.scene.drawArrowShape(rec.gfx, rec.glow, rec, colorById(rec.color));
+  rec.cells.forEach(function(c){ G.occupied[key(c.x,c.y)]=rec.id; });
+  Object.keys(rec).forEach(function(k){ if(k.indexOf('zone')===0) rec[k].setInteractive({useHandCursor:true}); });
+  G.colorIdx=h.colorIdx;
+  G.moveIdx=(h.moveIdx!==undefined)? h.moveIdx : Math.max(0, G.moveIdx-1);
+  G.scene.refreshGlows();
+  setTip('Undone. '+colorById(rec.color).name+' arrow is back on the board.','');
+  updateHUD();
+}
+function doHint(){
+  if(G.over||G.won||G.paused) return;
+  var act=activeColorId();
+  var cands=aliveArrows().filter(function(a){ return a.color===act && canExit(a); });
+  if(!cands.length){ toast('No '+colorById(act).name+' arrow can escape yet'); return; }
+  var pick=cands[0];
+  for(var i=0;i<G.data.solution.length;i++){ var r=G.arrows[G.data.solution[i]]; if(r&&r.alive&&r.color===act&&canExit(r)){ pick=r; break; } }
+  G.hintsUsed++;
+  AudioSys.unlock();
+  var scene=G.scene, hg=scene.hintG;
+  var draw=function(alpha){ hg.clear(); hg.lineStyle(4,0x111827,alpha); hg.fillStyle(0x111827,alpha*0.08); pick.cells.forEach(function(c){ var p=scene.cellCenter(c); hg.fillRoundedRect(p.x-scene.cell/2+1,p.y-scene.cell/2+1,scene.cell-2,scene.cell-2,12); hg.strokeRoundedRect(p.x-scene.cell/2+1,p.y-scene.cell/2+1,scene.cell-2,scene.cell-2,12); }); };
+  var t=0; draw(0.9);
+  var iv=setInterval(function(){ t++; draw(t%2?0.25:0.9); if(t>=5){ clearInterval(iv); hg.clear(); } },260);
+  setTip('This '+colorById(act).name.toLowerCase()+' arrow can escape right now.','good');
+}
+function levelComplete(){
+  G.won=true;
+  var stars = (G.mistakes===0&&G.hintsUsed===0)?3 : (G.mistakes<=1?2:1);
+  AudioSys.win(); vibrate([30,40,30]);
+  G.scene.confetti();
+  if(G.mode==='level'){ if(!Progress.stars[G.level]||Progress.stars[G.level]<stars) Progress.stars[G.level]=stars; if(G.level>=Progress.unlocked && G.level<100) Progress.unlocked=G.level+1; }
+  else { Progress.dailyDoneSeed=dailySeed(); if(!Progress.stars['daily']||Progress.stars['daily']<stars) Progress.stars['daily']=stars; }
+  setTimeout(function(){ showWin(stars); },650);
+}
+function gameOver(){ AudioSys.over(); vibrate([60,40,60]); $('overText').textContent = G.mode==='daily' ? 'The Daily Challenge got you this time. It stays the same all day — retry and crack it.' : 'Three wrong moves on Level '+G.level+'. Check the target colour first, then the exit path.'; openModal('modalOver'); }
+</script>
+<script>
+var toastTimer=null;
+function toast(msg, cls){ var t=$('toast'); t.textContent=msg; t.className='toast show '+(cls||''); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.className='toast'; },1900); }
+function setTip(msg, cls){ var el=$('tipLine'); el.textContent=msg; el.className='tip-line '+(cls||''); }
+function showScreen(id){ ['scr-home','scr-levels','scr-how','scr-game','scr-shapes'].forEach(function(s){ $(s).classList.toggle('active', s===id); }); window.scrollTo(0,0); }
+/* ---------- SHAPE GALLERY / PREVIEW LAB ----------
+   Renders EVERY registered shape from its actual mask (buildMask at
+   grid 16) — the silhouette below is literally the set of playable
+   cells, not an icon. Tapping a tile generates a real level inside
+   that exact shape with the production generator and reports whether
+   the shape was preserved, how full it is, and whether the generated
+   puzzle validates as solvable. A shape with no template can never
+   appear here silently swapped for another: shapeById logs an error
+   and the tile is simply absent from SHAPE_DEFS. */
+function maskSvg(shape, grid, size, withDots){
+  var m=buildMask(shape, grid), cell=size/grid, out='<svg viewBox="0 0 '+size+' '+size+'" role="img" aria-label="'+shape.name+' silhouette">';
+  m.list.forEach(function(c){ out+='<rect x="'+(c.x*cell+0.5)+'" y="'+(c.y*cell+0.5)+'" width="'+(cell-1)+'" height="'+(cell-1)+'" rx="1.5" fill="#EEF1F5" stroke="#111827" stroke-width="0.6"/>'; });
+  if(withDots) m.list.forEach(function(c){ out+='<circle cx="'+((c.x+0.5)*cell)+'" cy="'+((c.y+0.5)*cell)+'" r="'+Math.max(1,cell*0.07)+'" fill="#9CA3AF"/>'; });
+  return out+'</svg>';
+}
+function renderShapeGallery(){
+  var wrap=$('shapeGallery'); wrap.innerHTML='';
+  SHAPE_DEFS.forEach(function(shape){
+    var m=buildMask(shape, 14);
+    var b=document.createElement('button'); b.className='shape-tile';
+    b.innerHTML=maskSvg(shape,14,64,false)+'<span>'+shape.name+'</span><b>'+m.list.length+' cells · tap to test</b>';
+    b.addEventListener('click',function(){ AudioSys.ensure(); AudioSys.click(); previewShape(shape); });
+    wrap.appendChild(b);
+  });
+}
+function previewShape(shape){
+  var box=$('shapePreview'); box.style.display='block';
+  var grid=14, size=420, cell=size/grid;
+  var m=buildMask(shape, grid);
+  $('spName').textContent=shape.name+' — real mask preview';
+  $('spMeta').textContent='Grid '+grid+'×'+grid+' · '+m.list.length+' valid playable cells inside the '+shape.name+' silhouette · boundary follows the mask exactly';
+  $('spResult').textContent='Generating a sample level inside this shape…';
+  $('spSvg').innerHTML=maskSvg(shape, grid, size, true);
+  box.scrollIntoView({behavior:'smooth', block:'start'});
+  setTimeout(function(){
+    var P=levelParams(30); var data=genLevel(9871+shape.id.length*131, P, shape);
+    var preserved=data && data.shapeId===shape.id;
+    var ok=preserved && validateLevel(data) && validatePathSeparation(data) && validateCenterCoverage(data);
+    var out='<svg viewBox="0 0 '+size+' '+size+'" role="img" aria-label="'+shape.name+' sample level">';
+    data.maskList.forEach(function(c){ out+='<rect x="'+(c.x*(size/data.grid)+0.5)+'" y="'+(c.y*(size/data.grid)+0.5)+'" width="'+(size/data.grid-1)+'" height="'+(size/data.grid-1)+'" rx="1.5" fill="#F7F8FA" stroke="#D9DEE7" stroke-width="0.6"/>'; });
+    var dc=size/data.grid;
+    data.arrows.forEach(function(a){
+      var wps=(a.waypoints&&a.waypoints.length>=2)?a.waypoints:pathWaypoints(a.cells);
+      var pts=wps.map(function(c){ return ((c.x+0.5)*dc)+','+((c.y+0.5)*dc); }).join(' ');
+      var col=colorById(a.color), hd=wps[wps.length-1], pv=wps[wps.length-2]||hd;
+      var ang=Math.atan2(hd.y-pv.y, hd.x-pv.x)*180/Math.PI;
+      out+='<polyline points="'+pts+'" fill="none" stroke="'+col.css+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+      out+='<path d="M0,-4 L7,0 L0,4 Z" fill="'+col.css+'" transform="translate('+((hd.x+0.5)*dc)+','+((hd.y+0.5)*dc)+') rotate('+ang+')"/>';
+    });
+    out+='</svg>';
+    $('spSvg').innerHTML=out;
+    $('spResult').innerHTML= ok ? ('<b style="color:#65A30D;">✓ Verified:</b> shape preserved as <b>'+data.shapeName+'</b> · '+data.arrows.length+' functional arrows · fill '+Math.round((data._fill||0)*100)+'% · solvable ✓ · no merged paths ✓') : ('<b style="color:#DC2626;">✗ This shape failed verification</b> (preserved: '+(preserved?'yes':'NO')+') — reported, not swapped for another shape.');
+  }, 30);
+}
+function openModal(id){ $(id).classList.add('open'); }
+function closeModal(id){ $(id).classList.remove('open'); }
+function closeAllModals(){ ['modalPause','modalSettings','modalWin','modalOver','modalUnlock'].forEach(closeModal); }
+var shownUnlocks={};
+function maybeShowUnlock(n){
+  if(G.mode!=='level') return;
+  var nc=newColorForLevel(n);
+  if(!nc || shownUnlocks[n]) return;
+  shownUnlocks[n]=true;
+  $('unlockSwatch').style.background=nc.css;
+  $('unlockName').textContent=nc.name;
+  $('unlockName').style.color=nc.css;
+  $('unlockText').textContent=nc.name+' arrows now join the maze — permanently, for every level from here on. Watch for them in the mixed target sequence.';
+  var pool=$('unlockPool'); pool.innerHTML='';
+  COLORS.slice(0, unlockedColorCount(n)).forEach(function(c){ var i=document.createElement('i'); i.style.background=c.css; if(c.id===nc.id) i.className='new'; pool.appendChild(i); });
+  AudioSys.unlock();
+  setTimeout(function(){ openModal('modalUnlock'); }, 420);
+}
+var HEART_SVG='<svg viewBox="0 0 24 24"><path d="M12 21 C5 16.5 2.5 12.6 4.2 8.9 C5.7 5.7 10 5.3 12 8.6 C14 5.3 18.3 5.7 19.8 8.9 C21.5 12.6 19 16.5 12 21Z" fill="#FF4D5E" stroke="#FF4D5E" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+function renderHearts(popLast){
+  var h=$('hearts'); h.innerHTML='';
+  for(var i=0;i<3;i++){ var d=document.createElement('span'); d.className='heart'+(i<G.lives?'':' lost'); d.innerHTML=HEART_SVG; h.appendChild(d); }
+  $('heartsNum').textContent=G.lives;
+  if(popLast){ var lost=h.children[G.lives]; if(lost){ lost.classList.add('pop'); } }
+}
+function updateHearts(pop){ renderHearts(pop); }
+function fmtTime(sec){ var m=Math.floor(sec/60), s=sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+function updateHUD(){
+  if(!G.data) return;
+  var act=colorById(activeColorId());
+  var banner=$('targetBanner'); banner.style.setProperty('--tc', act.css);
+  $('targetSwatch').style.background=act.css; $('targetSwatch').style.boxShadow='0 6px 18px '+act.css+'55';
+  $('targetName').textContent=act.name;
+  $('targetName').style.color=act.css;
+  var leftActive=aliveArrows().filter(function(a){return a.color===act.id;}).length;
+  var moveNo=Math.min(G.moveIdx+1, G.totalArrows);
+  $('targetLeft').textContent='Move '+moveNo+' of '+G.totalArrows+' · '+leftActive+' '+act.name.toLowerCase()+' arrow'+(leftActive===1?'':'s')+' on board';
+  $('statMoves').textContent=G.moves;
+  $('statLeft').textContent=aliveArrows().length+'/'+G.totalArrows;
+  $('statTime').textContent=fmtTime(G.timeSec);
+  var q=$('queueDots'); q.innerHTML='<span class="q-lab">NEXT</span>';
+  var fullSeq=G.data.moveSequence||G.data.seq;
+  var upcoming=fullSeq.slice(G.moveIdx, G.moveIdx+8);
+  for(var i=0;i<upcoming.length;i++){ var d=document.createElement('span'); d.className='q-dot'; d.style.background=colorById(upcoming[i]).css; if(i===0){ d.style.boxShadow='0 0 0 2px #111827'; d.style.transform='scale(1.3)'; } q.appendChild(d); if(i<upcoming.length-1){ var ar=document.createElement('span'); ar.style.color='var(--dim)'; ar.style.fontSize='10px'; ar.textContent='›'; q.appendChild(ar); } }
+  if(fullSeq.length-G.moveIdx>upcoming.length){ var more=document.createElement('span'); more.style.color='var(--dim)'; more.style.fontSize='11px'; more.style.fontWeight='800'; more.textContent='…'; q.appendChild(more); }
+  $('btnUndo').disabled = G.history.length===0 || G.over || G.won;
+}
+var LEVEL_TIPS={1:'Watch the banner — only the target colour moves, and it changes after every escape. Tap an arrow whose path to the shape edge is clear.',2:'Arrows point the way out. If any arrow sits in the path, it is blocked.',3:'Bent arrows still exit head-first — follow the arrowhead, not the tail.',4:'The target colour changes after every single escape — follow the NEXT dots in the banner!',5:'Use Hint if you are stuck — a solvable move always exists.'};
+function startLevel(n, mode){
+  closeAllModals();
+  G.mode=mode||'level'; G.level=n;
+  G.lives=3; G.mistakes=0; G.moves=0; G.hintsUsed=0; G.history=[]; G.over=false; G.won=false; G.paused=false; G.animating=0; G.colorIdx=0; G.moveIdx=0; G.timeSec=0;
+  var P = G.mode==='daily' ? dailyParams() : levelParams(n);
+  var seed = G.mode==='daily' ? dailySeed() : n*7919+17;
+  var shape = shapeForLevel(n, G.mode==='daily');
+  G.data=genLevel(seed, P, shape);
+  G.totalArrows=G.data.arrows.length;
+  $('hudLevel').textContent = G.mode==='daily' ? 'Daily Challenge' : 'Level '+n;
+  $('hudDiff').textContent = (G.mode==='daily' ? 'Hard · Changes Daily' : P.tier+' · '+G.data.seq.length+' Colours');
+  $('shapeName').textContent = G.data.shapeName+' Board';
+  renderHearts(false);
+  showScreen('scr-game');
+  // re-trigger board pop animation
+  var bw=$('board-wrap'); bw.style.animation='none'; void bw.offsetWidth; bw.style.animation='';
+  setTip(G.mode==='daily' ? 'Today\'s special '+G.data.shapeName.toLowerCase()+' board. Same puzzle all day — crack it in 3 hearts.' : (LEVEL_TIPS[n]||('A '+G.data.shapeName.toLowerCase()+' board, filled edge to edge! '+colorById(activeColorId()).name+' is the first target — and the target changes after every escape.')), '');
+  if(G.scene && G.scene.sys && G.scene.sys.isActive()){ G.scene.renderLevel(G.data); }
+  else { G.pendingData=G.data; }
+  updateHUD();
+  maybeShowUnlock(n);
+}
+function showWin(stars){
+  $('winTitle').textContent = G.mode==='daily' ? 'Daily Challenge Cleared!' : 'Level '+G.level+' Complete!';
+  var wh=$('winStars'); wh.innerHTML='';
+  for(var i=0;i<3;i++){ var s=document.createElement('span'); s.textContent='★'; if(i>=stars) s.className='off'; wh.appendChild(s); }
+  var last = G.mode==='level' && G.level>=100;
+  $('winText').textContent = G.mode==='daily' ? 'You beat today\'s board with '+stars+' star'+(stars===1?'':'s')+'. A fresh challenge arrives tomorrow.' : (last ? 'That was the final level — you are a CHROMA master! Replay any level to chase 3 stars.' : 'Board cleared in '+fmtTime(G.timeSec)+' with '+G.mistakes+' mistake'+(G.mistakes===1?'':'s')+(G.hintsUsed?' and '+G.hintsUsed+' hint'+(G.hintsUsed===1?'':'s'):'')+'. Onward — the boards only get denser from here!');
+  $('btnNext').style.display = (G.mode==='level' && G.level<100) ? '' : 'none';
+  openModal('modalWin');
+  refreshHomeStats();
+}
+function refreshHomeStats(){
+  $('statProgress').textContent='Level '+Math.min(Progress.unlocked,100)+(completedCount()>=100?' · Done!':'');
+  $('statStars').textContent=totalStars()+' / 300';
+  $('dailyState').textContent = Progress.dailyDoneSeed===dailySeed() ? '· ✓ done today' : '· new today';
+  $('btnPlay').innerHTML='<span>▶</span> '+(completedCount()===0?'PLAY':'PLAY · LEVEL '+Math.min(Progress.unlocked,100));
+}
+var TIERS=[
+  {from:1,to:5,label:'Beginner',range:'Levels 1–5 · Square → Triangle → Circle → Diamond → Mushroom · Green unlocks at 5',css:'#84CC16'},
+  {from:6,to:15,label:'Easy',range:'Levels 6–15 · Pentagon, Hexagon, Elephant, Heart, Cat, Star, Cross, Oval, Crescent, Horse · Orange at 10, Purple at 15',css:'#14B8A6'},
+  {from:16,to:30,label:'Normal',range:'Levels 16–30 · Ring, Lightning, Arrowhead, Spiral, Maze, Twin Circles, Hourglass, Interlock · Yellow at 20, Cyan at 25',css:'#2F7DFF'},
+  {from:31,to:50,label:'Hard',range:'Levels 31–50 · Twin Circles, Hourglass, Interlock · Pink, Teal, Magenta join',css:'#F5B921'},
+  {from:51,to:75,label:'Expert',range:'Levels 51–75 · Maze Sections, Asymmetric · Indigo, Coral, Emerald join',css:'#FF8A5C'},
+  {from:76,to:100,label:'Master',range:'Levels 76–100 · Fullest boards · Every shape returns, harder · Charcoal joins',css:'#FF4D5E'}
+];
+function renderLevels(){
+  var done=completedCount();
+  $('progText').textContent=done+' / 100 levels · '+totalStars()+' stars';
+  $('progBar').style.width=done+'%';
+  var wrap=$('lvlContainer'); wrap.innerHTML='';
+  TIERS.forEach(function(t){
+    var h=document.createElement('div'); h.className='tier-title';
+    h.innerHTML='<span class="dot" style="background:'+t.css+'"></span>'+t.label+' <span>'+t.range+'</span>';
+    wrap.appendChild(h);
+    var grid=document.createElement('div'); grid.className='lvl-grid';
+    for(var n=t.from;n<=t.to;n++){
+      (function(n){
+        var b=document.createElement('button'); b.className='lvl';
+        var locked=!ALL_LEVELS_UNLOCKED && n>Progress.unlocked;
+        var shapeName=shapeForLevel(n,false).name;
+        if(locked){ b.disabled=true; b.innerHTML='<span class="n">🔒</span><span class="shape-n">'+shapeName+'</span><span class="stars"></span>'; }
+        else{
+          var st=Progress.stars[n]||0;
+          var starsHtml=''; for(var s=0;s<3;s++) starsHtml+='<span class="'+(s<st?'':'off')+'">★</span>';
+          b.innerHTML='<span class="n">'+n+'</span><span class="shape-n">'+shapeName+'</span><span class="stars">'+starsHtml+'</span>';
+          if(n===Progress.unlocked && !Progress.stars[n]) b.classList.add('current');
+          b.addEventListener('click',function(){ AudioSys.ensure(); AudioSys.click(); startLevel(n,'level'); });
+        }
+        grid.appendChild(b);
+      })(n);
+    }
+    wrap.appendChild(grid);
+  });
+}
+function syncToggles(){
+  ['tgSound','tgSound2'].forEach(function(id){ $(id).setAttribute('aria-pressed', Settings.sound?'true':'false'); });
+  ['tgMusic','tgMusic2'].forEach(function(id){ $(id).setAttribute('aria-pressed', Settings.music?'true':'false'); });
+  ['tgVib','tgVib2'].forEach(function(id){ $(id).setAttribute('aria-pressed', Settings.vibration?'true':'false'); });
+  $('soundQuickIc').textContent=Settings.sound?'🔊':'🔇';
+  $('soundQuickTx').textContent='Sound: '+(Settings.sound?'On':'Off');
+  if(Settings.music) AudioSys.startMusic(); else AudioSys.stopMusic();
+}
+function wireToggle(id, key){ $(id).addEventListener('click',function(){ AudioSys.ensure(); Settings[key]=!Settings[key]; AudioSys.click(); syncToggles(); }); }
+['tgSound','tgSound2'].forEach(function(id){ wireToggle(id,'sound'); });
+['tgMusic','tgMusic2'].forEach(function(id){ wireToggle(id,'music'); });
+['tgVib','tgVib2'].forEach(function(id){ wireToggle(id,'vibration'); });
+function click(id, fn){ $(id).addEventListener('click',function(){ AudioSys.ensure(); AudioSys.startMusic(); fn(); }); }
+click('btnPlay', function(){ AudioSys.click(); startLevel(Math.min(Progress.unlocked,100),'level'); });
+click('btnDaily', function(){ AudioSys.click(); startLevel(0,'daily'); });
+click('btnLevels', function(){ AudioSys.click(); renderLevels(); showScreen('scr-levels'); });
+click('btnShapes', function(){ AudioSys.click(); renderShapeGallery(); showScreen('scr-shapes'); });
+click('btnShapesBack', function(){ AudioSys.click(); showScreen('scr-home'); });
+click('btnHow', function(){ AudioSys.click(); showScreen('scr-how'); });
+click('btnSettings', function(){ AudioSys.click(); syncToggles(); openModal('modalSettings'); });
+click('btnSoundQuick', function(){ Settings.sound=!Settings.sound; AudioSys.click(); syncToggles(); });
+click('btnLevelsBack', function(){ AudioSys.click(); showScreen('scr-home'); refreshHomeStats(); });
+click('btnHowBack', function(){ AudioSys.click(); showScreen('scr-home'); });
+click('btnHowPlay', function(){ AudioSys.click(); startLevel(1,'level'); });
+click('btnBackLevels', function(){ AudioSys.click(); renderLevels(); showScreen('scr-levels'); });
+click('btnPause', function(){ if(G.over||G.won) return; AudioSys.click(); G.paused=true; $('pauseSub').textContent=(G.mode==='daily'?'Daily Challenge':'Level '+G.level+' · '+G.data.shapeName+' board')+' · '+aliveArrows().length+' arrows left · '+G.lives+' hearts · '+fmtTime(G.timeSec); syncToggles(); openModal('modalPause'); });
+click('btnResume', function(){ AudioSys.click(); G.paused=false; closeModal('modalPause'); });
+click('btnPauseRestart', function(){ AudioSys.click(); G.paused=false; closeModal('modalPause'); startLevel(G.level, G.mode); });
+click('btnQuitLevels', function(){ AudioSys.click(); G.paused=false; closeModal('modalPause'); renderLevels(); showScreen('scr-levels'); });
+click('btnQuitHome', function(){ AudioSys.click(); G.paused=false; closeModal('modalPause'); showScreen('scr-home'); refreshHomeStats(); });
+click('btnSettingsClose', function(){ AudioSys.click(); closeModal('modalSettings'); });
+click('btnUndo', function(){ doUndo(); });
+click('btnHint', function(){ doHint(); });
+click('btnRestart', function(){ AudioSys.click(); startLevel(G.level, G.mode); toast('Level restarted'); });
+click('btnNext', function(){ AudioSys.click(); closeModal('modalWin'); startLevel(G.level+1,'level'); });
+click('btnWinReplay', function(){ AudioSys.click(); closeModal('modalWin'); startLevel(G.level, G.mode); });
+click('btnWinLevels', function(){ AudioSys.click(); closeModal('modalWin'); renderLevels(); showScreen('scr-levels'); });
+click('btnUnlockGo', function(){ AudioSys.click(); closeModal('modalUnlock'); });
+click('btnRetry', function(){ AudioSys.click(); closeModal('modalOver'); startLevel(G.level, G.mode); });
+click('btnOverLevels', function(){ AudioSys.click(); closeModal('modalOver'); renderLevels(); showScreen('scr-levels'); });
+document.addEventListener('keydown',function(e){
+  if(!$('scr-game').classList.contains('active')) return;
+  if(e.key==='Escape'){ if(G.paused){ G.paused=false; closeModal('modalPause'); } else if(!G.over&&!G.won){ $('btnPause').click(); } }
+  else if(e.key==='u'||e.key==='U'){ doUndo(); }
+  else if(e.key==='h'||e.key==='H'){ doHint(); }
+  else if(e.key==='r'||e.key==='R'){ if(!G.over&&!G.won) startLevel(G.level,G.mode); }
+});
+(function(){
+  var bg=$('bgArrows'), cols=['#FF4D5E','#2F7DFF','#7AC70C','#F5B921','#8B7CFF','#14B8A6'];
+  for(var i=0;i<10;i++){
+    var s=document.createElement('span'); s.textContent='➤';
+    s.style.left=(Math.random()*92)+'vw'; s.style.top=(Math.random()*92)+'vh';
+    s.style.fontSize=(26+Math.random()*54)+'px'; s.style.color=cols[i%6];
+    s.style.setProperty('--r',(Math.random()*360)+'deg');
+    s.style.animationDelay=(Math.random()*6)+'s';
+    bg.appendChild(s);
+  }
+})();
+window.addEventListener('load',function(){
+  syncToggles(); refreshHomeStats();
+  if(typeof Phaser==='undefined'){ setTip('The game engine could not load. Check your connection and reload the page.','warn'); toast('Game engine failed to load — please reload','err'); return; }
+  new Phaser.Game({ type:Phaser.AUTO, parent:'phaser-holder', width:BW, height:BW, transparent:true, scale:{ mode:Phaser.Scale.FIT, autoCenter:Phaser.Scale.CENTER_BOTH }, scene:{ create:function(){ BoardScene.create.call(this); } }, banner:false });
+});
+</script>
+</body>
+</html>
