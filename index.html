@@ -53,7 +53,15 @@
   .btn:active{transform:scale(.97);}
   .btn.primary{background:#111827; border-color:#111827; color:#fff; font-family:'Outfit'; font-weight:800; font-size:20px; letter-spacing:.5px; min-height:60px; box-shadow:0 10px 24px rgba(17,24,39,.18);}
   .btn.primary:hover{background:#1F2937;}
-  .home-foot{margin-top:22px; color:var(--dim); font-size:12.5px;}
+  .home-foot{max-width:480px; margin:18px auto 0; color:var(--dim); font-size:12.5px; line-height:1.6; overflow-wrap:break-word;}
+  .how-mini{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; max-width:440px; margin:16px auto 0;}
+  .how-mini div{border:1.5px solid var(--line); border-radius:14px; padding:10px 6px; font-size:11.5px; font-weight:600; line-height:1.3; color:var(--muted); background:#fff;}
+  .how-mini b{display:block; font-size:17px; margin-bottom:3px;}
+  .menu{max-width:440px;}
+  .menu-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
+  .menu-grid .btn{min-height:56px; font-size:14.5px; padding:10px 12px;}
+  .menu-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
+  .btn.small{min-height:48px; font-size:14.5px;}
   .home-stats{display:flex; gap:8px; justify-content:center; margin-top:18px; flex-wrap:wrap;}
   .stat-chip{background:var(--surface2); border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:13px; color:var(--muted);}
   .stat-chip b{color:var(--ink); font-family:'Space Grotesk';}
@@ -189,6 +197,10 @@
     .home-stats{margin-top:12px;}
     .stat-chip{font-size:12.5px; padding:6px 12px;}
     .menu{gap:8px; margin:18px auto 0;}
+    .how-mini{gap:6px; margin:12px auto 0;}
+    .how-mini div{font-size:11px; padding:8px 4px;}
+    .menu-grid{gap:8px;}
+    .menu-grid .btn{font-size:13.5px; min-height:52px;}
     .btn{min-height:50px; padding:11px 18px;}
     .btn.primary{min-height:56px; font-size:19px;}
     .home-foot{margin-top:16px; font-size:12px; color:#6B7280;}
@@ -237,7 +249,7 @@
         <span class="chroma"><b class="c-r">C</b><b class="c-b">H</b><b class="c-g">R</b><b class="c-y">O</b><b class="c-v">M</b><b class="c-t">A</b></span>
         <span class="sub">ARROW ESCAPE<small>THE ONE-COLOUR-RULE PUZZLE</small></span>
       </div>
-      <p class="tagline">Clear a dense maze of thin arrows — but only the <strong>target colour</strong> shown in the banner, and it changes after <strong>every single escape</strong> in a mixed, unpredictable sequence (Red → Green → Red → Blue…). You start with <strong>Red + Blue</strong> — a <strong>new colour unlocks every 5 levels</strong> (Green at 5, Orange at 10, Purple at 15, Yellow at 20, Cyan at 25…). Every level is a <strong>different shape</strong> — square, triangle, circle, diamond, mushroom, elephant, heart, cat, star, horse, lightning, spiral, maze and more — filled edge to edge with arrows, and winding arrows now travel out along their full path, turn by turn.</p>
+      <p class="tagline">Only the <strong>target colour</strong> moves. Clear the board, one colour at a time.</p>
       <div class="shape-strip" aria-hidden="true">
         <div class="shape-chip"><svg viewBox="0 0 40 40"><path d="M20 4 L36 34 H4 Z" fill="none" stroke="#111827" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 14 V26 M15 21 L20 27 L25 21" fill="none" stroke="#FF4D5E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Triangle</span></div>
         <div class="shape-chip"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#111827" stroke-width="2.4"/><path d="M13 24 C13 16 20 13 27 16" fill="none" stroke="#399BFF" stroke-width="2.4" stroke-linecap="round"/><path d="M23 12 L28 16 L22 18" fill="none" stroke="#399BFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Circle</span></div>
@@ -246,6 +258,11 @@
         <div class="shape-chip"><svg viewBox="0 0 40 40"><path d="M20 3 L24 14 L36 14 L26 22 L30 34 L20 26 L10 34 L14 22 L4 14 L16 14 Z" fill="none" stroke="#111827" stroke-width="2" stroke-linejoin="round"/><circle cx="20" cy="19" r="3.4" fill="#F5B921"/></svg><span>Star</span></div>
         <div class="shape-chip"><svg viewBox="0 0 40 40"><path d="M20 4 L34 20 L20 36 L6 20 Z" fill="none" stroke="#111827" stroke-width="2.4" stroke-linejoin="round"/><path d="M14 20 H25 M21 15 L26 20 L21 25" fill="none" stroke="#8B7CFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Diamond</span></div>
       </div>
+      <div class="how-mini">
+        <div><b>🎯</b>Tap the target colour</div>
+        <div><b>↗️</b>Follow the arrow out</div>
+        <div><b>❤️</b>3 hearts per level</div>
+      </div>
       <div class="home-stats">
         <span class="stat-chip">Progress <b id="statProgress">Level 1</b></span>
         <span class="stat-chip">Stars <b id="statStars">0 / 300</b></span>
@@ -253,14 +270,18 @@
       </div>
       <div class="menu">
         <button class="btn primary" id="btnPlay"><span>▶</span> PLAY</button>
-        <button class="btn" id="btnDaily"><span>📅</span> Daily Challenge <span class="num" id="dailyState" style="color:var(--muted); font-size:13px;"></span></button>
-        <button class="btn" id="btnLevels"><span>▦</span> Level Select</button>
-        <button class="btn" id="btnShapes"><span>⬡</span> Shape Gallery — Preview Every Silhouette</button>
-        <button class="btn" id="btnHow"><span>?</span> How to Play</button>
-        <button class="btn" id="btnSettings"><span>⚙</span> Settings</button>
-        <button class="btn" id="btnSoundQuick"><span id="soundQuickIc">🔊</span> <span id="soundQuickTx">Sound: On</span></button>
+        <div class="menu-grid">
+          <button class="btn" id="btnDaily"><span>📅</span> Daily Challenge <span class="num" id="dailyState" style="color:var(--muted); font-size:13px;"></span></button>
+          <button class="btn" id="btnLevels"><span>▦</span> Level Select</button>
+          <button class="btn" id="btnShapes"><span>⬡</span> Shape Gallery</button>
+          <button class="btn" id="btnHow"><span>?</span> How to Play</button>
+        </div>
+        <div class="menu-row">
+          <button class="btn small" id="btnSettings"><span>⚙</span> Settings</button>
+          <button class="btn small" id="btnSoundQuick"><span id="soundQuickIc">🔊</span> <span id="soundQuickTx">Sound: On</span></button>
+        </div>
       </div>
-      <p class="home-foot">100 levels · a different shape on every level, densely filled with arrows · a mixed colour sequence that changes after every move · every level is guaranteed solvable · progress is kept for this play session</p>
+      <p class="home-foot">100 levels · a new shape on every level · progress stays for this session</p>
     </div>
   </section>
 
