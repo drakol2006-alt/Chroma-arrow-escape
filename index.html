@@ -154,7 +154,7 @@
   .how-step h3{font-size:16.5px; font-weight:700; margin-bottom:3px;}
   .how-step p{color:var(--muted); font-size:14px; margin:0;}
   .kbd{background:var(--surface2); border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; padding:0 6px; font-family:'Space Grotesk'; font-size:12.5px;}
-  .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px); z-index:60; background:#111827; border:1px solid #111827; color:#fff; padding:11px 18px; border-radius:999px; font-size:14px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; max-width:92vw; text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.22);}
+  .toast{position:fixed; left:50%; top:12px; transform:translateX(-50%) translateY(-20px); z-index:60; background:#111827; border:1px solid #111827; color:#fff; padding:11px 18px; border-radius:999px; font-size:14px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; max-width:92vw; text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.22);}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
   .unlock-badge{display:inline-block; background:#111827; color:#fff; font-size:10.5px; font-weight:800; letter-spacing:2px; padding:5px 12px; border-radius:999px;}
   .unlock-swatch{width:104px; height:104px; margin:18px auto 6px; border-radius:50%; display:flex; align-items:center; justify-content:center; animation:unlockPop .7s cubic-bezier(.2,1.4,.3,1) both; box-shadow:0 14px 34px rgba(17,24,39,.18);}
@@ -174,6 +174,57 @@
   #shapePreview svg{width:100%; max-width:420px; height:auto; display:block; margin:0 auto;}
   .toast.err{background:#DC2626; border-color:#DC2626;}
   .toast.good{background:#65A30D; border-color:#65A30D;}
+  /* MOBILE (<=640px): compact everything so the game fits one phone screen */
+  @media (max-width:640px){
+    #app{padding:10px 12px calc(18px + env(safe-area-inset-bottom, 0px));}
+    /* Home: smaller logo/chips so PLAY + Daily/Levels stay near the fold */
+    .home-wrap{padding-top:2vh;}
+    .logo .chroma{font-size:clamp(38px,12vw,56px);}
+    .logo .sub{font-size:17px; letter-spacing:4px;}
+    .tagline{font-size:14px; margin:12px auto 2px;}
+    .shape-strip{gap:6px; margin:14px auto 2px; max-width:360px;}
+    .shape-chip{width:52px; padding:7px 2px 6px;}
+    .shape-chip svg{width:26px; height:26px;}
+    .shape-chip span{font-size:9px; color:#4B5563;}
+    .home-stats{margin-top:12px;}
+    .stat-chip{font-size:12.5px; padding:6px 12px;}
+    .menu{gap:8px; margin:18px auto 0;}
+    .btn{min-height:50px; padding:11px 18px;}
+    .btn.primary{min-height:56px; font-size:19px;}
+    .home-foot{margin-top:16px; font-size:12px; color:#6B7280;}
+    /* Game HUD: tighter, so board + controls fit without scrolling */
+    .hud-level .lv-name{font-size:18px;}
+    .hud-level .lv-diff{font-size:10px;}
+    .shape-badge{margin-top:7px; padding:4px 11px; font-size:11px;}
+    .stats-bar{margin:9px 0; border-radius:14px;}
+    .stat-cell{padding:7px 4px 6px;}
+    .stat-cell .s-lab{font-size:9px; letter-spacing:1px;}
+    .stat-cell .s-val{font-size:16px; min-height:22px;}
+    .heart{width:16px; height:16px;}
+    .target-banner{margin:0 0 9px; padding:9px 12px; gap:10px; border-radius:16px;}
+    .target-swatch{width:38px; height:38px; font-size:19px;}
+    .target-info .t-name{font-size:19px;}
+    .target-info .t-left{font-size:12px;}
+    .queue{gap:4px;}
+    .queue .q-dot{width:11px; height:11px;}
+    .queue .q-lab{display:none;}
+    #board-wrap{border-radius:18px;}
+    .tip-line{font-size:12.5px; margin:8px 4px 0; min-height:18px;}
+    .controls{gap:12px; margin-top:9px;}
+    .ctl{min-height:60px; padding:8px 4px; border-radius:14px;}
+    .ctl .ci{font-size:22px;}
+    .ctl .cl{font-size:11.5px;}
+    /* Level select tiles: 4 across, roomier than 5 */
+    .lvl-grid{grid-template-columns:repeat(4,1fr); gap:8px;}
+    .lvl{min-height:58px;}
+    .modal{padding:22px 18px;}
+  }
+  /* Short phones: shrink the board a touch so controls stay on screen */
+  @media (max-width:640px) and (max-height:720px){
+    #board-wrap{max-width:92%;}
+    .target-banner{padding:8px 12px;}
+    .tip-line{display:none;}
+  }
   @media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms !important; transition-duration:.01ms !important;} }
 </style>
 </head>
@@ -1637,7 +1688,7 @@ var BoardScene={
     var wps=(a.waypoints && a.waypoints.length>=2)? a.waypoints : pathWaypoints(a.cells);
     var pts=wps.map(function(c){ return scene.cellCenter(c); });
     /* Consistent THIN stroke for every arrow on the board. */
-    var thick=clamp(cell*0.07, 2.4, 4.2);
+    var thick=clamp(cell*0.11, 3.4, 7.0);
     /* CENTRE-EXACT GEOMETRY — NO ENDPOINT TRIMMING. Every drawn point is
        EXACTLY a cell centre from the shared arrow.cells data: horizontal
        segments run along the horizontal centreline of their cells,
@@ -1677,7 +1728,7 @@ var BoardScene={
     for(var ji=1; ji<line.length-1; ji++) gfx.fillCircle(line[ji].x, line[ji].y, thick/2);
     gfx.fillCircle(line[0].x, line[0].y, thick/2); /* rounded tail cap */
     /* Small, consistently proportioned arrowhead: 0.38 cell long,
-       0.155 cell half-width, identical for every arrow. Its base sits
+       0.20 cell half-width, identical for every arrow. Its base sits
        just BEHIND the head centre so the shaft (which ends exactly at
        the head centre) tucks inside the triangle with no gap, and its
        tip stops well short of the next cell centre, so it never touches
@@ -1686,7 +1737,7 @@ var BoardScene={
     var hp=scene.cellCenter(a.head);
     var tip={x:hp.x+d.x*cell*0.34, y:hp.y+d.y*cell*0.34};
     var bx=hp.x-d.x*cell*0.04, by=hp.y-d.y*cell*0.04;
-    var px=-d.y, py=d.x, w=cell*0.155;
+    var px=-d.y, py=d.x, w=cell*0.20;
     gfx.fillStyle(col.hex,1);
     gfx.fillTriangle(tip.x, tip.y, bx+px*w, by+py*w, bx-px*w, by-py*w);
   },
@@ -1706,7 +1757,7 @@ var BoardScene={
     g.clear();
     var wps=(blockerRec.waypoints && blockerRec.waypoints.length>=2)? blockerRec.waypoints : pathWaypoints(blockerRec.cells);
     var pts=wps.map(function(c){ return scene.cellCenter(c); });
-    var thick=clamp(scene.cell*0.07, 2.4, 4.2);
+    var thick=clamp(scene.cell*0.11, 3.4, 7.0);
     g.lineStyle(thick+7, 0xDC2626, 0.30);
     g.beginPath(); g.moveTo(pts[0].x, pts[0].y); for(var i=1;i<pts.length;i++) g.lineTo(pts[i].x, pts[i].y); g.strokePath();
     g.lineStyle(2.5, 0xDC2626, 0.95);
@@ -1816,7 +1867,7 @@ function drawTravellingArrow(scene, rec, track, s){
     if(!adv.length || Math.abs(p.x-adv[adv.length-1].x)>0.4 || Math.abs(p.y-adv[adv.length-1].y)>0.4) adv.push(p);
   }
   if(adv.length<2) adv.push(trackPointAt(track, track.cum[track.cum.length-2]+s));
-  var thick=clamp(cell*0.07, 2.4, 4.2);
+  var thick=clamp(cell*0.11, 3.4, 7.0);
   var gfx=rec.gfx, glow=rec.glow;
   function stroke(gr){ gr.beginPath(); gr.moveTo(adv[0].x, adv[0].y); for(var j=1;j<adv.length;j++) gr.lineTo(adv[j].x, adv[j].y); gr.strokePath(); }
   glow.clear(); glow.setVisible(true); glow.lineStyle(thick+3.5, col.hex, 0.13); stroke(glow);
@@ -1834,7 +1885,7 @@ function drawTravellingArrow(scene, rec, track, s){
   var d=trackDirAt(track, track.cum[basePts.length-1]+s), headP=adv[adv.length-1];
   var tip={x:headP.x+d.x*cell*0.34, y:headP.y+d.y*cell*0.34};
   var bx=headP.x-d.x*cell*0.04, by=headP.y-d.y*cell*0.04;
-  var px=-d.y, py=d.x, w=cell*0.155;
+  var px=-d.y, py=d.x, w=cell*0.20;
   gfx.fillTriangle(tip.x, tip.y, bx+px*w, by+py*w, bx-px*w, by-py*w);
 }
 function removeArrow(rec){
