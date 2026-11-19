@@ -1656,7 +1656,7 @@ function recordStats(starDelta, firstClear, sec){ var now=new Date(); [[Stats.we
 function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
 function yesterdayStr(){ var d=new Date(); d.setDate(d.getDate()-1); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
 function saveProgress(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({unlocked:Progress.unlocked, stars:Progress.stars, dailyDoneSeed:Progress.dailyDoneSeed, reward:Reward, stats:Stats, claims:Claims})); }catch(e){} }
-function loadProgress(){ try{ var d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(!d) return; if(d.unlocked>1) Progress.unlocked=Math.min(100, d.unlocked); if(d.stars) Progress.stars=d.stars; if(d.dailyDoneSeed) Progress.dailyDoneSeed=d.dailyDoneSeed; if(d.reward){ if(d.reward.lastClaim) Reward.lastClaim=d.reward.lastClaim; if(d.reward.streak) Reward.streak=d.reward.streak; if(d.reward.bestStreak) Reward.bestStreak=d.reward.bestStreak; if(d.reward.bonusDate) Reward.bonusDate=d.reward.bonusDate; if(d.reward.bonusHearts) Reward.bonusHearts=d.reward.bonusHearts; } if(d.stats){ if(d.stats.week) Stats.week=d.stats.week; if(d.stats.month) Stats.month=d.stats.month; } if(d.claims) Claims=d.claims; }catch(e){} }
+function loadProgress(){ try{ var d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(!d) return; if(d.unlocked>1) Progress.unlocked=Math.min(100, d.unlocked); if(d.stars) Progress.stars=d.stars; if(d.dailyDoneSeed) Progress.dailyDoneSeed=d.dailyDoneSeed; if(d.reward){ if(d.reward.lastClaim) Reward.lastClaim=d.reward.lastClaim; if(d.reward.streak) Reward.streak=d.reward.streak; if(d.reward.bestStreak) Reward.bestStreak=d.reward.bestStreak; if(d.reward.bonusDate) Reward.bonusDate=d.reward.bonusDate; if(d.reward.bonusHearts) Reward.bonusHearts=d.reward.bonusHearts; Reward.bestStreak=Math.max(Reward.bestStreak||0, Reward.streak||0); } if(d.stats){ if(d.stats.week) Stats.week=d.stats.week; if(d.stats.month) Stats.month=d.stats.month; } if(d.claims) Claims=d.claims; }catch(e){} }
 function bonusHeartsToday(){ return (Reward.bonusDate===todayStr()) ? (Reward.bonusHearts||0) : 0; }
 function claimReward(){ var t=todayStr(); if(Reward.lastClaim===t) return false; Reward.streak=(Reward.lastClaim===yesterdayStr()) ? Reward.streak+1 : 1; Reward.bestStreak=Math.max(Reward.bestStreak||0, Reward.streak); var day=((Reward.streak-1)%7)+1; Reward.bonusHearts=(day===3||day===6||day===7) ? 2 : 1; Reward.lastClaim=t; Reward.bonusDate=t; saveProgress(); return true; }
 loadProgress();
@@ -2238,7 +2238,7 @@ function renderBoard(){
    boardRow('⭐ Stars earned', w.stars) + boardRow('▦ Levels cleared', w.levels) + boardRow('⏱ Fastest clear', w.best?fmtTime(w.best):'—') +
    '<h3 style="margin:14px 0 4px;">This month</h3>' +
    boardRow('⭐ Stars earned', m.stars) + boardRow('▦ Levels cleared', m.levels) + boardRow('⏱ Fastest clear', m.best?fmtTime(m.best):'—') +
-   '<h3 style="margin:14px 0 4px;">Streak</h3>' + boardRow('🔥 Daily streak', Reward.streak+' days (best '+(Reward.bestStreak||0)+')');
+   '<h3 style="margin:14px 0 4px;">Streak</h3>' + boardRow('🔥 Daily streak', Reward.streak+(Reward.streak===1?' day':' days')+' (best '+(Reward.bestStreak||0)+')');
 }
 function renderRewards(){
   var el=$('rewardMilestones'); el.innerHTML='';
