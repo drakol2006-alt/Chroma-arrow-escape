@@ -290,7 +290,7 @@
     </div>
     <div role="status" style="background:#111827; color:#fff; border-radius:14px; padding:12px 14px; margin-bottom:18px; display:flex; gap:10px; align-items:center;">
       <span style="font-size:20px; line-height:1;" aria-hidden="true">🔓</span>
-      <span style="font-size:14px; line-height:1.35;"><b>All 100 levels unlocked for testing</b> — tap any level to play it now, no need to complete previous levels first.</span>
+      <span style="font-size:14px; line-height:1.35;"><b>Levels unlock as you play</b> — complete a level to unlock the next one. Tap your current level to play it; the levels ahead stay locked.</span>
     </div>
     <div id="lvlContainer"></div>
   </section>
@@ -1590,12 +1590,13 @@ function genLevel(seed, P0, shape){
 }
 function dailySeed(){ var d=new Date(); return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(); }
 function dailyParams(){ return {grid:12, nColors:7, arrows:40, tier:'Daily Challenge', maxTurns:5, fill:0.90, avgLen:5.0, clearHi:0.20}; }
-/* TESTING UNLOCK: all 100 levels are open for testing right now — the
-   progression lock in Level Select is disabled via this flag. Progress
-   (Progress.unlocked) still tracks how far the player has actually
-   reached, so PLAY continues from there and the "current" tile still
-   highlights, but no level is ever gated behind it while this is true. */
-var ALL_LEVELS_UNLOCKED=true;
+/* PROGRESSION LOCK: only levels up to Progress.unlocked are playable.
+   Completing a level unlocks the next one; every level ahead of the
+   player's current level is locked in Level Select. (Testing unlock was
+   ALL_LEVELS_UNLOCKED=true — turned off on 2026-11-19 at the user's
+   request, so PLAY now opens Level Select instead of jumping straight
+   into the current level.) */
+var ALL_LEVELS_UNLOCKED=false;
 var Progress={ unlocked:1, stars:{}, dailyDoneSeed:0 };
 function totalStars(){ var s=0; for(var k in Progress.stars) s+=Progress.stars[k]; return s; }
 function completedCount(){ var n=0; for(var k in Progress.stars){ if(k!=='daily') n++; } return n; }
@@ -2137,7 +2138,7 @@ function refreshHomeStats(){
   $('statProgress').textContent='Level '+Math.min(Progress.unlocked,100)+(completedCount()>=100?' · Done!':'');
   $('statStars').textContent=totalStars()+' / 300';
   $('dailyState').textContent = Progress.dailyDoneSeed===dailySeed() ? '· ✓ done today' : '· new today';
-  $('btnPlay').innerHTML='<span>▶</span> '+(completedCount()===0?'PLAY':'PLAY · LEVEL '+Math.min(Progress.unlocked,100));
+  $('btnPlay').innerHTML='<span>▶</span> PLAY';
 }
 var TIERS=[
   {from:1,to:5,label:'Beginner',range:'Levels 1–5 · Square → Triangle → Circle → Diamond → Mushroom · Green unlocks at 5',css:'#84CC16'},
@@ -2189,7 +2190,7 @@ function wireToggle(id, key){ $(id).addEventListener('click',function(){ AudioSy
 ['tgMusic','tgMusic2'].forEach(function(id){ wireToggle(id,'music'); });
 ['tgVib','tgVib2'].forEach(function(id){ wireToggle(id,'vibration'); });
 function click(id, fn){ $(id).addEventListener('click',function(){ AudioSys.ensure(); AudioSys.startMusic(); fn(); }); }
-click('btnPlay', function(){ AudioSys.click(); startLevel(Math.min(Progress.unlocked,100),'level'); });
+click('btnPlay', function(){ AudioSys.click(); renderLevels(); showScreen('scr-levels'); });
 click('btnDaily', function(){ AudioSys.click(); startLevel(0,'daily'); });
 click('btnLevels', function(){ AudioSys.click(); renderLevels(); showScreen('scr-levels'); });
 click('btnShapes', function(){ AudioSys.click(); renderShapeGallery(); showScreen('scr-shapes'); });
