@@ -58,6 +58,11 @@
   .how-mini div{border:1.5px solid var(--line); border-radius:14px; padding:10px 6px; font-size:11.5px; font-weight:600; line-height:1.3; color:var(--muted); background:#fff;}
   .how-mini b{display:block; font-size:17px; margin-bottom:3px;}
   .menu{max-width:440px;}
+  .reward-btn{width:100%; max-width:440px; margin:14px auto 0; background:#FFF7E6; border-color:#F5B921;}
+  .reward-dots{display:flex; gap:8px; justify-content:center; margin:14px 0 4px;}
+  .reward-dots i{width:36px; height:36px; border-radius:50%; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-style:normal; font-size:13px; background:var(--surface2); color:#DC2626;}
+  .reward-dots i.done{background:#FEF3C7; border-color:#F5B921;}
+  .reward-dots i.today{box-shadow:0 0 0 2px #111827;}
   .menu-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
   .menu-grid .btn{min-height:56px; font-size:14.5px; padding:10px 12px;}
   .menu-grid #btnDaily{flex-wrap:wrap; align-content:center;}
@@ -288,6 +293,7 @@
         <span class="stat-chip">Stars <b id="statStars">0 / 300</b></span>
         <span class="stat-chip">Levels <b>100</b></span>
       </div>
+      <button class="btn reward-btn" id="btnDailyReward"><span>🎁</span> Daily Reward <span class="num" id="rewardState" style="color:var(--muted); font-size:13px;"></span></button>
       <div class="menu">
         <button class="btn primary" id="btnPlay"><span>▶</span> PLAY</button>
         <div class="menu-grid">
@@ -301,7 +307,7 @@
           <button class="btn small" id="btnSoundQuick"><span id="soundQuickIc">🔊</span> <span id="soundQuickTx">Sound: On</span></button>
         </div>
       </div>
-      <p class="home-foot">100 levels · a new shape on every level · progress stays for this session</p>
+      <p class="home-foot">100 levels · a new shape on every level · progress saves on this device</p>
     </div>
   </section>
 
@@ -390,6 +396,7 @@
 
 <div class="modal-back" id="modalPause"><div class="modal"><h2>Paused</h2><p id="pauseSub">Level 1</p><button class="btn primary" id="btnResume">▶ Resume</button><button class="btn" id="btnPauseRestart">↻ Restart Level</button><div class="set-row"><div><div class="sr-t">Sound effects</div><div class="sr-d">Taps, escapes, errors</div></div><button class="toggle" id="tgSound" aria-pressed="true" aria-label="Toggle sound effects"></button></div><div class="set-row"><div><div class="sr-t">Music</div><div class="sr-d">Soft background loop</div></div><button class="toggle" id="tgMusic" aria-pressed="true" aria-label="Toggle music"></button></div><div class="set-row"><div><div class="sr-t">Vibration</div><div class="sr-d">Buzz on wrong moves (mobile)</div></div><button class="toggle" id="tgVib" aria-pressed="true" aria-label="Toggle vibration"></button></div><button class="btn" id="btnQuitLevels">▦ Level Select</button><button class="btn" id="btnQuitHome">⌂ Home</button></div></div>
 <div class="modal-back" id="modalSettings"><div class="modal"><h2>Settings</h2><p>Audio and feedback preferences.</p><div class="set-row"><div><div class="sr-t">Sound effects</div><div class="sr-d">Taps, escapes, errors</div></div><button class="toggle" id="tgSound2" aria-pressed="true" aria-label="Toggle sound effects"></button></div><div class="set-row"><div><div class="sr-t">Music</div><div class="sr-d">Soft background loop</div></div><button class="toggle" id="tgMusic2" aria-pressed="true" aria-label="Toggle music"></button></div><div class="set-row"><div><div class="sr-t">Vibration</div><div class="sr-d">Buzz on wrong moves (mobile)</div></div><button class="toggle" id="tgVib2" aria-pressed="true" aria-label="Toggle vibration"></button></div><button class="btn primary" id="btnSettingsClose">Done</button></div></div>
+<div class="modal-back" id="modalReward"><div class="modal"><h2>🎁 Daily Reward</h2><p id="rewardText">Come back every day to keep your streak alive.</p><div class="reward-dots" id="rewardDots"></div><p id="rewardSub" style="font-size:12.5px;"></p><button class="btn primary" id="btnClaimReward">Claim today's reward</button><button class="btn" id="btnRewardClose">Not now</button></div></div>
 <div class="modal-back" id="modalWin"><div class="modal"><h2 id="winTitle">Level Complete!</h2><div class="win-stars" id="winStars"></div><p id="winText">Board cleared.</p><button class="btn primary" id="btnNext">▶ Next Level</button><button class="btn" id="btnWinReplay">↻ Replay</button><button class="btn" id="btnWinLevels">▦ Level Select</button></div></div>
 <div class="modal-back" id="modalUnlock"><div class="modal"><span class="unlock-badge">NEW COLOUR UNLOCKED</span><div class="unlock-swatch" id="unlockSwatch"><svg viewBox="0 0 64 64"><path d="M14 32 H44 M34 18 L50 32 L34 46" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="unlock-name" id="unlockName">Green</div><p id="unlockText">Green arrows now join the maze — permanently, for every level from here on.</p><div class="unlock-pool" id="unlockPool"></div><p style="font-size:12px;">Your colour pool keeps growing every 5 levels.</p><button class="btn primary" id="btnUnlockGo">▶ Let's Play</button></div></div>
 <div class="modal-back" id="modalOver"><div class="modal"><h2 style="color:#DC2626;">Out of Hearts</h2><p id="overText">Three wrong moves. Watch the target colour — and check the exit path before you tap.</p><button class="btn primary" id="btnRetry">↻ Retry Level</button><button class="btn" id="btnOverLevels">▦ Level Select</button></div></div>
@@ -1624,6 +1631,20 @@ function dailyParams(){ return {grid:12, nColors:7, arrows:40, tier:'Daily Chall
    into the current level.) */
 var ALL_LEVELS_UNLOCKED=false;
 var Progress={ unlocked:1, stars:{}, dailyDoneSeed:0 };
+/* SAVE — progress persists on this device/browser via localStorage on the
+   GitHub Pages site. (The old Muse-artifact build could not use
+   localStorage, so progress was session-only; on this hosted site it
+   works. If storage is unavailable the game just falls back to
+   session-only instead of breaking.) */
+var SAVE_KEY='chroma-save-v1';
+var Reward={lastClaim:'', streak:0, bonusDate:'', bonusHearts:0};
+function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+function yesterdayStr(){ var d=new Date(); d.setDate(d.getDate()-1); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+function saveProgress(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({unlocked:Progress.unlocked, stars:Progress.stars, dailyDoneSeed:Progress.dailyDoneSeed, reward:Reward})); }catch(e){} }
+function loadProgress(){ try{ var d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(!d) return; if(d.unlocked>1) Progress.unlocked=Math.min(100, d.unlocked); if(d.stars) Progress.stars=d.stars; if(d.dailyDoneSeed) Progress.dailyDoneSeed=d.dailyDoneSeed; if(d.reward){ if(d.reward.lastClaim) Reward.lastClaim=d.reward.lastClaim; if(d.reward.streak) Reward.streak=d.reward.streak; if(d.reward.bonusDate) Reward.bonusDate=d.reward.bonusDate; if(d.reward.bonusHearts) Reward.bonusHearts=d.reward.bonusHearts; } }catch(e){} }
+function bonusHeartsToday(){ return (Reward.bonusDate===todayStr()) ? (Reward.bonusHearts||0) : 0; }
+function claimReward(){ var t=todayStr(); if(Reward.lastClaim===t) return false; Reward.streak=(Reward.lastClaim===yesterdayStr()) ? Reward.streak+1 : 1; var day=((Reward.streak-1)%7)+1; Reward.bonusHearts=(day===3||day===6||day===7) ? 2 : 1; Reward.lastClaim=t; Reward.bonusDate=t; saveProgress(); return true; }
+loadProgress();
 function totalStars(){ var s=0; for(var k in Progress.stars) s+=Progress.stars[k]; return s; }
 function completedCount(){ var n=0; for(var k in Progress.stars){ if(k!=='daily') n++; } return n; }
 var G={ mode:'level', level:1, data:null, scene:null, arrows:{}, occupied:{}, colorIdx:0, moveIdx:0, lives:3, mistakes:0, moves:0, hintsUsed:0, totalArrows:0, timeSec:0, history:[], over:false, won:false, paused:false, animating:0 };
@@ -2017,9 +2038,10 @@ function levelComplete(){
   G.scene.confetti();
   if(G.mode==='level'){ if(!Progress.stars[G.level]||Progress.stars[G.level]<stars) Progress.stars[G.level]=stars; if(G.level>=Progress.unlocked && G.level<100) Progress.unlocked=G.level+1; }
   else { Progress.dailyDoneSeed=dailySeed(); if(!Progress.stars['daily']||Progress.stars['daily']<stars) Progress.stars['daily']=stars; }
+  saveProgress();
   setTimeout(function(){ showWin(stars); },650);
 }
-function gameOver(){ AudioSys.over(); vibrate([60,40,60]); $('overText').textContent = G.mode==='daily' ? 'The Daily Challenge got you this time. It stays the same all day — retry and crack it.' : 'Three wrong moves on Level '+G.level+'. Check the target colour first, then the exit path.'; openModal('modalOver'); }
+function gameOver(){ AudioSys.over(); vibrate([60,40,60]); $('overText').textContent = G.mode==='daily' ? 'The Daily Challenge got you this time. It stays the same all day — retry and crack it.' : (G.maxLives||3)+' wrong moves on Level '+G.level+'. Check the target colour first, then the exit path.'; openModal('modalOver'); }
 </script>
 <script>
 var toastTimer=null;
@@ -2082,7 +2104,7 @@ function previewShape(shape){
 }
 function openModal(id){ $(id).classList.add('open'); }
 function closeModal(id){ $(id).classList.remove('open'); }
-function closeAllModals(){ ['modalPause','modalSettings','modalWin','modalOver','modalUnlock'].forEach(closeModal); }
+function closeAllModals(){ ['modalPause','modalSettings','modalWin','modalOver','modalUnlock','modalReward'].forEach(closeModal); }
 var shownUnlocks={};
 function maybeShowUnlock(n){
   if(G.mode!=='level') return;
@@ -2101,7 +2123,7 @@ function maybeShowUnlock(n){
 var HEART_SVG='<svg viewBox="0 0 24 24"><path d="M12 21 C5 16.5 2.5 12.6 4.2 8.9 C5.7 5.7 10 5.3 12 8.6 C14 5.3 18.3 5.7 19.8 8.9 C21.5 12.6 19 16.5 12 21Z" fill="#FF4D5E" stroke="#FF4D5E" stroke-width="1.4" stroke-linejoin="round"/></svg>';
 function renderHearts(popLast){
   var h=$('hearts'); h.innerHTML='';
-  for(var i=0;i<3;i++){ var d=document.createElement('span'); d.className='heart'+(i<G.lives?'':' lost'); d.innerHTML=HEART_SVG; h.appendChild(d); }
+  for(var i=0;i<(G.maxLives||3);i++){ var d=document.createElement('span'); d.className='heart'+(i<G.lives?'':' lost'); d.innerHTML=HEART_SVG; h.appendChild(d); }
   $('heartsNum').textContent=G.lives;
   if(popLast){ var lost=h.children[G.lives]; if(lost){ lost.classList.add('pop'); } }
 }
@@ -2131,7 +2153,7 @@ var LEVEL_TIPS={1:'Watch the banner — only the target colour moves, and it cha
 function startLevel(n, mode){
   closeAllModals();
   G.mode=mode||'level'; G.level=n;
-  G.lives=3; G.mistakes=0; G.moves=0; G.hintsUsed=0; G.history=[]; G.over=false; G.won=false; G.paused=false; G.animating=0; G.colorIdx=0; G.moveIdx=0; G.timeSec=0;
+  G.lives=3+bonusHeartsToday(); G.maxLives=G.lives; G.mistakes=0; G.moves=0; G.hintsUsed=0; G.history=[]; G.over=false; G.won=false; G.paused=false; G.animating=0; G.colorIdx=0; G.moveIdx=0; G.timeSec=0;
   var P = G.mode==='daily' ? dailyParams() : levelParams(n);
   var seed = G.mode==='daily' ? dailySeed() : n*7919+17;
   var shape = shapeForLevel(n, G.mode==='daily');
@@ -2160,7 +2182,25 @@ function showWin(stars){
   openModal('modalWin');
   refreshHomeStats();
 }
+function updateRewardUI(){
+  var el=$('rewardState'); if(!el) return;
+  var t=todayStr();
+  if(Reward.lastClaim===t){ el.textContent='· ✓ claimed · '+Reward.streak+'-day streak'; }
+  else if(Reward.streak>0){ el.textContent='· '+Reward.streak+'-day streak — tap to claim'; }
+  else { el.textContent='· tap to claim'; }
+}
+function renderRewardModal(){
+  var t=todayStr(); var claimed=(Reward.lastClaim===t);
+  var day=claimed ? ((Reward.streak-1)%7)+1 : (Reward.streak%7)+1;
+  var bonus=(day===3||day===6||day===7) ? 2 : 1;
+  $('rewardText').textContent=claimed ? ('Claimed! You have +'+Reward.bonusHearts+' extra heart'+(Reward.bonusHearts>1?'s':'')+' for today. Come back tomorrow to keep the streak going.') : ('Day '+day+' of your streak — claim +'+bonus+' extra heart'+(bonus>1?'s':'')+' for today\'s levels.');
+  var dots=$('rewardDots'); dots.innerHTML='';
+  for(var d=1;d<=7;d++){ var i=document.createElement('i'); i.textContent=(d===3||d===6||d===7)?'♥♥':'♥'; if(claimed && d<=day) i.className='done'; if(!claimed && d===day) i.className='today'; if(!claimed && d<day) i.className='done'; dots.appendChild(i); }
+  $('rewardSub').textContent='Streak: '+Reward.streak+' day'+(Reward.streak===1?'':'s')+' · Saved on this device · Miss a day and the streak restarts at Day 1.';
+  var b=$('btnClaimReward'); b.textContent=claimed ? 'Claimed ✓' : 'Claim +'+bonus+' ❤️'; b.disabled=claimed;
+}
 function refreshHomeStats(){
+  updateRewardUI();
   $('statProgress').textContent='Level '+Math.min(Progress.unlocked,100)+(completedCount()>=100?' · Done!':'');
   $('statStars').textContent=totalStars()+' / 300';
   $('dailyState').textContent = Progress.dailyDoneSeed===dailySeed() ? '· ✓ done today' : '· new today';
@@ -2224,6 +2264,9 @@ click('btnShapesBack', function(){ AudioSys.click(); showScreen('scr-home'); });
 click('btnHow', function(){ AudioSys.click(); showScreen('scr-how'); });
 click('btnSettings', function(){ AudioSys.click(); syncToggles(); openModal('modalSettings'); });
 click('btnSoundQuick', function(){ Settings.sound=!Settings.sound; AudioSys.click(); syncToggles(); });
+click('btnDailyReward', function(){ AudioSys.click(); renderRewardModal(); openModal('modalReward'); });
+click('btnClaimReward', function(){ AudioSys.click(); if(claimReward()){ renderRewardModal(); updateRewardUI(); toast('Daily reward claimed: +'+Reward.bonusHearts+' ❤️ for today!','good'); } });
+click('btnRewardClose', function(){ AudioSys.click(); closeModal('modalReward'); });
 click('btnLevelsBack', function(){ AudioSys.click(); showScreen('scr-home'); refreshHomeStats(); });
 click('btnHowBack', function(){ AudioSys.click(); showScreen('scr-home'); });
 click('btnHowPlay', function(){ AudioSys.click(); startLevel(1,'level'); });
