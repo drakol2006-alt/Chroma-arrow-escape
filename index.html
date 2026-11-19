@@ -85,6 +85,12 @@
   .reward-dots i.done{background:#FEF3C7; border-color:#F5B921;}
   .reward-dots i.today{box-shadow:0 0 0 2px #111827;}
   .lb-row{display:flex; justify-content:space-between; padding:7px 2px; border-bottom:1px solid var(--line); font-size:14px;}
+  .name-row{display:flex; gap:8px; align-items:center; margin:12px 0 4px;}
+  .name-row input{flex:1; min-width:0; min-height:44px; border:1.5px solid var(--line); border-radius:12px; padding:8px 12px; font:inherit; background:var(--surface); color:var(--ink);}
+  .board-tabs{display:flex; gap:8px; margin:10px 0 4px;}
+  .board-tabs .btn{flex:1;}
+  .board-tabs .btn.on{background:#111827; color:#fff; border-color:#111827;}
+  [data-theme="dark"] .board-tabs .btn.on{background:#F8FAFC; color:#0B1220; border-color:#F8FAFC;}
   .ms-row{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 2px; border-bottom:1px solid var(--line);}
   .ms-prize{color:#B45309; font-weight:800;}
   .menu-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
@@ -426,7 +432,13 @@
 <div class="modal-back" id="modalSettings"><div class="modal"><h2>Settings</h2><p>Audio and feedback preferences.</p><div class="set-row"><div><div class="sr-t">Sound effects</div><div class="sr-d">Taps, escapes, errors</div></div><button class="toggle" id="tgSound2" aria-pressed="true" aria-label="Toggle sound effects"></button></div><div class="set-row"><div><div class="sr-t">Music</div><div class="sr-d">Soft background loop</div></div><button class="toggle" id="tgMusic2" aria-pressed="true" aria-label="Toggle music"></button></div><div class="set-row"><div><div class="sr-t">Vibration</div><div class="sr-d">Buzz on wrong moves (mobile)</div></div><button class="toggle" id="tgVib2" aria-pressed="true" aria-label="Toggle vibration"></button></div><button class="btn primary" id="btnSettingsClose">Done</button></div></div>
 <div class="modal-back" id="modalReward"><div class="modal"><h2>🎁 Daily Reward</h2><p id="rewardText">Come back every day to keep your streak alive.</p><div class="reward-dots" id="rewardDots"></div><p id="rewardSub" style="font-size:12.5px;"></p><button class="btn primary" id="btnClaimReward">Claim today's reward</button><button class="btn" id="btnRewardClose">Not now</button></div></div>
 <div class="modal-back" id="modalRewards"><div class="modal"><h2>🏆 Rewards · up to ₹200</h2><p style="font-size:13px;">Finish a milestone, claim your code, and DM it with a screenshot to <b>@tamataruniverse</b> on Instagram. Tanishq approves every claim by hand and pays via UPI — no automatic payment, approval can take a few days.</p><div id="rewardMilestones"></div><button class="btn" id="btnRewardsClose">Close</button></div></div>
-<div class="modal-back" id="modalBoard"><div class="modal"><h2>📊 Leaderboard</h2><p style="font-size:13px;">Your boards on this device — weekly and monthly.</p><div id="boardBody"></div><p style="font-size:12.5px; color:var(--muted);">🌍 Global leaderboard — coming soon. It needs player accounts + a server, so no fake worldwide ranks are shown here.</p><button class="btn" id="btnBoardClose">Close</button></div></div>
+<div class="modal-back" id="modalBoard"><div class="modal"><h2>📊 Leaderboard</h2>
+<div class="name-row"><span>Your name</span><input id="playerNameInput" maxlength="24" placeholder="e.g. Tanishq" /><button class="btn small" id="btnSaveName">Save</button></div>
+<p id="nameHint" style="font-size:12.5px; color:var(--muted);">Set your name to appear on the global board — your score posts when you clear a level.</p>
+<div class="board-tabs"><button class="btn small on" id="boardTabWeek">🌍 This week</button><button class="btn small" id="boardTabMonth">🌍 This month</button></div>
+<div id="globalBoard"></div>
+<h3 style="margin:16px 0 4px; text-align:left;">On this device</h3><div id="boardBody"></div>
+<button class="btn" id="btnBoardClose">Close</button></div></div>
 <div class="modal-back" id="modalWin"><div class="modal"><h2 id="winTitle">Level Complete!</h2><div class="win-stars" id="winStars"></div><p id="winText">Board cleared.</p><button class="btn primary" id="btnNext">▶ Next Level</button><button class="btn" id="btnWinReplay">↻ Replay</button><button class="btn" id="btnWinLevels">▦ Level Select</button></div></div>
 <div class="modal-back" id="modalUnlock"><div class="modal"><span class="unlock-badge">NEW COLOUR UNLOCKED</span><div class="unlock-swatch" id="unlockSwatch"><svg viewBox="0 0 64 64"><path d="M14 32 H44 M34 18 L50 32 L34 46" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="unlock-name" id="unlockName">Green</div><p id="unlockText">Green arrows now join the maze — permanently, for every level from here on.</p><div class="unlock-pool" id="unlockPool"></div><p style="font-size:12px;">Your colour pool keeps growing every 5 levels.</p><button class="btn primary" id="btnUnlockGo">▶ Let's Play</button></div></div>
 <div class="modal-back" id="modalOver"><div class="modal"><h2 style="color:#DC2626;">Out of Hearts</h2><p id="overText">Three wrong moves. Watch the target colour — and check the exit path before you tap.</p><button class="btn primary" id="btnRetry">↻ Retry Level</button><button class="btn" id="btnOverLevels">▦ Level Select</button></div></div>
@@ -2086,6 +2098,7 @@ function levelComplete(){
   else { Progress.dailyDoneSeed=dailySeed(); if(!prev||prev<stars) Progress.stars['daily']=stars; }
   recordStats(Math.max(0,stars-prev), prev===0, G.timeSec);
   saveProgress();
+  submitScore(stars);
   setTimeout(function(){ showWin(stars); },650);
 }
 function checkMovesOut(){ if(!G.won && !G.over && G.moveBudget && G.moves>=G.moveBudget && aliveArrows().length>0){ G.over=true; return true; } return false; }
@@ -2279,6 +2292,42 @@ function renderRewards(){
 }
 function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); var b=$('btnTheme'); if(b) b.textContent=(t==='dark')?'☀️':'🌙'; try{ localStorage.setItem('chroma-theme', t); }catch(e){} }
 function initTheme(){ var t='light'; try{ t=localStorage.getItem('chroma-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'); }catch(e){} applyTheme(t); }
+/* GLOBAL LEADERBOARD — Supabase (free project "chroma-arrow-escape",
+   Mumbai region, account aicircusx@gmail.com). The anon key below is
+   public by design (it only allows reading scores and inserting your own
+   score, enforced by Row Level Security). Scores post only when the
+   player has set a name; one best row per player is shown. */
+var SB_URL='https://oloafqmdumuubksmbrzf.supabase.co';
+var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sb2FmcW1kdW11dWJrc21icnpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMDA0NDUsImV4cCI6MjExMDY3NjQ0NX0.xmvXmSTN3wcDZ_2dQ0a002889RMpMWD6MgPO-bPqnQQ';
+var boardTab='week'; var boardCache={};
+function playerName(){ try{ return (localStorage.getItem('chroma-player')||'').trim(); }catch(e){ return ''; } }
+function setPlayerName(n){ try{ localStorage.setItem('chroma-player', n); }catch(e){} }
+function sbHeaders(){ return {'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON,'Content-Type':'application/json'}; }
+function submitScore(stars){ if(G.mode!=='level') return; var name=playerName(); if(!name) return; var body={player_name:name.slice(0,24), level:G.level, stars:stars, time_sec:G.timeSec, moves:G.moves, mode:'level'}; fetch(SB_URL+'/rest/v1/scores',{method:'POST',headers:sbHeaders(),body:JSON.stringify(body)}).catch(function(){}); }
+function weekStartISO(){ var d=new Date(); var day=(d.getUTCDay()+6)%7; d.setUTCDate(d.getUTCDate()-day); d.setUTCHours(0,0,0,0); return d.toISOString(); }
+function monthStartISO(){ var d=new Date(); d.setUTCDate(1); d.setUTCHours(0,0,0,0); return d.toISOString(); }
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function setBoardTab(tab){ boardTab=tab; var w=$('boardTabWeek'), m=$('boardTabMonth'); if(w) w.classList.toggle('on', tab==='week'); if(m) m.classList.toggle('on', tab==='month'); fetchGlobalBoard(tab); }
+function fetchGlobalBoard(tab){
+  var el=$('globalBoard'); if(!el) return;
+  if(boardCache[tab]){ renderGlobalRows(boardCache[tab]); return; }
+  el.innerHTML='<div class="lb-row"><span>Loading the global board…</span><b>⏳</b></div>';
+  var since=tab==='week'?weekStartISO():monthStartISO();
+  fetch(SB_URL+'/rest/v1/scores?select=player_name,level,stars,time_sec,created_at&mode=eq.level&created_at=gte.'+encodeURIComponent(since)+'&order=stars.desc,level.desc,time_sec.asc&limit=50',{headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}})
+  .then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
+  .then(function(rows){ boardCache[tab]=rows; renderGlobalRows(rows); })
+  .catch(function(){ el.innerHTML='<div class="lb-row"><span>Couldn\'t load the global board — check your connection and try again.</span><b>⚠️</b></div>'; });
+}
+function renderGlobalRows(rows){
+  var el=$('globalBoard'); if(!el) return;
+  var me=playerName().toLowerCase();
+  var best={}; rows.forEach(function(r){ var k=(r.player_name||'').toLowerCase(); if(!best[k]) best[k]=r; });
+  var list=Object.keys(best).map(function(k){ return best[k]; });
+  list.sort(function(a,b){ return (b.stars-a.stars)||(b.level-a.level)||(a.time_sec-b.time_sec); });
+  list=list.slice(0,20);
+  if(!list.length){ el.innerHTML='<div class="lb-row"><span>No scores yet '+(boardTab==='week'?'this week':'this month')+' — clear a level and be the first!</span><b>🏆</b></div>'; return; }
+  el.innerHTML=list.map(function(r,i){ var isMe=me!==''&&(r.player_name||'').toLowerCase()===me; return '<div class="lb-row"'+(isMe?' style="background:var(--surface2); border-radius:8px; padding-left:8px; padding-right:8px;"':'')+'><span>'+(i+1)+'. '+escapeHtml(r.player_name)+' · Level '+r.level+' · '+fmtTime(r.time_sec)+'</span><b>'+'★'.repeat(Math.max(1,Math.min(3,r.stars||1)))+'</b></div>'; }).join('');
+}
 function refreshHomeStats(){
   updateRewardUI();
   $('statProgress').textContent='Level '+Math.min(Progress.unlocked,100)+(completedCount()>=100?' · Done!':'');
@@ -2349,7 +2398,10 @@ click('btnClaimReward', function(){ AudioSys.click(); if(claimReward()){ renderR
 click('btnRewardClose', function(){ AudioSys.click(); closeModal('modalReward'); });
 click('btnRewards', function(){ AudioSys.click(); renderRewards(); openModal('modalRewards'); });
 click('btnRewardsClose', function(){ AudioSys.click(); closeModal('modalRewards'); });
-click('btnBoard', function(){ AudioSys.click(); renderBoard(); openModal('modalBoard'); });
+click('btnBoard', function(){ AudioSys.click(); renderBoard(); var inp=$('playerNameInput'); if(inp) inp.value=playerName(); setBoardTab(boardTab); openModal('modalBoard'); });
+click('btnSaveName', function(){ AudioSys.click(); var inp=$('playerNameInput'); var n=inp?inp.value.trim():''; if(!n){ toast('Type your name first','warn'); return; } setPlayerName(n.slice(0,24)); boardCache={}; renderGlobalRows(boardCache[boardTab]||[]); fetchGlobalBoard(boardTab); toast('Name saved — your next cleared level posts to the global board','good'); });
+click('boardTabWeek', function(){ AudioSys.click(); setBoardTab('week'); });
+click('boardTabMonth', function(){ AudioSys.click(); setBoardTab('month'); });
 click('btnBoardClose', function(){ AudioSys.click(); closeModal('modalBoard'); });
 click('btnTheme', function(){ AudioSys.click(); applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); });
 click('btnLevelsBack', function(){ AudioSys.click(); showScreen('scr-home'); refreshHomeStats(); });
