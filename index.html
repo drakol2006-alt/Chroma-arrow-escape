@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
-<meta name="color-scheme" content="light" />
+<meta name="color-scheme" content="light dark" />
 <link rel="icon" href="data:," />
 <title>CHROMA: ARROW ESCAPE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script>try{var __t=localStorage.getItem('chroma-theme'); if(!__t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)__t='dark'; document.documentElement.setAttribute('data-theme',__t||'light');}catch(e){}</script>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 <style>
   :root{
@@ -18,6 +19,26 @@
     --radius:18px;
     --shadow:0 8px 30px rgba(17,24,39,.06);
   }
+  /* DARK THEME — one tap on the sun/moon button (top-right) flips the
+     whole page: variables swap, and every hard-coded white surface below
+     flips to the dark surface. Arrows keep their vivid colours. */
+  [data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#0B1220; --surface:#141D2E; --surface2:#1B2740; --line:#2A3A55; --line2:#22314A;
+    --ink:#F1F5F9; --muted:#9AA8C0; --dim:#7C8AA5;
+    --shadow:0 8px 30px rgba(0,0,0,.35);
+  }
+  [data-theme="dark"] .shape-chip, [data-theme="dark"] .how-mini div, [data-theme="dark"] .icon-btn, [data-theme="dark"] .lvl, [data-theme="dark"] .stats-bar, [data-theme="dark"] .target-banner, [data-theme="dark"] #board-wrap, [data-theme="dark"] .ctl, [data-theme="dark"] .modal, [data-theme="dark"] .how-step, [data-theme="dark"] .shape-tile, [data-theme="dark"] #shapePreview{ background:var(--surface); }
+  [data-theme="dark"] .btn.primary{ background:#F8FAFC; border-color:#F8FAFC; color:#0B1220; box-shadow:0 10px 24px rgba(0,0,0,.4); }
+  [data-theme="dark"] .btn.primary:hover{ background:#E2E8F0; }
+  [data-theme="dark"] .reward-btn{ background:#3A2E12; border-color:#B45309; }
+  [data-theme="dark"] .reward-dots i.done{ background:#3A2E12; border-color:#B45309; }
+  [data-theme="dark"] .reward-dots i.today{ box-shadow:0 0 0 2px #F1F5F9; }
+  [data-theme="dark"] .toast{ background:#F8FAFC; border-color:#F8FAFC; color:#0B1220; }
+  [data-theme="dark"] .bg-arrows span{ opacity:.09; }
+  [data-theme="dark"] .shape-badge{ border:1px solid var(--line); }
+  .theme-btn{position:fixed; top:12px; right:12px; z-index:60; width:44px; height:44px; min-height:44px; border-radius:50%; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-size:20px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); padding:0;}
+  .theme-btn:active{transform:scale(.94);}
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   body{background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; font-size:16px; line-height:1.45; min-height:100dvh; overflow-x:hidden;}
@@ -277,6 +298,7 @@
 </style>
 </head>
 <body>
+<button class="theme-btn" id="btnTheme" aria-label="Switch between light and dark theme">🌙</button>
 <div class="bg-arrows" id="bgArrows" aria-hidden="true"></div>
 <div id="app">
   <section class="screen active" id="scr-home">
@@ -2073,7 +2095,7 @@ function gameOver(reason){ AudioSys.over(); vibrate([60,40,60]); $('overText').t
 var toastTimer=null;
 function toast(msg, cls){ var t=$('toast'); t.textContent=msg; t.className='toast show '+(cls||''); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.className='toast'; },1900); }
 function setTip(msg, cls){ var el=$('tipLine'); el.textContent=msg; el.className='tip-line '+(cls||''); }
-function showScreen(id){ ['scr-home','scr-levels','scr-how','scr-game','scr-shapes'].forEach(function(s){ $(s).classList.toggle('active', s===id); }); window.scrollTo(0,0); }
+function showScreen(id){ ['scr-home','scr-levels','scr-how','scr-game','scr-shapes'].forEach(function(s){ $(s).classList.toggle('active', s===id); }); var tb=$('btnTheme'); if(tb) tb.style.display=(id==='scr-game')?'none':''; window.scrollTo(0,0); }
 /* ---------- SHAPE GALLERY / PREVIEW LAB ----------
    Renders EVERY registered shape from its actual mask (buildMask at
    grid 16) — the silhouette below is literally the set of playable
@@ -2255,6 +2277,8 @@ function renderRewards(){
     el.appendChild(row);
   });
 }
+function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); var b=$('btnTheme'); if(b) b.textContent=(t==='dark')?'☀️':'🌙'; try{ localStorage.setItem('chroma-theme', t); }catch(e){} }
+function initTheme(){ var t='light'; try{ t=localStorage.getItem('chroma-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'); }catch(e){} applyTheme(t); }
 function refreshHomeStats(){
   updateRewardUI();
   $('statProgress').textContent='Level '+Math.min(Progress.unlocked,100)+(completedCount()>=100?' · Done!':'');
@@ -2327,6 +2351,7 @@ click('btnRewards', function(){ AudioSys.click(); renderRewards(); openModal('mo
 click('btnRewardsClose', function(){ AudioSys.click(); closeModal('modalRewards'); });
 click('btnBoard', function(){ AudioSys.click(); renderBoard(); openModal('modalBoard'); });
 click('btnBoardClose', function(){ AudioSys.click(); closeModal('modalBoard'); });
+click('btnTheme', function(){ AudioSys.click(); applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); });
 click('btnLevelsBack', function(){ AudioSys.click(); showScreen('scr-home'); refreshHomeStats(); });
 click('btnHowBack', function(){ AudioSys.click(); showScreen('scr-home'); });
 click('btnHowPlay', function(){ AudioSys.click(); startLevel(1,'level'); });
@@ -2365,7 +2390,7 @@ document.addEventListener('keydown',function(e){
   }
 })();
 window.addEventListener('load',function(){
-  syncToggles(); refreshHomeStats();
+  initTheme(); syncToggles(); refreshHomeStats();
   if(typeof Phaser==='undefined'){ setTip('The game engine could not load. Check your connection and reload the page.','warn'); toast('Game engine failed to load — please reload','err'); return; }
   new Phaser.Game({ type:Phaser.AUTO, parent:'phaser-holder', width:BW, height:BW, transparent:true, scale:{ mode:Phaser.Scale.FIT, autoCenter:Phaser.Scale.CENTER_BOTH }, scene:{ create:function(){ BoardScene.create.call(this); } }, banner:false });
 });
