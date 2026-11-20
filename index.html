@@ -2394,7 +2394,7 @@ function renderLevels(){
   var wrap=$('lvlContainer'); wrap.innerHTML='';
   TIERS.forEach(function(t){
     var h=document.createElement('div'); h.className='tier-title';
-    h.innerHTML='<span class="dot" style="background:'+t.css+'"></span>'+t.label+' <span>'+t.range+'</span>';
+    h.innerHTML='<span class="dot" style="background:'+t.css+'"></span>'+t.label;
     wrap.appendChild(h);
     var grid=document.createElement('div'); grid.className='lvl-grid';
     for(var n=t.from;n<=t.to;n++){
