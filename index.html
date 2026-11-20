@@ -396,7 +396,7 @@
     <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M6 22 H20 M14 10 L26 22 L14 34" stroke="#399BFF" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,-6)"/></svg></div><div><h3>2 · The exit path must be clear</h3><p>An arrow slides out in the direction its head points, out through the edge of the shape. If <em>any</em> arrow sits in its path, it's blocked — tap a blocked arrow and the one in its way flashes red, with a ring on the exact cell where it blocks you. Bent arrows (L, U and zig-zag) still exit head-first.</p></div></div>
     <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M20 4 L36 34 H4 Z" fill="none" stroke="#111827" stroke-width="2.4" stroke-linejoin="round" transform="scale(.85) translate(3,3)"/></svg></div><div><h3>3 · A different shape on every level</h3><p>Level 1 is a square, Level 2 a triangle, Level 3 a circle, Level 4 a diamond — then the creative boards arrive fast: a mushroom at Level 5, an elephant at 8, a cat at 10, a horse at 15 and a maze at 20, mixed in with pentagon, hexagon, heart, star, cross, ring, lightning, arrowhead and spiral, so no two levels in a row ever look the same. The same shapes you meet in the Daily Challenge are all here in the levels too — nothing is daily-only. Every silhouette is packed edge to edge with thin winding arrows — the whole shape is filled, right out to its edges and tip — and the outline changes the exits and blocking paths. A new arrow colour also unlocks every 5 levels — Green at Level 5, Orange at 10, Purple at 15, Yellow at 20, Cyan at 25 — and stays in the pool forever.</p></div></div>
     <div class="how-step"><div class="hs-ic"><span style="font-size:15px; font-weight:800; letter-spacing:1px;"><span style="color:#FF4D5E;">R</span> → <span style="color:#7AC70C;">G</span> → <span style="color:#FF4D5E;">R</span> → <span style="color:#2F7DFF;">B</span></span></div><div><h3>Mixed sequence — a new target every move</h3><p>Each level hides a built-in colour sequence generated together with the board, so the puzzle is always solvable. The target changes after <b>every</b> escape — Red → Green → Red → Blue is normal, and the same colour can appear twice in a row, but it never waits for a whole colour to be finished. Watch the NEXT dots in the banner to plan ahead.</p></div></div>
-    <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M17 29 C6 21 4 14 8 9.5 C11 6.5 16 7.5 17 11 C18 7.5 23 6.5 26 9.5 C30 14 28 21 17 29Z" fill="#FF4D5E"/></svg></div><div><h3>4 · Hearts per level</h3><p>Wrong colour or blocked arrow = one heart lost. Lose all your hearts and the level ends. (A claimed Daily Reward adds bonus hearts for the day.) Within a colour, free blocked arrows by removing the ones in front first.</p></div></div>
+    <div class="how-step"><div class="hs-ic"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M17 29 C6 21 4 14 8 9.5 C11 6.5 16 7.5 17 11 C18 7.5 23 6.5 26 9.5 C30 14 28 21 17 29Z" fill="#FF4D5E"/></svg></div><div><h3>3 · Hearts per level</h3><p>Wrong colour or blocked arrow = one heart lost. Lose all your hearts and the level ends. (A claimed Daily Reward adds bonus hearts for the day.) Within a colour, free blocked arrows by removing the ones in front first.</p></div></div>
     <div class="how-step"><div class="hs-ic"><span style="font-size:26px;">⭐</span></div><div><h3>5 · Stars, target time &amp; moves</h3><p>3 stars need a perfect board — no mistakes, no hints — finished inside the target time shown next to the clock. You also have a limited move budget: every tap counts, including wrong ones. Undo gives one move back, and running out of moves ends the level.</p></div></div>
     <div class="how-step"><div class="hs-ic"><span style="font-size:26px;">💡</span></div><div><h3>Tools &amp; keys</h3><p><b>Undo</b> reverses your last escape, <b>Hint</b> highlights an arrow that can escape right now, <b>Restart</b> resets the level. On desktop: <span class="kbd">U</span> undo · <span class="kbd">H</span> hint · <span class="kbd">R</span> restart · <span class="kbd">Esc</span> pause.</p></div></div>
     <button class="btn primary" id="btnHowPlay" style="width:100%; margin-top:6px;">▶ Start Level 1</button>
@@ -417,7 +417,7 @@
       <div class="stat-cell"><div class="s-lab">HEARTS</div><div class="s-val"><span class="hearts" id="hearts" aria-label="Lives"></span><span class="num" id="heartsNum">3</span></div></div>
       <div class="stat-cell"><div class="s-lab">MOVES LEFT</div><div class="s-val num" id="statMoves">0</div></div>
       <div class="stat-cell"><div class="s-lab">LEFT</div><div class="s-val num" id="statLeft">0/0</div></div>
-      <div class="stat-cell"><div class="s-lab">TIME</div><div class="s-val num" id="statTime">00:00</div></div>
+      <div class="stat-cell"><div class="s-lab" id="statTimeLab">TIME</div><div class="s-val num" id="statTime">00:00</div></div>
     </div>
 
     <div class="target-banner" id="targetBanner">
@@ -451,7 +451,7 @@
 <div class="board-tabs"><button class="btn small on" id="boardTabWeek">Weekly</button><button class="btn small" id="boardTabMonth">Monthly</button><button class="btn small" id="boardTabAll">All-Time</button></div>
 <div id="globalBoard"></div>
 <button class="btn" id="btnBoardClose">Close</button></div></div>
-<div class="modal-back" id="modalCongrats"><div class="modal"><h2>🎉 Congratulations!</h2><div id="congratsAv" style="margin:12px 0 4px; text-align:center;"></div><div id="congratsName" style="font-size:19px; font-weight:800;"></div><div id="congratsPts" class="num" style="font-size:16px; font-weight:800; color:#B45309; margin-top:2px;"></div><p id="congratsRank" style="font-weight:800; margin:10px 0 2px;"></p><p id="congratsStars" style="font-size:13px; color:var(--muted);"></p><button class="btn primary" id="btnCongratsBoard">🏆 View Leaderboard</button><button class="btn" id="btnCongratsShare">↗ Share</button><button class="btn" id="btnCongratsHome">⌂ Home</button></div></div>
+<div class="modal-back" id="modalCongrats"><div class="modal"><h2>🎉 Congratulations!</h2><div id="congratsAv" style="margin:12px 0 4px; text-align:center;"></div><div id="congratsName" style="font-size:19px; font-weight:800;"></div><div id="congratsPts" class="num" style="font-size:16px; font-weight:800; color:#B45309; margin-top:2px;"></div><p id="congratsRank" style="font-weight:800; margin:10px 0 2px;"></p><p id="congratsStars" style="font-size:13px; color:var(--muted);"></p><button class="btn primary" id="btnCongratsNext">▶ Next Level</button><button class="btn" id="btnCongratsBoard">🏆 View Leaderboard</button><button class="btn" id="btnCongratsHome">⌂ Home</button></div></div>
 <div class="modal-back" id="modalWin"><div class="modal"><h2 id="winTitle">Level Complete!</h2><div class="win-stars" id="winStars"></div><p id="winText">Board cleared.</p><button class="btn primary" id="btnNext">▶ Next Level</button><button class="btn" id="btnWinReplay">↻ Replay</button><button class="btn" id="btnWinLevels">▦ Level Select</button></div></div>
 <div class="modal-back" id="modalUnlock"><div class="modal"><span class="unlock-badge">NEW COLOUR UNLOCKED</span><div class="unlock-swatch" id="unlockSwatch"><svg viewBox="0 0 64 64"><path d="M14 32 H44 M34 18 L50 32 L34 46" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="unlock-name" id="unlockName">Green</div><p id="unlockText">Green arrows now join the maze — permanently, for every level from here on.</p><div class="unlock-pool" id="unlockPool"></div><p style="font-size:12px;">Your colour pool keeps growing every 5 levels.</p><button class="btn primary" id="btnUnlockGo">▶ Let's Play</button></div></div>
 <div class="modal-back" id="modalOver"><div class="modal"><h2 style="color:#DC2626;">Out of Hearts</h2><p id="overText">Three wrong moves. Watch the target colour — and check the exit path before you tap.</p><button class="btn primary" id="btnRetry">↻ Retry Level</button><button class="btn" id="btnOverLevels">▦ Level Select</button></div></div>
@@ -1721,7 +1721,7 @@ function findBlocker(a){ if(!G.data) return null; var hit=firstBlockerCell(a.hea
 function canExit(a){ return !findBlocker(a); }
 setInterval(function(){
   if(!$('scr-game') || !$('scr-game').classList.contains('active')) return;
-  if(G.paused||G.over||G.won||!G.data) return;
+  if(G.paused||G.over||G.won||!G.data||!G.boardReady) return;
   G.timeSec++; $('statTime').textContent=timeText();
 },1000);
 </script>
@@ -1778,6 +1778,7 @@ var BoardScene={
     G.arrows={}; G.occupied={};
     data.arrows.forEach(function(a,idx){ scene.spawnArrow(a, idx); });
     this.refreshGlows();
+    G.boardReady=true;
   },
   spawnArrow:function(a, idx){
     var scene=this, col=colorById(a.color);
@@ -2089,10 +2090,10 @@ function doHint(){
   for(var i=0;i<G.data.solution.length;i++){ var r=G.arrows[G.data.solution[i]]; if(r&&r.alive&&r.color===act&&canExit(r)){ pick=r; break; } }
   G.hintsUsed++;
   AudioSys.unlock();
-  var scene=G.scene, hg=scene.hintG;
-  var draw=function(alpha){ hg.clear(); hg.lineStyle(4,0x111827,alpha); hg.fillStyle(0x111827,alpha*0.08); pick.cells.forEach(function(c){ var p=scene.cellCenter(c); hg.fillRoundedRect(p.x-scene.cell/2+1,p.y-scene.cell/2+1,scene.cell-2,scene.cell-2,12); hg.strokeRoundedRect(p.x-scene.cell/2+1,p.y-scene.cell/2+1,scene.cell-2,scene.cell-2,12); }); };
+  var scene=G.scene, hg=scene.hintG, col=colorById(act);
+  var draw=function(alpha){ hg.clear(); hg.lineStyle(6,col.hex,alpha); hg.fillStyle(col.hex,alpha*0.22); pick.cells.forEach(function(c){ var p=scene.cellCenter(c); hg.fillRoundedRect(p.x-scene.cell/2+1,p.y-scene.cell/2+1,scene.cell-2,scene.cell-2,12); hg.strokeRoundedRect(p.x-scene.cell/2+1,p.y-scene.cell/2+1,scene.cell-2,scene.cell-2,12); }); };
   var t=0; draw(0.9);
-  var iv=setInterval(function(){ t++; draw(t%2?0.25:0.9); if(t>=5){ clearInterval(iv); hg.clear(); } },260);
+  var iv=setInterval(function(){ t++; draw(t%2?0.3:1); if(t>=7){ clearInterval(iv); hg.clear(); } },260);
   setTip('This '+colorById(act).name.toLowerCase()+' arrow can escape right now.','good');
 }
 function levelComplete(){
@@ -2119,7 +2120,7 @@ function gameOver(reason){ AudioSys.over(); vibrate([60,40,60]); $('overText').t
 </script>
 <script>
 var toastTimer=null;
-function toast(msg, cls){ var t=$('toast'); t.textContent=msg; t.className='toast show '+(cls||''); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.className='toast'; },1900); }
+function toast(msg, cls){ var t=$('toast'); t.textContent=msg; t.className='toast show '+(cls||''); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.className='toast'; t.textContent=''; },1900); }
 function setTip(msg, cls){ var el=$('tipLine'); el.textContent=msg; el.className='tip-line '+(cls||''); }
 function showScreen(id){ ['scr-home','scr-levels','scr-how','scr-game','scr-shapes'].forEach(function(s){ $(s).classList.toggle('active', s===id); }); var tb=$('btnTheme'); if(tb) tb.style.display=(id==='scr-game')?'none':''; window.scrollTo(0,0); }
 /* ---------- SHAPE GALLERY / PREVIEW LAB ----------
@@ -2203,7 +2204,7 @@ function renderHearts(popLast){
 }
 function updateHearts(pop){ renderHearts(pop); }
 function fmtTime(sec){ var m=Math.floor(sec/60), s=sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
-function timeText(){ return G.targetTime ? fmtTime(G.timeSec)+' / '+fmtTime(G.targetTime) : fmtTime(G.timeSec); }
+function timeText(){ return fmtTime(G.timeSec); }
 function updateHUD(){
   if(!G.data) return;
   var act=colorById(activeColorId());
@@ -2217,6 +2218,7 @@ function updateHUD(){
   $('statMoves').textContent=Math.max(0,(G.moveBudget||0)-G.moves);
   $('statLeft').textContent=aliveArrows().length+'/'+G.totalArrows;
   $('statTime').textContent=timeText();
+  var tl=$('statTimeLab'); if(tl) tl.textContent = G.targetTime ? 'TIME · TARGET '+fmtTime(G.targetTime) : 'TIME';
   var q=$('queueDots'); q.innerHTML='<span class="q-lab">NEXT</span>';
   var fullSeq=G.data.moveSequence||G.data.seq;
   var upcoming=fullSeq.slice(G.moveIdx, G.moveIdx+8);
@@ -2228,7 +2230,7 @@ var LEVEL_TIPS={1:'Watch the banner — only the target colour moves, and it cha
 function startLevel(n, mode){
   closeAllModals();
   G.mode=mode||'level'; G.level=n;
-  G.lives=3+bonusHeartsToday(); G.maxLives=G.lives; G.mistakes=0; G.moves=0; G.hintsUsed=0; G.history=[]; G.over=false; G.won=false; G.paused=false; G.animating=0; G.colorIdx=0; G.moveIdx=0; G.timeSec=0;
+  G.lives=3+bonusHeartsToday(); G.maxLives=G.lives; G.mistakes=0; G.moves=0; G.hintsUsed=0; G.history=[]; G.over=false; G.won=false; G.paused=false; G.animating=0; G.colorIdx=0; G.moveIdx=0; G.timeSec=0; G.boardReady=false;
   var P = G.mode==='daily' ? dailyParams() : levelParams(n);
   var seed = G.mode==='daily' ? dailySeed() : n*7919+17;
   var shape = shapeForLevel(n, G.mode==='daily');
@@ -2361,19 +2363,14 @@ function maybeCongrats(stars){
   .catch(function(){ showWin(stars); });
 }
 function showCongrats(rank, pts, stars){
+  var nx=$('btnCongratsNext'); if(nx) nx.style.display=(G.mode==='level'&&G.level<100)?'':'none';
   G.lastCongrats={rank:rank, pts:pts, level:G.level, stars:stars};
   $('congratsAv').innerHTML=avatarHtml(playerName());
   $('congratsName').textContent=playerName();
   $('congratsPts').textContent='+ '+fmtPts(pts)+' points';
   $('congratsRank').textContent='You are #'+rank+' on the weekly leaderboard!';
-  $('congratsStars').textContent='★'.repeat(stars)+' · Level '+G.level+' cleared';
+  $('congratsStars').textContent='★'.repeat(stars)+'☆'.repeat(3-stars)+' · '+stars+' of 3 stars · Level '+G.level+' cleared';
   openModal('modalCongrats'); refreshHomeStats();
-}
-function shareScore(){
-  var c=G.lastCongrats; if(!c) return;
-  var txt='🏆 I am #'+c.rank+' on the CHROMA weekly leaderboard with '+fmtPts(c.pts)+' points! (Level '+c.level+', '+'★'.repeat(c.stars)+') Can you beat me? Play: https://drakol2006-alt.github.io/Chroma-arrow-escape/';
-  if(navigator.share){ navigator.share({title:'CHROMA: ARROW ESCAPE', text:txt}).catch(function(){}); return; }
-  var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast('Copied — paste it anywhere!','good'); }catch(e){ toast('Copy failed — long-press to copy','warn'); } document.body.removeChild(ta);
 }
 function refreshHomeStats(){
   updateRewardUI();
@@ -2450,7 +2447,7 @@ click('boardTabWeek', function(){ AudioSys.click(); setBoardTab('week'); });
 click('boardTabMonth', function(){ AudioSys.click(); setBoardTab('month'); });
 click('boardTabAll', function(){ AudioSys.click(); setBoardTab('all'); });
 click('btnCongratsBoard', function(){ AudioSys.click(); closeModal('modalCongrats'); renderBoard(); setBoardTab('week'); openModal('modalBoard'); });
-click('btnCongratsShare', function(){ AudioSys.click(); shareScore(); });
+click('btnCongratsNext', function(){ AudioSys.click(); closeModal('modalCongrats'); startLevel(G.level+1,'level'); });
 click('btnCongratsHome', function(){ AudioSys.click(); closeModal('modalCongrats'); showScreen('scr-home'); refreshHomeStats(); });
 click('btnBoardClose', function(){ AudioSys.click(); closeModal('modalBoard'); });
 click('btnEditName', function(){ AudioSys.click(); var inp=$('nameSetupInput'); if(inp) inp.value=playerName(); G.editingName=true; closeModal('modalBoard'); openModal('modalName'); });
