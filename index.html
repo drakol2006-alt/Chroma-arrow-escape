@@ -2093,6 +2093,7 @@ function doHint(){
   var t=0; draw(0.9);
   var iv=setInterval(function(){ t++; draw(t%2?0.3:1); if(t>=7){ clearInterval(iv); hg.clear(); } },260);
   setTip('This '+colorById(act).name.toLowerCase()+' arrow can escape right now.','good');
+  updateHUD();
 }
 function levelComplete(){
   G.won=true;
