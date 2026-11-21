@@ -406,6 +406,7 @@
         <div class="lv-name" id="hudLevel">Level 1</div>
         <div class="lv-diff" id="hudDiff">BEGINNER</div>
       </div>
+      <span id="stashPill" title="Bonus hearts" style="font-family:'Space Grotesk'; font-weight:700; font-size:15px; border:1.5px solid var(--line); border-radius:999px; padding:4px 10px; white-space:nowrap;">❤️ ×<b id="statBonus">0</b></span>
       <button class="icon-btn dark" id="btnPause" aria-label="Pause">Ⅱ</button>
     </div>
     <div style="text-align:center;"><span class="shape-badge"><i></i><span id="shapeName">Square Board</span></span></div>
@@ -2225,6 +2226,7 @@ function updateHUD(){
   if(fullSeq.length-G.moveIdx>upcoming.length){ var more=document.createElement('span'); more.style.color='var(--dim)'; more.style.fontSize='11px'; more.style.fontWeight='800'; more.textContent='…'; q.appendChild(more); }
   $('btnUndo').disabled = G.history.length===0 || G.over || G.won;
   var hb=$('btnHint'); if(hb){ hb.disabled = G.hintsUsed>=2 || G.over || G.won; var hcl=hb.querySelector('.cl'); if(hcl) hcl.textContent='HINT '+(2-(G.hintsUsed||0))+'/2'; }
+  updateStashUI();
 }
 var LEVEL_TIPS={1:'Watch the banner — only the target colour moves, and it changes after every escape. Tap an arrow whose path to the shape edge is clear.',2:'Arrows point the way out. If any arrow sits in the path, it is blocked.',3:'Bent arrows still exit head-first — follow the arrowhead, not the tail.',4:'The target colour changes after every single escape — follow the NEXT dots in the banner!',5:'Use one of your 2 Hints if you are stuck — a solvable move always exists.'};
 function startLevel(n, mode){
@@ -2372,7 +2374,7 @@ function showCongrats(rank, pts, stars){
   $('congratsStars').textContent='★'.repeat(stars)+'☆'.repeat(3-stars)+' · '+stars+' of 3 stars · Level '+G.level+' cleared';
   openModal('modalCongrats'); refreshHomeStats();
 }
-function updateStashUI(){ var el=$('stashCount'); if(el) el.textContent='×'+(BonusHearts||0); }
+function updateStashUI(){ var el=$('stashCount'); if(el) el.textContent='×'+(BonusHearts||0); var sb=$('statBonus'); if(sb) sb.textContent=BonusHearts||0; }
 function refreshHomeStats(){
   updateRewardUI(); updateStashUI();
   $('statProgress').textContent='Level '+Math.min(Progress.unlocked,100)+(completedCount()>=100?' · Done!':'');
