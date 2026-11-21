@@ -2189,6 +2189,7 @@ function maybeShowUnlock(n){
   var pool=$('unlockPool'); pool.innerHTML='';
   COLORS.slice(0, unlockedColorCount(n)).forEach(function(c){ var i=document.createElement('i'); i.style.background=c.css; if(c.id===nc.id) i.className='new'; pool.appendChild(i); });
   AudioSys.unlock();
+  G.paused=true;
   setTimeout(function(){ openModal('modalUnlock'); }, 420);
 }
 var HEART_SVG='<svg viewBox="0 0 24 24"><path d="M12 21 C5 16.5 2.5 12.6 4.2 8.9 C5.7 5.7 10 5.3 12 8.6 C14 5.3 18.3 5.7 19.8 8.9 C21.5 12.6 19 16.5 12 21Z" fill="#FF4D5E" stroke="#FF4D5E" stroke-width="1.4" stroke-linejoin="round"/></svg>';
@@ -2468,7 +2469,7 @@ click('btnRestart', function(){ AudioSys.click(); startLevel(G.level, G.mode); t
 click('btnNext', function(){ AudioSys.click(); closeModal('modalWin'); startLevel(G.level+1,'level'); });
 click('btnWinReplay', function(){ AudioSys.click(); closeModal('modalWin'); startLevel(G.level, G.mode); });
 click('btnWinLevels', function(){ AudioSys.click(); closeModal('modalWin'); renderLevels(); showScreen('scr-levels'); });
-click('btnUnlockGo', function(){ AudioSys.click(); closeModal('modalUnlock'); });
+click('btnUnlockGo', function(){ AudioSys.click(); G.paused=false; closeModal('modalUnlock'); });
 click('btnUseBonusHeart', function(){ if((BonusHearts||0)<=0) return; AudioSys.click(); BonusHearts--; G.lives=0; G.over=false; saveProgress(); updateStashUI(); closeModal('modalOver'); renderHearts(false); updateHUD(); toast('Bonus heart used — hearts stay at 0. One more mistake ends the level!','good'); });
 click('btnRetry', function(){ AudioSys.click(); closeModal('modalOver'); startLevel(G.level, G.mode); });
 click('btnOverLevels', function(){ AudioSys.click(); closeModal('modalOver'); renderLevels(); showScreen('scr-levels'); });
@@ -2477,7 +2478,7 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){ if(G.paused){ G.paused=false; closeModal('modalPause'); } else if(!G.over&&!G.won){ $('btnPause').click(); } }
   else if(e.key==='u'||e.key==='U'){ doUndo(); }
   else if(e.key==='h'||e.key==='H'){ doHint(); }
-  else if(e.key==='r'||e.key==='R'){ if(!G.over&&!G.won) startLevel(G.level,G.mode); }
+  else if(e.key==='r'||e.key==='R'){ if(!G.over&&!G.won&&!G.paused) startLevel(G.level,G.mode); }
 });
 (function(){
   var bg=$('bgArrows'), cols=['#FF4D5E','#2F7DFF','#7AC70C','#F5B921','#8B7CFF','#14B8A6'];
