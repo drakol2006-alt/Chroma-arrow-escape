@@ -327,11 +327,7 @@
         <span class="sub">ARROW ESCAPE<small>THE ONE-COLOUR-RULE PUZZLE</small></span>
       </div>
       <p class="tagline">Only the <strong>target colour</strong> moves. Clear the board, one colour at a time.</p>
-      <div class="how-mini">
-        <div><b>🎯</b>Tap the target colour</div>
-        <div><b>↗️</b>Follow the arrow out</div>
-        <div><b>❤️</b>3 hearts per level</div>
-      </div>
+      <div style="text-align:center; margin:16px auto 0;"><span class="stat-chip" style="font-size:15px; padding:9px 18px;">❤️ Bonus Hearts <b id="stashTopCount" class="num">×0</b></span></div>
       <div class="home-stats">
         <span class="stat-chip">Progress <b id="statProgress">Level 1</b></span>
         <span class="stat-chip">Stars <b id="statStars">0 / 300</b></span>
@@ -2374,7 +2370,7 @@ function showCongrats(rank, pts, stars){
   $('congratsStars').textContent='★'.repeat(stars)+'☆'.repeat(3-stars)+' · '+stars+' of 3 stars · Level '+G.level+' cleared';
   openModal('modalCongrats'); refreshHomeStats();
 }
-function updateStashUI(){ var el=$('stashCount'); if(el) el.textContent='×'+(BonusHearts||0); var sb=$('statBonus'); if(sb) sb.textContent=BonusHearts||0; }
+function updateStashUI(){ var el=$('stashCount'); if(el) el.textContent='×'+(BonusHearts||0); var sb=$('statBonus'); if(sb) sb.textContent=BonusHearts||0; var st=$('stashTopCount'); if(st) st.textContent='×'+(BonusHearts||0); }
 function refreshHomeStats(){
   updateRewardUI(); updateStashUI();
   $('statProgress').textContent='Level '+Math.min(Progress.unlocked,100)+(completedCount()>=100?' · Done!':'');
