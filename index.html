@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
 <meta name="color-scheme" content="light dark" />
 <link rel="icon" href="data:," />
-<title>CHROMA: ARROW ESCAPE</title>
+<title>TINT ARROW</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -323,9 +323,9 @@
   <section class="screen active" id="scr-home">
     <div class="home-wrap">
       <div style="text-align:center; margin-bottom:10px;"><span class="stat-chip" style="font-size:15px; padding:7px 16px;">❤️ Reward Heart <b id="stashTopCount" class="num">×0</b></span></div>
-      <div class="logo" role="img" aria-label="CHROMA: Arrow Escape">
-        <span class="chroma"><b class="c-r">C</b><b class="c-b">H</b><b class="c-g">R</b><b class="c-y">O</b><b class="c-v">M</b><b class="c-t">A</b></span>
-        <span class="sub">ARROW ESCAPE<small>THE ONE-COLOUR-RULE PUZZLE</small></span>
+      <div class="logo" role="img" aria-label="TINT ARROW">
+        <span class="chroma"><b class="c-r">T</b><b class="c-b">I</b><b class="c-g">N</b><b class="c-y">T</b></span>
+        <span class="sub">ARROW<small>THE ONE-COLOUR-RULE PUZZLE</small></span>
       </div>
       <p class="tagline">Only the <strong>target colour</strong> moves. Clear the board, one colour at a time.</p>
       <div class="home-stats">
@@ -439,7 +439,7 @@
 <div class="modal-back" id="modalSettings"><div class="modal"><h2>Settings</h2><p>Audio and feedback preferences.</p><div class="set-row"><div><div class="sr-t">Sound effects</div><div class="sr-d">Taps, escapes, errors</div></div><button class="toggle" id="tgSound2" aria-pressed="true" aria-label="Toggle sound effects"></button></div><div class="set-row"><div><div class="sr-t">Music</div><div class="sr-d">Soft background loop</div></div><button class="toggle" id="tgMusic2" aria-pressed="true" aria-label="Toggle music"></button></div><div class="set-row"><div><div class="sr-t">Vibration</div><div class="sr-d">Buzz on wrong moves (mobile)</div></div><button class="toggle" id="tgVib2" aria-pressed="true" aria-label="Toggle vibration"></button></div><button class="btn primary" id="btnSettingsClose">Done</button></div></div>
 <div class="modal-back" id="modalReward"><div class="modal"><h2>🎁 Daily Reward</h2><p id="rewardText">Come back every day to keep your streak alive.</p><div class="reward-dots" id="rewardDots"></div><p id="rewardSub" style="font-size:12.5px;"></p><button class="btn primary" id="btnClaimReward">Claim today's reward</button><button class="btn" id="btnRewardClose">Not now</button></div></div>
 <div class="modal-back" id="modalRewards"><div class="modal"><h2>🏆 Rewards · up to ₹200</h2><p style="font-size:13px;">Finish a milestone, claim your code, and DM it with a screenshot to <b>@tamataruniverse</b> on Instagram. Tanishq approves every claim by hand and pays via UPI — no automatic payment, approval can take a few days.</p><div id="rewardMilestones"></div><button class="btn" id="btnRewardsClose">Close</button></div></div>
-<div class="modal-back" id="modalName"><div class="modal"><h2>👋 Welcome to CHROMA!</h2><p>Apna game name likho — yahi naam leaderboard pe dikhega, aur tumhare scores isi naam se save honge.</p><input id="nameSetupInput" maxlength="24" placeholder="e.g. Tanishq" style="width:100%; min-height:48px; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font:inherit; background:var(--surface); color:var(--ink); margin:10px 0;" /><button class="btn primary" id="btnStartPlaying">▶ Start Playing</button></div></div>
+<div class="modal-back" id="modalName"><div class="modal"><h2>👋 Welcome to TINT ARROW!</h2><p>Apna game name likho — yahi naam leaderboard pe dikhega, aur tumhare scores isi naam se save honge.</p><input id="nameSetupInput" maxlength="24" placeholder="e.g. Tanishq" style="width:100%; min-height:48px; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font:inherit; background:var(--surface); color:var(--ink); margin:10px 0;" /><button class="btn primary" id="btnStartPlaying">▶ Start Playing</button></div></div>
 <div class="modal-back" id="modalBoard"><div class="modal"><h2>📊 Leaderboard</h2>
 <p style="font-size:13.5px; color:var(--muted); margin:6px 0 0;">Playing as <b id="playingAsName" style="color:var(--ink);"></b> · <span id="btnEditName" style="color:var(--accent); cursor:pointer; text-decoration:underline;">change</span></p>
 <div class="board-tabs"><button class="btn small on" id="boardTabWeek">Weekly</button><button class="btn small" id="boardTabMonth">Monthly</button><button class="btn small" id="boardTabAll">All-Time</button></div>
@@ -2257,7 +2257,7 @@ function showWin(stars){
   var wh=$('winStars'); wh.innerHTML='';
   for(var i=0;i<3;i++){ var s=document.createElement('span'); s.textContent='★'; if(i>=stars) s.className='off'; wh.appendChild(s); }
   var last = G.mode==='level' && G.level>=100;
-  $('winText').textContent = G.mode==='daily' ? 'You beat today\'s board in '+fmtTime(G.timeSec)+' (target '+fmtTime(G.targetTime)+') with '+stars+' star'+(stars===1?'':'s')+'. A fresh challenge arrives tomorrow.' : (last ? 'That was the final level — you are a CHROMA master! Replay any level to chase 3 stars.' : 'Board cleared in '+fmtTime(G.timeSec)+' (target '+fmtTime(G.targetTime)+') · '+G.moves+' moves · '+G.mistakes+' mistake'+(G.mistakes===1?'':'s')+(G.hintsUsed?' and '+G.hintsUsed+' hint'+(G.hintsUsed===1?'':'s'):'')+'. Onward — the boards only get denser from here!');
+  $('winText').textContent = G.mode==='daily' ? 'You beat today\'s board in '+fmtTime(G.timeSec)+' (target '+fmtTime(G.targetTime)+') with '+stars+' star'+(stars===1?'':'s')+'. A fresh challenge arrives tomorrow.' : (last ? 'That was the final level — you are a TINT ARROW master! Replay any level to chase 3 stars.' : 'Board cleared in '+fmtTime(G.timeSec)+' (target '+fmtTime(G.targetTime)+') · '+G.moves+' moves · '+G.mistakes+' mistake'+(G.mistakes===1?'':'s')+(G.hintsUsed?' and '+G.hintsUsed+' hint'+(G.hintsUsed===1?'':'s'):'')+'. Onward — the boards only get denser from here!');
   $('btnNext').style.display = (G.mode==='level' && G.level<100) ? '' : 'none';
   openModal('modalWin');
   refreshHomeStats();
@@ -2293,7 +2293,7 @@ function renderRewards(){
     var row=document.createElement('div'); row.className='ms-row';
     var st = c ? ('Claimed ✓ · Code <b>'+c.code+'</b> · Pending approval') : (x.done ? 'Eligible — tap Claim' : 'Locked · '+x.hint);
     row.innerHTML='<div><b>'+x.icon+' '+x.title+'</b> <span class="ms-prize">'+x.prize+'</span><div style="font-size:12.5px; color:var(--muted);">'+st+'</div></div>';
-    if(x.done && !c){ var b=document.createElement('button'); b.className='btn small'; b.textContent='Claim'; b.onclick=function(){ var code='CHROMA-'+Math.random().toString(36).slice(2,8).toUpperCase(); Claims[x.id]={code:code, date:todayStr(), status:'pending'}; saveProgress(); renderRewards(); toast('Claim code '+code+' — DM it to @tamataruniverse','good'); }; row.appendChild(b); }
+    if(x.done && !c){ var b=document.createElement('button'); b.className='btn small'; b.textContent='Claim'; b.onclick=function(){ var code='TINT-'+Math.random().toString(36).slice(2,8).toUpperCase(); Claims[x.id]={code:code, date:todayStr(), status:'pending'}; saveProgress(); renderRewards(); toast('Claim code '+code+' — DM it to @tamataruniverse','good'); }; row.appendChild(b); }
     el.appendChild(row);
   });
 }
